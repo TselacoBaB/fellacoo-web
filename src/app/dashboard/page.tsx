@@ -469,6 +469,7 @@ function WebsiteCard({
             <Link href={"/builder/" + id}>Edit</Link>
             {isPublished && liveUrl && <a href={liveUrl} target="_blank" rel="noreferrer">Live ↗</a>}
             <Link href="/websites/domains">Domain</Link>
+            <Link href={"/websites/versions?site=" + encodeURIComponent(id)}>Versions</Link>
             <button type="button" onClick={() => void manageProject("duplicate")} disabled={projectAction === id + ":duplicate"}>
               {projectAction === id + ":duplicate" ? "Copying…" : "Duplicate"}
             </button>
