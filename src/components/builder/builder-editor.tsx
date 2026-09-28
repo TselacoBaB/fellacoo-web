@@ -483,14 +483,37 @@ function SitePanel({document,page,updateSite,updateTheme,updateThemeColors,updat
   const color=(label:string,key:keyof BuilderTheme["colors"])=> <label className="property-color-field"><span>{label}</span><div><input type="color" value={theme.colors[key]} onChange={e=>updateThemeColors({[key]:e.target.value})}/><input value={theme.colors[key]} onChange={e=>updateThemeColors({[key]:e.target.value})}/></div></label>;
   return <div className="properties-body">
     <div className="selected-component"><span><Globe2 size={14}/></span><div><small>GLOBAL DESIGN</small><strong>Brand Kit</strong></div></div>
-    <details className="property-section property-section-collapsible" open><summary>Brand</summary>{text("Brand name",document.site.brandName,v=>updateSite({brandName:v})){text("Tagline",document.site.tagline,v=>updateSite({tagline:v}))}</details>
-    <details className="property-section property-section-collapsible" open><summary>Colors</summary>{color("Primary","primary")}{color("Secondary","secondary")}{color("Accent","accent")}{color("Text","text")}{color("Muted","muted")}{color("Background","background")}{color("Surface","surface")}</details>
-    <details className="property-section property-section-collapsible"><summary>Typography</summary>{text("Heading font",theme.typography.headingFont,v=>updateThemeTypography({headingFont:v})){text("Body font",theme.typography.bodyFont,v=>updateThemeTypography({bodyFont:v})){text("Heading weight",theme.typography.headingWeight,v=>updateThemeTypography({headingWeight:v})){text("Body weight",theme.typography.bodyWeight,v=>updateThemeTypography({bodyWeight:v}))}</details>
-    <details className="property-section property-section-collapsible"><summary>Site layout</summary>{text("Container width",theme.containerWidth,v=>updateTheme({containerWidth:v})){text("Radius",theme.radius,v=>updateTheme({radius:v}))}<label className="property-field"><span>Button style</span><select value={theme.buttonStyle} onChange={e=>updateTheme({buttonStyle:e.target.value as BuilderTheme["buttonStyle"]})}><option value="solid">Solid</option><option value="soft">Soft</option><option value="outline">Outline</option><option value="pill">Pill</option></select></label></details>
-    <details className="property-section property-section-collapsible" open><summary>Page · {page.title}</summary>{text("Page title",page.title,v=>updatePage({title:v})){text("URL path",page.path,v=>updatePage({path:v.startsWith("/")?v:"/"+v})){text("SEO title",page.seo?.title??"",v=>updatePage({seo:{...(page.seo??{}),title:v}})){text("SEO description",page.seo?.description??"",v=>updatePage({seo:{...(page.seo??{}),description:v}}))}</details>
+    <details className="property-section property-section-collapsible" open>
+      <summary>Brand</summary>
+      {text("Brand name",document.site.brandName,v=>updateSite({brandName:v}))}
+      {text("Tagline",document.site.tagline,v=>updateSite({tagline:v}))}
+    </details>
+    <details className="property-section property-section-collapsible" open>
+      <summary>Colors</summary>
+      {color("Primary","primary")}{color("Secondary","secondary")}{color("Accent","accent")}{color("Text","text")}{color("Muted","muted")}{color("Background","background")}{color("Surface","surface")}
+    </details>
+    <details className="property-section property-section-collapsible">
+      <summary>Typography</summary>
+      {text("Heading font",theme.typography.headingFont,v=>updateThemeTypography({headingFont:v}))}
+      {text("Body font",theme.typography.bodyFont,v=>updateThemeTypography({bodyFont:v}))}
+      {text("Heading weight",theme.typography.headingWeight,v=>updateThemeTypography({headingWeight:v}))}
+      {text("Body weight",theme.typography.bodyWeight,v=>updateThemeTypography({bodyWeight:v}))}
+    </details>
+    <details className="property-section property-section-collapsible">
+      <summary>Site layout</summary>
+      {text("Container width",theme.containerWidth,v=>updateTheme({containerWidth:v}))}
+      {text("Radius",theme.radius,v=>updateTheme({radius:v}))}
+      <label className="property-field"><span>Button style</span><select value={theme.buttonStyle} onChange={e=>updateTheme({buttonStyle:e.target.value as BuilderTheme["buttonStyle"]})}><option value="solid">Solid</option><option value="soft">Soft</option><option value="outline">Outline</option><option value="pill">Pill</option></select></label>
+    </details>
+    <details className="property-section property-section-collapsible" open>
+      <summary>Page · {page.title}</summary>
+      {text("Page title",page.title,v=>updatePage({title:v}))}
+      {text("URL path",page.path,v=>updatePage({path:v.startsWith("/")?v:"/"+v}))}
+      {text("SEO title",page.seo?.title??"",v=>updatePage({seo:{...(page.seo??{}),title:v}}))}
+      {text("SEO description",page.seo?.description??"",v=>updatePage({seo:{...(page.seo??{}),description:v}}))}
+    </details>
   </div>;
 }
-
 function PageManager({pages,active,onSelect,onAdd,onDuplicate,onRemove}:{pages:BuilderPage[];active:number;onSelect:(i:number)=>void;onAdd:()=>void;onDuplicate:(i:number)=>void;onRemove:(i:number)=>void}){
   return <div className="builder-pages-panel">
     <button className="builder-add-page" onClick={onAdd}><FilePlus2 size={15}/>New page</button>
