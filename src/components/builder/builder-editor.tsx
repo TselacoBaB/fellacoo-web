@@ -61,6 +61,9 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
   const [remoteEnabled, setRemoteEnabled] = useState(false);
   const [buildRequestId, setBuildRequestId] = useState<string | null>(projectId ?? null);
   const [projectName, setProjectName] = useState("Untitled Website");
+  const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
+  const [publishState, setPublishState] = useState<"idle" | "publishing" | "published" | "error">("idle");
+  const [publishMessage, setPublishMessage] = useState("");
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
@@ -78,7 +81,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
 
         if (response.ok) {
           const payload = await response.json() as {
-            draft?: { id: string; document: BuilderDocument | null; businessName?: string | null } | null;
+            draft?: { id: string; document: BuilderDocument | null; businessName?: string | null; publishedUrl?: string | null } | null;
           };
 
           if (projectId) {
@@ -86,6 +89,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
               resetDocument(payload.draft.document);
               setProjectName(payload.draft.businessName?.trim() || "Untitled Website");
               setBuildRequestId(payload.draft.id);
+              setPublishedUrl(payload.draft.publishedUrl ?? null);
               window.localStorage.setItem(storageKey, JSON.stringify(payload.draft.document));
               window.localStorage.setItem(storageKey + ":build-request-id", payload.draft.id);
             } else {
@@ -193,7 +197,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
   const page = document.pages[0];
   const selected = page.elements.find((element) => element.id === selectedId) ?? null;
 
-  async function saveDraft() {
+  async function saveDraft(): Promise<string | null> {
     setSyncStatus("saving");
 
     try {
@@ -205,7 +209,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
 
     if (!remoteEnabled) {
       setSyncStatus("local");
-      return;
+      return null;
     }
 
     try {
@@ -223,7 +227,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
 
       if (!response.ok) {
         setSyncStatus(response.status === 401 || response.status === 403 ? "local" : "error");
-        return;
+        return null;
       }
 
       const payload = await response.json() as { buildRequestId?: string };
@@ -237,10 +241,47 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
       }
       setSaved(true);
       setSyncStatus("synced");
+      return payload.buildRequestId ?? buildRequestId;
     } catch {
       setSyncStatus("local");
+      return null;
     }
   }
+
+  async function publishCurrentWebsite() {
+    setPublishState("publishing");
+    setPublishMessage("");
+
+    try {
+      const id = buildRequestId ?? await saveDraft();
+      if (!id) {
+        setPublishState("error");
+        setPublishMessage("Save the website to Fellacoo before publishing.");
+        return;
+      }
+
+      const response = await fetch("/api/builder/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ buildRequestId: id })
+      });
+      const payload = await response.json() as { url?: string; error?: string };
+
+      if (!response.ok) {
+        setPublishState("error");
+        setPublishMessage(payload.error || "Publishing failed.");
+        return;
+      }
+
+      setPublishedUrl(payload.url ?? null);
+      setPublishState("published");
+      setPublishMessage(payload.url ? "Your website is live." : "Website published.");
+    } catch {
+      setPublishState("error");
+      setPublishMessage("Publishing failed. Please try again.");
+    }
+  }
+
   const visibleLibrary = useMemo(
     () => library.filter((item) => libraryFilter === "All" || item.category === libraryFilter),
     [libraryFilter]
@@ -359,7 +400,13 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
     aria-label="Website name"
     title="Website name"
   />
-  <small>{saved ? syncStatus === "synced" ? "Synced with Supabase" : "Saved locally" : "Saving…"}</small>
+  <small>
+    {publishState === "published" && publishedUrl
+      ? <a href={publishedUrl} target="_blank" rel="noreferrer" className="builder-live-link">Live website ↗</a>
+      : saved
+        ? syncStatus === "synced" ? "Synced with Supabase" : "Saved locally"
+        : "Saving…"}
+  </small>
 </div>
         </div>
 
@@ -372,9 +419,19 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
         <div className="builder-top-actions">
           <button className="builder-save" onClick={saveDraft} disabled={syncStatus === "saving"} title="Save the current draft to local storage and Supabase when connected"><Save size={15}/>{syncStatus === "saving" ? "Saving" : saved ? syncStatus === "synced" ? "Synced" : "Saved" : "Save"}</button>
           <button className="builder-preview" onClick={() => setPreviewOpen(true)}><Eye size={16}/>Preview</button>
-          <button className="builder-publish">Publish</button>
+          <button className="builder-publish" onClick={publishCurrentWebsite} disabled={publishState === "publishing"}>
+            {publishState === "publishing" ? "Publishing…" : publishState === "published" ? "Published" : "Publish"}
+          </button>
         </div>
       </header>
+
+      {publishMessage && (
+        <div className={"builder-publish-toast " + (publishState === "error" ? "is-error" : "")}>
+          <span>{publishMessage}</span>
+          {publishedUrl && <a href={publishedUrl} target="_blank" rel="noreferrer">Open live site ↗</a>}
+          <button onClick={() => setPublishMessage("")} aria-label="Dismiss">×</button>
+        </div>
+      )}
 
       <div className="builder-workspace">
         {leftOpen && <aside className={"builder-left " + (leftOpen ? "is-open" : "")}>
