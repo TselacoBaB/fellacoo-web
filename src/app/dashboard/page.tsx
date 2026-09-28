@@ -1,33 +1,79 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import {
   Activity, BarChart3, Bell, BookOpen, Box, BriefcaseBusiness, Calculator,
   CalendarDays, ChevronDown, ChevronRight, CircleHelp, CreditCard, FileImage,
-  FileText, Globe2, Home, LayoutTemplate, Link2, Menu, MoreVertical, Package,
-  PanelTop, Plus, Receipt, Search, Settings, ShoppingCart, Store, Users, X, Zap
+  FileText, Globe2, Home, LayoutTemplate, Menu, MoreVertical, Package,
+  PanelTop, Palette, Plus, Receipt, Search, Settings, ShoppingCart, Sparkles,
+  Store, Users, X, Zap
 } from "lucide-react";
 import { useAppState, type WebsiteFilter } from "@/lib/state/app-store";
 import { DashboardCard, CardHeader, ToolCard } from "@/components/dashboard/primitives";
 
-const nav = [
-  { label: "Dashboard", icon: Home },
-  { label: "Create Website", icon: Plus, href: "/builder/new/site", primary: true },
-  { label: "My Websites", icon: LayoutTemplate },
-  { label: "Templates", icon: Box },
-  { label: "Components", icon: PanelTop },
-  { label: "Brand Kit", icon: BookOpen },
-  { label: "Media Library", icon: FileImage },
-  { label: "Store", icon: Store },
-  { label: "CRM", icon: BriefcaseBusiness },
-  { label: "Bookings", icon: CalendarDays },
-  { label: "Leads", icon: Users },
-  { label: "Accounting", icon: Calculator },
-  { label: "Invoices", icon: Receipt },
-  { label: "Payments", icon: CreditCard },
-  { label: "Domains", icon: Globe2 },
-  { label: "Analytics", icon: BarChart3 },
-  { label: "Settings", icon: Settings }
+type NavItem = {
+  label: string;
+  icon: typeof Home;
+  href?: string;
+  primary?: boolean;
+};
+
+type NavGroup = {
+  label: string;
+  icon: typeof Home;
+  items: NavItem[];
+};
+
+const navGroups: NavGroup[] = [
+  {
+    label: "Websites",
+    icon: LayoutTemplate,
+    items: [
+      { label: "My Websites", icon: LayoutTemplate, href: "/dashboard" },
+      { label: "Templates", icon: Box, href: "/dashboard" },
+      { label: "Domains", icon: Globe2, href: "/dashboard" }
+    ]
+  },
+  {
+    label: "Design",
+    icon: Palette,
+    items: [
+      { label: "Components", icon: PanelTop, href: "#components" },
+      { label: "Brand Kit", icon: BookOpen, href: "#components" },
+      { label: "Media Library", icon: FileImage, href: "#components" }
+    ]
+  },
+  {
+    label: "Business",
+    icon: BriefcaseBusiness,
+    items: [
+      { label: "Store", icon: Store, href: "#business-tools" },
+      { label: "Shopping Cart", icon: ShoppingCart, href: "#business-tools" },
+      { label: "CRM", icon: BriefcaseBusiness, href: "#business-tools" },
+      { label: "Bookings", icon: CalendarDays, href: "#business-tools" },
+      { label: "Leads", icon: Users, href: "#business-tools" },
+      { label: "Operations", icon: BriefcaseBusiness, href: "#business-tools" }
+    ]
+  },
+  {
+    label: "Sales & Finance",
+    icon: CreditCard,
+    items: [
+      { label: "Quotes", icon: FileText, href: "#business-tools" },
+      { label: "Invoices", icon: Receipt, href: "#business-tools" },
+      { label: "Payments", icon: CreditCard, href: "#business-tools" },
+      { label: "Accounting", icon: Calculator, href: "#business-tools" },
+      { label: "Orders", icon: Package, href: "#business-tools" }
+    ]
+  },
+  {
+    label: "Growth",
+    icon: Sparkles,
+    items: [
+      { label: "Analytics", icon: BarChart3, href: "#business-tools" }
+    ]
+  }
 ];
 
 const websites = [
@@ -37,8 +83,14 @@ const websites = [
   { name: "Savor Restaurant", domain: "savor.co.za", kind: "restaurant", status: "Published" }
 ];
 
+const designTools = [
+  { title: "Components", description: "Reusable sections and blocks", icon: <PanelTop size={18} /> },
+  { title: "Templates", description: "Admin-approved website designs", icon: <Box size={18} /> },
+  { title: "Brand Kit", description: "Logo, colours and fonts", icon: <BookOpen size={18} /> },
+  { title: "Media Library", description: "Images, files and assets", icon: <FileImage size={18} /> }
+];
+
 const businessTools = [
-  { title: "Brand Kit", description: "Logo, colours, fonts and brand rules", icon: <BookOpen size={18} /> },
   { title: "Online Store", description: "Products, stock and storefront", icon: <Store size={18} /> },
   { title: "Shopping Cart", description: "Cart and checkout flows", icon: <ShoppingCart size={18} /> },
   { title: "Payments", description: "Collect and track payments", icon: <CreditCard size={18} /> },
@@ -50,7 +102,6 @@ const businessTools = [
   { title: "Accounting", description: "Revenue, expenses and records", icon: <Calculator size={18} /> },
   { title: "Orders", description: "Manage fulfilment and sales", icon: <Package size={18} /> },
   { title: "Operations", description: "Business workflows and records", icon: <BriefcaseBusiness size={18} /> },
-  { title: "Domains", description: "Connect and manage domains", icon: <Globe2 size={18} /> },
   { title: "Analytics", description: "Understand traffic and growth", icon: <BarChart3 size={18} /> }
 ];
 
@@ -62,11 +113,36 @@ const filters: { label: string; value: WebsiteFilter }[] = [
 ];
 
 export default function DashboardPage() {
-  const { sidebarOpen, setSidebarOpen, websiteFilter, setWebsiteFilter, activeTool, setActiveTool } = useAppState();
+  const {
+    sidebarOpen,
+    setSidebarOpen,
+    websiteFilter,
+    setWebsiteFilter,
+    activeTool,
+    setActiveTool
+  } = useAppState();
+
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
+    Websites: true,
+    Design: true,
+    Business: false,
+    "Sales & Finance": false,
+    Growth: false
+  });
 
   const visibleWebsites = websiteFilter === "all"
     ? websites
-    : websites.filter((site) => site.status.toLowerCase() === websiteFilter.replace("published", "published").replace("drafts", "draft"));
+    : websites.filter(
+        (site) =>
+          site.status.toLowerCase() ===
+          websiteFilter.replace("published", "published").replace("drafts", "draft")
+      );
+
+  const toggleGroup = (label: string) => {
+    setOpenGroups((current) => ({ ...current, [label]: !current[label] }));
+  };
+
+  const closeMobileMenu = () => setSidebarOpen(false);
 
   return (
     <main className="dashboard-shell">
@@ -74,22 +150,78 @@ export default function DashboardPage() {
         <div className="dashboard-brand">
           <div className="brand-mark"><span /><span /><span /></div>
           <span>FELLACOO</span>
-          <button className="sidebar-close" onClick={() => setSidebarOpen(false)} aria-label="Close menu"><X size={18} /></button>
+          <button className="sidebar-close" onClick={closeMobileMenu} aria-label="Close menu">
+            <X size={18} />
+          </button>
         </div>
 
         <nav className="dashboard-nav">
-          {nav.map(({ label, icon: Icon, href, primary }) => (
-            <Link
-              key={label}
-              href={href ?? "#"}
-              onClick={() => setSidebarOpen(false)}
-              className={label === "Dashboard" ? "dashboard-nav-item active" : `dashboard-nav-item ${primary ? "primary-nav-item" : ""}`}
-            >
-              <Icon size={18} strokeWidth={1.8} />
-              <span>{label}</span>
-              {primary && <span className="nav-plus"><Plus size={12} /></span>}
-            </Link>
-          ))}
+          <Link
+            href="/dashboard"
+            onClick={closeMobileMenu}
+            className="dashboard-nav-item active"
+          >
+            <Home size={18} strokeWidth={1.8} />
+            <span>Dashboard</span>
+          </Link>
+
+          <Link
+            href="/builder/new/site"
+            onClick={closeMobileMenu}
+            className="dashboard-nav-item primary-nav-item"
+          >
+            <Plus size={18} strokeWidth={1.8} />
+            <span>Create Website</span>
+            <span className="nav-plus"><Plus size={12} /></span>
+          </Link>
+
+          <div className="nav-divider" />
+
+          {navGroups.map((group) => {
+            const GroupIcon = group.icon;
+            const isOpen = openGroups[group.label];
+
+            return (
+              <div className={`nav-group ${isOpen ? "is-open" : ""}`} key={group.label}>
+                <button
+                  className="nav-group-trigger"
+                  onClick={() => toggleGroup(group.label)}
+                  aria-expanded={isOpen}
+                >
+                  <span className="nav-group-title">
+                    <GroupIcon size={16} strokeWidth={1.8} />
+                    <span>{group.label}</span>
+                  </span>
+                  <ChevronDown size={14} />
+                </button>
+
+                <div className="nav-group-items">
+                  {group.items.map(({ label, icon: Icon, href = "#", primary }) => (
+                    <Link
+                      key={label}
+                      href={href}
+                      onClick={closeMobileMenu}
+                      className={`dashboard-nav-item nav-child ${primary ? "primary-nav-item" : ""}`}
+                    >
+                      <Icon size={16} strokeWidth={1.8} />
+                      <span>{label}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+
+          <div className="nav-divider" />
+
+          <Link
+            href="/dashboard"
+            onClick={closeMobileMenu}
+            className="dashboard-nav-item"
+          >
+            <Settings size={18} strokeWidth={1.8} />
+            <span>Settings</span>
+          </Link>
         </nav>
 
         <div className="plan-card">
@@ -101,24 +233,36 @@ export default function DashboardPage() {
         </div>
       </aside>
 
-      {sidebarOpen && <button className="dashboard-backdrop" onClick={() => setSidebarOpen(false)} aria-label="Close navigation" />}
+      {sidebarOpen && (
+        <button
+          className="dashboard-backdrop"
+          onClick={closeMobileMenu}
+          aria-label="Close navigation"
+        />
+      )}
 
       <section className="dashboard-main">
         <header className="dashboard-topbar">
           <div className="topbar-left">
-            <button className="menu-button" onClick={() => setSidebarOpen(true)} aria-label="Open menu"><Menu size={22} /></button>
+            <button className="menu-button" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
+              <Menu size={22} />
+            </button>
             <div className="dashboard-search">
               <Search size={18} />
               <input placeholder="Search websites, templates, components..." />
               <kbd>Ctrl K</kbd>
             </div>
           </div>
+
           <div className="topbar-actions">
             <button className="topbar-icon"><CircleHelp size={20} /></button>
             <button className="topbar-icon notification"><Bell size={20} /><span /></button>
             <div className="profile">
               <div className="avatar">JK</div>
-              <div className="profile-copy"><strong>Jimmy Komane</strong><small>Founder</small></div>
+              <div className="profile-copy">
+                <strong>Jimmy Komane</strong>
+                <small>Founder</small>
+              </div>
               <ChevronDown size={15} />
             </div>
           </div>
@@ -128,7 +272,9 @@ export default function DashboardPage() {
           <div className="dashboard-primary">
             <DashboardCard className="welcome-card">
               <div className="welcome-copy">
-                <div className="dashboard-eyebrow">WELCOME TO FELLACOO <span className="live-pulse">● LIVE</span></div>
+                <div className="dashboard-eyebrow">
+                  WELCOME TO FELLACOO <span className="live-pulse">● LIVE</span>
+                </div>
                 <h1>Build Stunning Websites<br />That <span>Grow Your Business.</span></h1>
                 <p>Build your website from reusable components, admin-approved templates and powerful business tools — all in one place.</p>
                 <div className="hero-status-row">
@@ -137,16 +283,36 @@ export default function DashboardPage() {
                   <span><i /> Business Tools Connected</span>
                 </div>
                 <div className="welcome-actions">
-                  <Link href="/builder/new/site" className="primary-action"><Plus size={19} />Create New Website</Link>
-                  <Link href="#components" className="secondary-action"><PanelTop size={16} />Explore Components</Link>
+                  <Link href="/builder/new/site" className="primary-action">
+                    <Plus size={19} />Create New Website
+                  </Link>
+                  <Link href="#components" className="secondary-action">
+                    <PanelTop size={16} />Explore Components
+                  </Link>
                 </div>
               </div>
+
               <div className="welcome-art">
-                <div className="logo-orbit"><div className="orbit-a" /><div className="orbit-b" /><div className="orbit-c" /><div className="orbit-core" /></div>
+                <div className="logo-orbit">
+                  <div className="orbit-a" />
+                  <div className="orbit-b" />
+                  <div className="orbit-c" />
+                  <div className="orbit-core" />
+                </div>
                 <div className="feature-stack">
-                  {[["Reusable Components","Build once. Reuse everywhere.",PanelTop],["Admin Templates","Approved designs only.",Box],["Business Tools","Commerce, CRM and more.",BriefcaseBusiness],["Responsive by Default","Desktop, tablet and mobile.",Globe2]].map(([title, sub, Icon]) => {
+                  {[
+                    ["Reusable Components", "Build once. Reuse everywhere.", PanelTop],
+                    ["Admin Templates", "Approved designs only.", Box],
+                    ["Business Tools", "Commerce, CRM and more.", BriefcaseBusiness],
+                    ["Responsive by Default", "Desktop, tablet and mobile.", Globe2]
+                  ].map(([title, sub, Icon]) => {
                     const FeatureIcon = Icon as typeof PanelTop;
-                    return <div className="feature-chip" key={String(title)}><span><FeatureIcon size={16}/></span><div><strong>{String(title)}</strong><small>{String(sub)}</small></div></div>;
+                    return (
+                      <div className="feature-chip" key={String(title)}>
+                        <span><FeatureIcon size={16} /></span>
+                        <div><strong>{String(title)}</strong><small>{String(sub)}</small></div>
+                      </div>
+                    );
                   })}
                 </div>
               </div>
@@ -167,21 +333,47 @@ export default function DashboardPage() {
             </section>
 
             <DashboardCard className="tools-panel" id="components">
-              <CardHeader eyebrow="FELLACOO BUSINESS PLATFORM" title="Business Tools" icon={<BriefcaseBusiness size={19}/>} />
-              <p className="section-subtitle">Turn any website into a complete operating layer. Add only the tools a business needs, whenever it needs them.</p>
-              <div className="tool-grid">
-                {businessTools.map((tool) => <div key={tool.title} onClick={() => setActiveTool(tool.title)}><ToolCard {...tool} /></div>)}
-              </div>
+              <CardHeader
+                eyebrow="FELLACOO DESIGN + BUSINESS PLATFORM"
+                title="Tools for every part of the website"
+                icon={<Sparkles size={19} />}
+              />
+              <p className="section-subtitle">
+                Keep the workspace organized: design tools build the site, business tools operate it, and growth tools measure it.
+              </p>
+
+              <ToolGroup
+                title="Design Tools"
+                description="Build and manage the website itself."
+                tools={designTools}
+                onSelect={setActiveTool}
+              />
+
+              <ToolGroup
+                title="Business Tools"
+                description="Activate the operating layer behind the website."
+                tools={businessTools}
+                onSelect={setActiveTool}
+              />
             </DashboardCard>
 
             <DashboardCard className="websites-panel">
               <div className="panel-heading">
-                <div className="panel-title"><LayoutTemplate size={20}/><h2>My Websites</h2></div>
+                <div className="panel-title"><LayoutTemplate size={20} /><h2>My Websites</h2></div>
                 <div className="website-tabs">
-                  {filters.map((filter) => <button key={filter.value} className={websiteFilter === filter.value ? "selected" : ""} onClick={() => setWebsiteFilter(filter.value)}>{filter.label}</button>)}
+                  {filters.map((filter) => (
+                    <button
+                      key={filter.value}
+                      className={websiteFilter === filter.value ? "selected" : ""}
+                      onClick={() => setWebsiteFilter(filter.value)}
+                    >
+                      {filter.label}
+                    </button>
+                  ))}
                 </div>
-                <button className="view-all">View All <ChevronRight size={15}/></button>
+                <button className="view-all">View All <ChevronRight size={15} /></button>
               </div>
+
               <div className="website-grid">
                 {visibleWebsites.map((site) => <WebsiteCard key={site.name} {...site} />)}
               </div>
@@ -190,7 +382,7 @@ export default function DashboardPage() {
 
           <aside className="dashboard-right">
             <DashboardCard className="platform-card">
-              <CardHeader eyebrow="YOUR PLATFORM" title="Everything in one place" icon={<BriefcaseBusiness size={18}/>} />
+              <CardHeader eyebrow="YOUR PLATFORM" title="Everything in one place" icon={<BriefcaseBusiness size={18} />} />
               <p className="platform-copy">Build the website once. Then activate commerce, CRM, bookings, leads, billing and other tools without rebuilding the site.</p>
               <div className="platform-flow">
                 <span>Website</span><i>+</i><span>Components</span><i>+</i><span>Business Tools</span>
@@ -198,23 +390,23 @@ export default function DashboardPage() {
             </DashboardCard>
 
             <DashboardCard className="quick-card">
-              <CardHeader title="Quick Actions" icon={<Zap size={18}/>} />
-              <button className="quick-action" onClick={() => setActiveTool("Website Components")}><span><PanelTop size={16}/></span>Browse Components<ChevronRight size={16}/></button>
-              <button className="quick-action" onClick={() => setActiveTool("Admin Templates")}><span><Box size={16}/></span>Choose a Template<ChevronRight size={16}/></button>
-              <button className="quick-action" onClick={() => setActiveTool("Online Store")}><span><Store size={16}/></span>Add Store<ChevronRight size={16}/></button>
-              <button className="quick-action" onClick={() => setActiveTool("CRM")}><span><BriefcaseBusiness size={16}/></span>Open CRM<ChevronRight size={16}/></button>
+              <CardHeader title="Quick Actions" icon={<Zap size={18} />} />
+              <button className="quick-action" onClick={() => setActiveTool("Website Components")}><span><PanelTop size={16} /></span>Browse Components<ChevronRight size={16} /></button>
+              <button className="quick-action" onClick={() => setActiveTool("Admin Templates")}><span><Box size={16} /></span>Choose a Template<ChevronRight size={16} /></button>
+              <button className="quick-action" onClick={() => setActiveTool("Online Store")}><span><Store size={16} /></span>Add Store<ChevronRight size={16} /></button>
+              <button className="quick-action" onClick={() => setActiveTool("CRM")}><span><BriefcaseBusiness size={16} /></span>Open CRM<ChevronRight size={16} /></button>
             </DashboardCard>
 
             <DashboardCard className="activity-card">
-              <div className="activity-heading"><h2><Activity size={17}/> Recent Activity</h2><button>View All →</button></div>
+              <div className="activity-heading"><h2><Activity size={17} /> Recent Activity</h2><button>View All →</button></div>
               {[
-                ["Website published","Bake 'N Mo","2m ago","green"],
-                ["New lead received","Savor Restaurant","12m ago","pink"],
-                ["Component added","Elite Fitness","1h ago","purple"],
-                ["Invoice paid","Komane Consulting","3h ago","blue"]
-              ].map(([title,name,time,tone]) => (
+                ["Website published", "Bake 'N Mo", "2m ago", "green"],
+                ["New lead received", "Savor Restaurant", "12m ago", "pink"],
+                ["Component added", "Elite Fitness", "1h ago", "purple"],
+                ["Invoice paid", "Komane Consulting", "3h ago", "blue"]
+              ].map(([title, name, time, tone]) => (
                 <div className="activity-row" key={title + name}>
-                  <span className={"activity-icon " + tone}><Globe2 size={15}/></span>
+                  <span className={"activity-icon " + tone}><Globe2 size={15} /></span>
                   <div><strong>{title}</strong><small>{name}</small></div>
                   <time>{time}</time>
                 </div>
@@ -227,14 +419,105 @@ export default function DashboardPage() {
   );
 }
 
-function Metric({icon:Icon,label,value,trend,tone,spark}:{icon:typeof LayoutTemplate;label:string;value:string;trend:string;tone:string;spark?:boolean}) {
-  return <div className="metric-card"><span className={"metric-icon " + tone}><Icon size={21}/></span><div><small>{label}</small><strong>{value}</strong><em className={tone}>{trend}</em></div>{spark&&<div className={"mini-spark " + tone}><span/><span/><span/><span/><span/></div>}</div>;
+function ToolGroup({
+  title,
+  description,
+  tools,
+  onSelect
+}: {
+  title: string;
+  description: string;
+  tools: Array<{ title: string; description: string; icon: React.ReactNode }>;
+  onSelect: (title: string) => void;
+}) {
+  return (
+    <section className="tool-group">
+      <div className="tool-group-heading">
+        <div>
+          <h3>{title}</h3>
+          <p>{description}</p>
+        </div>
+        <span>{tools.length} tools</span>
+      </div>
+      <div className="tool-grid">
+        {tools.map((tool) => (
+          <button
+            type="button"
+            key={tool.title}
+            className="tool-card-button"
+            onClick={() => onSelect(tool.title)}
+          >
+            <ToolCard {...tool} />
+          </button>
+        ))}
+      </div>
+    </section>
+  );
 }
 
-function WebsiteCard({name,domain,kind,status}:{name:string;domain:string;kind:string;status:string}) {
-  return <article className="website-card">
-    <div className={"site-preview " + kind}><div className="preview-nav"><span>{name.split(" ")[0]}</span><i/><i/><i/></div><div className="preview-content"><b>{kind==="bakery"?"Fresh Bakes\nHappier Days":kind==="fitness"?"STRONGER\nEVERY DAY":kind==="consulting"?"Grow Your\nBusiness Faster":"Exceptional\nDining Experience"}</b><small>{kind==="bakery"?"BAKE 'N MO":kind==="fitness"?"ELITE FITNESS":kind==="consulting"?"KOMANE":"SAVOR"}</small></div></div>
-    <div className="site-info"><div><strong>{name}</strong><small>{domain}</small></div><button><MoreVertical size={16}/></button></div>
-    <div className={"site-status " + status.toLowerCase()}><span/>{status}</div>
-  </article>;
+function Metric({
+  icon: Icon,
+  label,
+  value,
+  trend,
+  tone,
+  spark
+}: {
+  icon: typeof LayoutTemplate;
+  label: string;
+  value: string;
+  trend: string;
+  tone: string;
+  spark?: boolean;
+}) {
+  return (
+    <div className="metric-card">
+      <span className={"metric-icon " + tone}><Icon size={21} /></span>
+      <div className="metric-copy">
+        <small>{label}</small>
+        <strong>{value}</strong>
+        <em className={tone}>{trend}</em>
+      </div>
+      {spark && <div className={"mini-spark " + tone}><span /><span /><span /><span /><span /></div>}
+    </div>
+  );
+}
+
+function WebsiteCard({
+  name,
+  domain,
+  kind,
+  status
+}: {
+  name: string;
+  domain: string;
+  kind: string;
+  status: string;
+}) {
+  return (
+    <article className="website-card">
+      <div className={"site-preview " + kind}>
+        <div className="preview-nav"><span>{name.split(" ")[0]}</span><i /><i /><i /></div>
+        <div className="preview-content">
+          <b>
+            {kind === "bakery"
+              ? "Fresh Bakes\nHappier Days"
+              : kind === "fitness"
+                ? "STRONGER\nEVERY DAY"
+                : kind === "consulting"
+                  ? "Grow Your\nBusiness Faster"
+                  : "Exceptional\nDining Experience"}
+          </b>
+          <small>
+            {kind === "bakery" ? "BAKE 'N MO" : kind === "fitness" ? "ELITE FITNESS" : kind === "consulting" ? "KOMANE" : "SAVOR"}
+          </small>
+        </div>
+      </div>
+      <div className="site-info">
+        <div><strong>{name}</strong><small>{domain}</small></div>
+        <button><MoreVertical size={16} /></button>
+      </div>
+      <div className={"site-status " + status.toLowerCase()}><span />{status}</div>
+    </article>
+  );
 }
