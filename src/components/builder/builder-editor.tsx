@@ -159,7 +159,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
     }, 650);
 
     return () => window.clearTimeout(timer);
-  }, [document, buildRequestId, remoteEnabled]);
+  }, [document, remoteEnabled]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
