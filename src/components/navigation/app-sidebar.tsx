@@ -86,6 +86,7 @@ export function AppSidebar() {
             onClick={() => {
               if (sidebarPinned) {
                 setSidebarPinned(false);
+                setSidebarOpen(false);
               } else {
                 setSidebarPinned(true);
                 setSidebarOpen(true);
