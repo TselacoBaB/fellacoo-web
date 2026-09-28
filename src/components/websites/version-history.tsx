@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, CheckCircle2, Clock3, ExternalLink, FileCode2, Globe2, Loader2, Pin } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock3, ExternalLink, FileCode2, Globe2, Loader2, Pin, RotateCcw } from "lucide-react";
 
 type Version = {
   id: string;
@@ -29,6 +29,7 @@ export function VersionHistory({ siteId }: { siteId: string }) {
   const [versions, setVersions] = useState<Version[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [action, setAction] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -54,7 +55,7 @@ export function VersionHistory({ siteId }: { siteId: string }) {
 
   const liveVersion = useMemo(() => versions.find((version) => version.status.toUpperCase() === "LIVE"), [versions]);
 
-  function bytes(value: number) {
+  async function runVersionAction(versionId: string, actionName: "restore" | "pin" | "unpin") {\n    if (actionName === "restore" && !window.confirm("Restore this version and make it live?")) return;\n    setAction(versionId + ":" + actionName);\n    try {\n      const response = await fetch("/api/websites/versions", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ siteId, versionId, action: actionName }) });\n      const payload = await response.json();\n      if (!response.ok) throw new Error(payload.error || "Version action failed.");\n      window.location.reload();\n    } catch (err) {\n      setError(err instanceof Error ? err.message : "Version action failed.");\n    } finally { setAction(null); }\n  }\n\n  function bytes(value: number) {
     if (value < 1024) return value + " B";
     if (value < 1024 * 1024) return (value / 1024).toFixed(1) + " KB";
     return (value / (1024 * 1024)).toFixed(1) + " MB";
@@ -121,7 +122,7 @@ export function VersionHistory({ siteId }: { siteId: string }) {
                       <p>{new Date(version.created_at).toLocaleString("en-ZA", { dateStyle: "medium", timeStyle: "short" })}</p>
                       <small>{bytes(version.total_bytes)} · {version.files?.length ?? 0} published file{(version.files?.length ?? 0) === 1 ? "" : "s"}</small>
                     </div>
-                    <div className="version-status">{version.status}</div>
+                    <div className="version-status"><span>{version.status}</span><div className="version-actions"><button onClick={() => void runVersionAction(version.id, version.pinned ? "unpin" : "pin")} disabled={!!action}><Pin size={12}/>{version.pinned ? "Unpin" : "Pin"}</button>{version.status.toUpperCase() !== "LIVE" && (<button onClick={() => void runVersionAction(version.id, "restore")} disabled={!!action}><RotateCcw size={12}/>{action === version.id + ":restore" ? "Restoring…" : "Restore live"}</button>)}</div></div>
                   </article>
                 ))}
               </div>
