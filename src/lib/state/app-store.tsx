@@ -6,10 +6,12 @@ export type WebsiteFilter = "all" | "published" | "drafts" | "archived";
 
 type AppState = {
   sidebarOpen: boolean;
+  sidebarPinned: boolean;
   websiteFilter: WebsiteFilter;
   lastVisitedWebsite: string | null;
   activeTool: string | null;
   setSidebarOpen: (open: boolean) => void;
+  setSidebarPinned: (pinned: boolean) => void;
   setWebsiteFilter: (filter: WebsiteFilter) => void;
   setLastVisitedWebsite: (id: string | null) => void;
   setActiveTool: (tool: string | null) => void;
@@ -21,6 +23,7 @@ const AppStateContext = createContext<AppState | null>(null);
 
 export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarPinned, setSidebarPinned] = useState(false);
   const [websiteFilter, setWebsiteFilter] = useState<WebsiteFilter>("all");
   const [lastVisitedWebsite, setLastVisitedWebsite] = useState<string | null>(null);
   const [activeTool, setActiveTool] = useState<string | null>(null);
@@ -56,15 +59,17 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(
     () => ({
       sidebarOpen,
+      sidebarPinned,
       websiteFilter,
       lastVisitedWebsite,
       activeTool,
       setSidebarOpen,
+      setSidebarPinned,
       setWebsiteFilter,
       setLastVisitedWebsite,
       setActiveTool
     }),
-    [sidebarOpen, websiteFilter, lastVisitedWebsite, activeTool]
+    [sidebarOpen, sidebarPinned, websiteFilter, lastVisitedWebsite, activeTool]
   );
 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;
