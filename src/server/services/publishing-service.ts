@@ -184,7 +184,7 @@ export async function publishWebsite(input: PublishInput): Promise<PublishResult
   if (slugConflict) slug = `${slug}-${build.id.slice(0, 6)}`;
 
   const html = compileDocument(document, build.business_name);
-  const bytes = Buffer.byteLength(html, "utf8");
+  const bytes = new TextEncoder().encode(html).byteLength;
   const version = Number(build.live_version || 0) + 1;
   const path = `sites/${slug}/index.html`;
 
