@@ -137,6 +137,9 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
           body: JSON.stringify({
             buildRequestId,
             document,
+            businessName: projectName.trim() || "Untitled Website",
+            activity: "Website",
+            location: "Online",
           }),
         });
 
@@ -157,7 +160,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
     }, 650);
 
     return () => window.clearTimeout(timer);
-  }, [document, remoteEnabled]);
+  }, [document, remoteEnabled, projectName]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
