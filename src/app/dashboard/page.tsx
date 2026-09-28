@@ -16,6 +16,7 @@ const nav = [
   { label: "My Websites", icon: LayoutTemplate },
   { label: "Templates", icon: Box },
   { label: "Components", icon: PanelTop },
+  { label: "Brand Kit", icon: BookOpen },
   { label: "Media Library", icon: FileImage },
   { label: "Store", icon: Store },
   { label: "CRM", icon: BriefcaseBusiness },
@@ -37,6 +38,7 @@ const websites = [
 ];
 
 const businessTools = [
+  { title: "Brand Kit", description: "Logo, colours, fonts and brand rules", icon: <BookOpen size={18} /> },
   { title: "Online Store", description: "Products, stock and storefront", icon: <Store size={18} /> },
   { title: "Shopping Cart", description: "Cart and checkout flows", icon: <ShoppingCart size={18} /> },
   { title: "Payments", description: "Collect and track payments", icon: <CreditCard size={18} /> },
@@ -47,6 +49,7 @@ const businessTools = [
   { title: "Invoices", description: "Billing and payment status", icon: <Receipt size={18} /> },
   { title: "Accounting", description: "Revenue, expenses and records", icon: <Calculator size={18} /> },
   { title: "Orders", description: "Manage fulfilment and sales", icon: <Package size={18} /> },
+  { title: "Operations", description: "Business workflows and records", icon: <BriefcaseBusiness size={18} /> },
   { title: "Domains", description: "Connect and manage domains", icon: <Globe2 size={18} /> },
   { title: "Analytics", description: "Understand traffic and growth", icon: <BarChart3 size={18} /> }
 ];
@@ -164,7 +167,7 @@ export default function DashboardPage() {
             </section>
 
             <DashboardCard className="tools-panel" id="components">
-              <CardHeader eyebrow="FEL LACOO BUSINESS PLATFORM" title="Business Tools" icon={<BriefcaseBusiness size={19}/>} />
+              <CardHeader eyebrow="FELLACOO BUSINESS PLATFORM" title="Business Tools" icon={<BriefcaseBusiness size={19}/>} />
               <p className="section-subtitle">Turn any website into a complete operating layer. Add only the tools a business needs, whenever it needs them.</p>
               <div className="tool-grid">
                 {businessTools.map((tool) => <div key={tool.title} onClick={() => setActiveTool(tool.title)}><ToolCard {...tool} /></div>)}
