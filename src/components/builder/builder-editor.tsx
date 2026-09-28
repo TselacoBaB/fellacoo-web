@@ -90,21 +90,21 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
             draft?: { id: string; document: BuilderDocument | null; businessName?: string | null } | null;
           };
 
-          if (payload.draft?.document) {
-            setDocument(payload.draft.document);
-            setProjectName(payload.draft.businessName?.trim() || "Untitled Website");
-            setHistory([]);
-            setFuture([]);
-            setBuildRequestId(payload.draft.id);
-            window.localStorage.setItem(storageKey, JSON.stringify(payload.draft.document));
-            window.localStorage.setItem(storageKey + ":build-request-id", payload.draft.id);
-          } else {
-            if (projectId) {
+          if (projectId) {
+            if (payload.draft?.document) {
+              setDocument(payload.draft.document);
+              setProjectName(payload.draft.businessName?.trim() || "Untitled Website");
+              setHistory([]);
+              setFuture([]);
+              setBuildRequestId(payload.draft.id);
+              window.localStorage.setItem(storageKey, JSON.stringify(payload.draft.document));
+              window.localStorage.setItem(storageKey + ":build-request-id", payload.draft.id);
+            } else {
               setSyncStatus("error");
               return;
             }
+          } else {
             setBuildRequestId(null);
-            window.localStorage.removeItem(storageKey + ":build-request-id");
           }
 
           setRemoteEnabled(true);
