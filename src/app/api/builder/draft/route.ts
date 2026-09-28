@@ -50,7 +50,7 @@ async function getIdentity() {
   return { user, felacooUserId: link.user_id as string };
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const { user, felacooUserId } = await getIdentity();
 
@@ -66,13 +66,17 @@ export async function GET() {
     }
 
     const admin = createAdminClient();
-    const { data: draft, error } = await admin
+    const url = new URL(request.url);
+    const requestedId = url.searchParams.get("id")?.trim();
+
+    let query = admin
       .from("build_requests")
       .select("id, assembly, preview, business_name, activity, location, slug, published_url, live_version, created_at")
-      .eq("owner_id", felacooUserId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      .eq("owner_id", felacooUserId);
+
+    const { data: draft, error } = requestedId
+      ? await query.eq("id", requestedId).maybeSingle()
+      : await query.order("created_at", { ascending: false }).limit(1).maybeSingle();
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
