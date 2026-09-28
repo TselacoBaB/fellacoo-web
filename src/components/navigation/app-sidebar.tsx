@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown, ChevronLeft, Menu, Plus, X } from "lucide-react";
+import { ChevronDown, ChevronLeft, Menu, Plus, Settings as NavigationSettingsIcon, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAppState } from "@/lib/state/app-store";
 import {
@@ -261,4 +261,3 @@ function SidebarLink({
   );
 }
 
-import { Settings as NavigationSettingsIcon } from "lucide-react";
