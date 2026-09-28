@@ -36,7 +36,17 @@ function slugify(value: string) {
     .slice(0, 48) || "website";
 }
 
+function normalizeBuilderDocument(value: unknown): unknown {
+  if (typeof value !== "string") return value;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+}
+
 function isBuilderDocument(value: unknown): value is BuilderDocument {
+  value = normalizeBuilderDocument(value);
   if (!value || typeof value !== "object") return false;
   const candidate = value as Partial<BuilderDocument>;
   return candidate.version === 1
@@ -163,9 +173,9 @@ export async function publishWebsite(input: PublishInput): Promise<PublishResult
   const build = builds[0];
   if (!build) throw new Error("Website project was not found.");
   const document = isBuilderDocument(build.assembly)
-    ? build.assembly
+    ? normalizeBuilderDocument(build.assembly) as BuilderDocument
     : isBuilderDocument(build.preview)
-      ? build.preview
+      ? normalizeBuilderDocument(build.preview) as BuilderDocument
       : null;
 
   if (!document) throw new Error("This website has no valid builder document to publish.");
