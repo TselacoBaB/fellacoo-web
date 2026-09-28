@@ -22,6 +22,15 @@ const pillars = [
   ["04", "CONTROL THE NARRATIVE", "Your brand, story, proof, offers and customer journey live inside an experience you control."]
 ];
 
+const heroWords = ["24/7", "DIGITAL", "GROWTH", "SALES", "BRAND"];
+const heroMessages = [
+  "Always open. Always working.",
+  "Your digital storefront, everywhere.",
+  "Turn attention into momentum.",
+  "Turn visitors into opportunities.",
+  "Make your brand impossible to ignore."
+];
+
 const engine = [
   { n: "01", icon: Sparkles, title: "ATTRACT", text: "Create experiences that make people stop scrolling and start exploring." },
   { n: "02", icon: BrainCircuit, title: "QUALIFY", text: "Forms, quizzes, calculators and AI conversations turn attention into intent." },
@@ -34,6 +43,7 @@ export default function HomePage() {
   const [pointer, setPointer] = useState({ x: 0, y: 0 });
   const [scrollY, setScrollY] = useState(0);
   const [scrolled, setScrolled] = useState(false);
+  const [heroWord, setHeroWord] = useState(0);
 
   useEffect(() => {
     const onScroll = () => {
@@ -46,9 +56,14 @@ export default function HomePage() {
         y: event.clientY / window.innerHeight - 0.5
       });
     };
+    const wordTimer = window.setInterval(() => {
+      setHeroWord((current) => (current + 1) % heroWords.length);
+    }, 2600);
+
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("pointermove", onPointer, { passive: true });
     return () => {
+      window.clearInterval(wordTimer);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("pointermove", onPointer);
     };
@@ -105,15 +120,21 @@ export default function HomePage() {
               <h1 className="hero-title reveal-up delay-1">
                 YOUR
                 <br />
-                <span>24/7</span>
+                <span key={heroWords[heroWord]} className="hero-word" aria-live="polite">
+                  {heroWords[heroWord]}
+                </span>
                 <br />
                 WEBSITE.
               </h1>
 
-              <p className="reveal-up delay-2 mt-8 max-w-xl text-base leading-7 text-white/55 md:text-xl md:leading-8">
-                A website is your digital storefront, salesperson and credibility anchor —
-                designed to attract, engage and convert while you sleep.
-              </p>
+              <div className="reveal-up delay-2 mt-8 max-w-xl">
+                <p className="hero-message text-base leading-7 text-white/55 md:text-xl md:leading-8" key={heroMessages[heroWord]}>
+                  {heroMessages[heroWord]}
+                </p>
+                <p className="mt-2 text-xs uppercase tracking-[.22em] text-white/25">
+                  The website keeps working when you don't.
+                </p>
+              </div>
 
               <div className="reveal-up delay-3 mt-8 flex flex-wrap items-center gap-3">
                 <Link href="/dashboard" className="magnetic-button rounded-full bg-white px-7 py-4 text-sm font-semibold text-black shadow-[0_0_50px_rgba(255,255,255,.12)]">
@@ -157,6 +178,13 @@ export default function HomePage() {
               <div className="floating-chip chip-one"><Sparkles size={13} /> AI</div>
               <div className="floating-chip chip-two"><Zap size={13} /> CONVERT</div>
               <div className="floating-chip chip-three"><ChartNoAxesCombined size={13} /> INSIGHT</div>
+            </div>
+          </div>
+
+          <div className="hero-marquee" aria-hidden="true">
+            <div className="hero-marquee-track">
+              <span>BUILD</span><b>✦</b><span>ENGAGE</span><b>✦</b><span>CONVERT</span><b>✦</b><span>LEARN</span><b>✦</b>
+              <span>BUILD</span><b>✦</b><span>ENGAGE</span><b>✦</b><span>CONVERT</span><b>✦</b><span>LEARN</span><b>✦</b>
             </div>
           </div>
 
