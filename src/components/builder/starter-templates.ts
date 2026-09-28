@@ -22,6 +22,17 @@ const section = (id: string, title: string, text: string) => ({
   ]
 });
 
+const starterSite: BuilderDocument["site"] = {
+  brandName: "Your Business",
+  tagline: "Build a business people remember.",
+  theme: {
+    colors: { primary:"#7c3aed", secondary:"#ec4899", accent:"#3b82f6", text:"#111522", muted:"#697287", background:"#ffffff", surface:"#f7f8fb" },
+    typography: { headingFont:"Inter, ui-sans-serif, system-ui, sans-serif", bodyFont:"Inter, ui-sans-serif, system-ui, sans-serif", headingWeight:"800", bodyWeight:"400" },
+    radius:"12px", containerWidth:"1180px", buttonStyle:"solid"
+  },
+  seo: { title:"Your Business", description:"A responsive website built with Fellacoo." }
+};
+
 export const starterTemplates: StarterTemplate[] = [
   {
     id: "starter-bakery",
@@ -33,6 +44,7 @@ export const starterTemplates: StarterTemplate[] = [
     featured: true,
     document: {
       version: 1,
+      site: starterSite,
       pages: [{ id: "home", path: "/", title: "Fresh Bakery", elements: [
         { id: "header", type: "header", props: { brand: "Your Bakery", nav1: "Home", nav2: "Menu", nav3: "About", nav4: "Contact", cta: "Order Now" } },
         { id: "hero", type: "hero", props: { eyebrow: "FRESH EVERY DAY", title: "Made fresh. Made with care.", description: "Show customers your signature breads, baked goods and meals with a beautiful mobile-first storefront.", primary: "View Menu", secondary: "Contact Us", primaryUrl: "#menu", secondaryUrl: "#contact" } },
@@ -53,6 +65,7 @@ export const starterTemplates: StarterTemplate[] = [
     featured: true,
     document: {
       version: 1,
+      site: starterSite,
       pages: [{ id: "home", path: "/", title: "Professional Services", elements: [
         { id: "header", type: "header", props: { brand: "Your Firm", nav1: "Services", nav2: "Approach", nav3: "About", nav4: "Contact", cta: "Book a Call" } },
         { id: "hero", type: "hero", props: { eyebrow: "EXPERT SUPPORT", title: "Clarity for your next stage of growth.", description: "Position your expertise clearly and turn qualified visitors into conversations.", primary: "Book a Call", secondary: "Our Services", primaryUrl: "#contact", secondaryUrl: "#services" } },
@@ -73,6 +86,7 @@ export const starterTemplates: StarterTemplate[] = [
     featured: false,
     document: {
       version: 1,
+      site: starterSite,
       pages: [{ id: "home", path: "/", title: "Fitness Studio", elements: [
         { id: "header", type: "header", props: { brand: "Your Fitness", nav1: "Programs", nav2: "Coaches", nav3: "Results", nav4: "Contact", cta: "Join Now" } },
         { id: "hero", type: "hero", props: { eyebrow: "TRAIN SMARTER", title: "Your strongest chapter starts here.", description: "Turn your training offer into a clear, motivating digital experience.", primary: "Join Now", secondary: "Explore Programs", primaryUrl: "#contact", secondaryUrl: "#programs" } },
@@ -93,6 +107,7 @@ export const starterTemplates: StarterTemplate[] = [
     featured: true,
     document: {
       version: 1,
+      site: starterSite,
       pages: [{ id: "home", path: "/", title: "Modern Store", elements: [
         { id: "header", type: "header", props: { brand: "Your Store", nav1: "Shop", nav2: "Collections", nav3: "About", nav4: "Contact", cta: "Shop Now" } },
         { id: "hero", type: "hero", props: { eyebrow: "NEW COLLECTION", title: "Products worth coming back for.", description: "Create a polished storefront foundation and connect it to your product and checkout tools.", primary: "Shop Collection", secondary: "Learn More", primaryUrl: "#products", secondaryUrl: "#about" } },
@@ -112,6 +127,7 @@ export const starterTemplates: StarterTemplate[] = [
     featured: false,
     document: {
       version: 1,
+      site: starterSite,
       pages: [{ id: "home", path: "/", title: "Restaurant", elements: [
         { id: "header", type: "header", props: { brand: "Your Restaurant", nav1: "Menu", nav2: "About", nav3: "Bookings", nav4: "Contact", cta: "Book a Table" } },
         { id: "hero", type: "hero", props: { eyebrow: "GOOD FOOD, GOOD MOMENTS", title: "A table worth talking about.", description: "Present your menu, atmosphere and booking options in one focused experience.", primary: "Book a Table", secondary: "View Menu", primaryUrl: "#booking", secondaryUrl: "#menu" } },
@@ -131,6 +147,7 @@ export const starterTemplates: StarterTemplate[] = [
     featured: true,
     document: {
       version: 1,
+      site: starterSite,
       pages: [{ id: "home", path: "/", title: "Landing Page", elements: [
         { id: "hero", type: "hero", props: { eyebrow: "LIMITED OFFER", title: "Turn more visitors into customers.", description: "A focused campaign page built around one audience, one offer and one next action.", primary: "Claim the Offer", secondary: "See How It Works", primaryUrl: "#contact", secondaryUrl: "#proof" } },
         { id: "benefits", type: "features", props: { title: "Everything you need to decide.", item1: "Clear value", item1Description: "Make the offer easy to understand.", item2: "Social proof", item2Description: "Give visitors confidence before they act.", item3: "One next step", item3Description: "Reduce friction with a focused CTA." } },
