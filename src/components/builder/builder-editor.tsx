@@ -63,6 +63,8 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
   const [projectName, setProjectName] = useState("Untitled Website");
 
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [draggingElementId, setDraggingElementId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -244,14 +246,76 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
     [libraryFilter]
   );
 
-  function addComponent(type: string) {
+  function insertComponent(type: string, index = page.elements.length) {
     const id = type + "-" + Date.now();
     const element: BuilderElement = { id, type, props: defaultProps(type) };
     updateDocument((current) => ({
       ...current,
-      pages: current.pages.map((p, index) => index === 0 ? { ...p, elements: [...p.elements, element] } : p)
+      pages: current.pages.map((p, pageIndex) => {
+        if (pageIndex !== 0) return p;
+        const elements = [...p.elements];
+        elements.splice(Math.max(0, Math.min(index, elements.length)), 0, element);
+        return { ...p, elements };
+      })
     }));
     setSelectedId(id);
+    setDragOverIndex(null);
+  }
+
+  function addComponent(type: string) {
+    insertComponent(type);
+  }
+
+  function beginLibraryDrag(event: React.DragEvent, type: string) {
+    event.dataTransfer.effectAllowed = "copy";
+    event.dataTransfer.setData("application/x-fellacoo-component", type);
+    event.dataTransfer.setData("text/plain", type);
+  }
+
+  function beginElementDrag(event: React.DragEvent, id: string) {
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("application/x-fellacoo-element", id);
+    event.dataTransfer.setData("text/plain", id);
+    setDraggingElementId(id);
+  }
+
+  function handleCanvasDragOver(event: React.DragEvent, index: number) {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = event.dataTransfer.types.includes("application/x-fellacoo-component") ? "copy" : "move";
+    setDragOverIndex(index);
+  }
+
+  function handleCanvasDrop(event: React.DragEvent, index: number) {
+    event.preventDefault();
+    const componentType = event.dataTransfer.getData("application/x-fellacoo-component");
+    const elementId = event.dataTransfer.getData("application/x-fellacoo-element");
+
+    if (componentType) {
+      insertComponent(componentType, index);
+    } else if (elementId) {
+      const sourceIndex = page.elements.findIndex((element) => element.id === elementId);
+      if (sourceIndex >= 0) {
+        let targetIndex = Math.max(0, Math.min(index, page.elements.length));
+        if (sourceIndex < targetIndex) targetIndex -= 1;
+        if (sourceIndex !== targetIndex) {
+          const elements = [...page.elements];
+          const [moved] = elements.splice(sourceIndex, 1);
+          elements.splice(targetIndex, 0, moved);
+          updateDocument((current) => ({
+            ...current,
+            pages: current.pages.map((p, pageIndex) => pageIndex === 0 ? { ...p, elements } : p)
+          }));
+          setSelectedId(elementId);
+        }
+      }
+      setDragOverIndex(null);
+      setDraggingElementId(null);
+    }
+  }
+
+  function endElementDrag() {
+    setDraggingElementId(null);
+    setDragOverIndex(null);
   }
 
   function updateSelected(patch: Record<string, unknown>) {
@@ -313,14 +377,28 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
       </header>
 
       <div className="builder-workspace">
-        {leftOpen && <aside className="builder-left">
+        {leftOpen && <aside className={"builder-left " + (leftOpen ? "is-open" : "")}>
           <div className="builder-panel-head"><div><small>WEBSITE BUILDER</small><strong>Components</strong></div><button onClick={() => setLeftOpen(false)}><X size={16}/></button></div>
           <div className="builder-page-select"><LayoutTemplate size={15}/><span>Home</span><ChevronDown size={14}/></div>
           <div className="component-tabs">
             {(["All", "Layout", "Content", "Commerce", "Business"] as const).map((category) => <button key={category} className={libraryFilter === category ? "active" : ""} onClick={() => setLibraryFilter(category)}>{category}</button>)}
           </div>
           <div className="component-library">
-            {visibleLibrary.map((item) => <button className="component-item" key={item.type} onClick={() => addComponent(item.type)}><span className="component-item-icon"><Plus size={14}/></span><span><strong>{item.label}</strong><small>{item.description}</small></span></button>)}
+            {visibleLibrary.map((item) => (
+              <button
+                className="component-item"
+                key={item.type}
+                draggable
+                onDragStart={(event) => beginLibraryDrag(event, item.type)}
+                onDragEnd={endElementDrag}
+                onClick={() => addComponent(item.type)}
+                title={"Click to add " + item.label + " or drag it onto the canvas"}
+              >
+                <span className="component-item-icon"><Plus size={14}/></span>
+                <span><strong>{item.label}</strong><small>Click or drag to canvas · {item.description}</small></span>
+                <span className="component-drag-grip" aria-hidden="true">⋮⋮</span>
+              </button>
+            ))}
           </div>
           <div className="builder-left-footer"><Palette size={15}/><span>Brand Kit</span><ChevronRight size={14}/></div>
         </aside>}
@@ -333,16 +411,40 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
               <button onClick={redo} disabled={!canRedo} title="Redo"><Redo2 size={15}/></button>
             </div>
           </div>
-          <div className="canvas-stage" onClick={() => setSelectedId("")}>
+          <div
+            className={"canvas-stage " + (dragOverIndex !== null ? "is-dragging" : "")}
+            onClick={() => setSelectedId("")}
+            onDragOver={(event) => handleCanvasDragOver(event, page.elements.length)}
+            onDrop={(event) => handleCanvasDrop(event, page.elements.length)}
+          >
             <div className={"website-canvas viewport-" + viewport}>
-              {page.elements.map((element) => (
-                <BuilderBlock key={element.id} element={element} selected={selectedId === element.id} onSelect={() => setSelectedId(element.id)} />
+              <div
+                className={"canvas-drop-zone " + (dragOverIndex === 0 ? "is-active" : "")}
+                onDragOver={(event) => handleCanvasDragOver(event, 0)}
+                onDrop={(event) => handleCanvasDrop(event, 0)}
+                aria-label="Drop component at the top of the page"
+              />
+              {page.elements.map((element, index) => (
+                <div key={element.id} className="builder-drop-wrapper">
+                  {dragOverIndex === index && <div className="builder-drop-indicator"><span>Drop component here</span></div>}
+                  <BuilderBlock
+                    element={element}
+                    selected={selectedId === element.id}
+                    dragging={draggingElementId === element.id}
+                    onSelect={() => setSelectedId(element.id)}
+                    onDragStart={beginElementDrag}
+                    onDragEnd={endElementDrag}
+                    onDragOver={(event) => handleCanvasDragOver(event, index + 1)}
+                    onDrop={(event) => handleCanvasDrop(event, index + 1)}
+                  />
+                </div>
               ))}
+              {dragOverIndex === page.elements.length && <div className="builder-drop-indicator is-end"><span>Drop component here</span></div>}
             </div>
           </div>
         </section>
 
-        {rightOpen && <aside className="builder-right">
+        {rightOpen && <aside className={"builder-right " + (rightOpen ? "is-open" : "")}>
           <div className="builder-panel-head"><div><small>DESIGN SYSTEM</small><strong>Properties</strong></div><button onClick={() => setRightOpen(false)}><X size={16}/></button></div>
           {selected ? <PropertyPanel element={selected} update={updateSelected} remove={removeSelected} move={moveSelected} /> : <div className="empty-properties"><Settings2 size={22}/><p>Select a component to edit it.</p></div>}
         </aside>}
@@ -376,11 +478,50 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
   );
 }
 
-function BuilderBlock({ element, selected, onSelect }: { element: BuilderElement; selected: boolean; onSelect: () => void }) {
-  return <div className={"builder-block " + (selected ? "is-selected" : "")} onClick={(event) => { event.stopPropagation(); onSelect(); }}>
-    {selected && <div className="builder-selection-label">{element.type}</div>}
-    <ComponentPreview element={element}/>
-  </div>;
+function BuilderBlock({
+  element,
+  selected,
+  dragging,
+  onSelect,
+  onDragStart,
+  onDragEnd,
+  onDragOver,
+  onDrop
+}: {
+  element: BuilderElement;
+  selected: boolean;
+  dragging: boolean;
+  onSelect: () => void;
+  onDragStart: (event: React.DragEvent, id: string) => void;
+  onDragEnd: () => void;
+  onDragOver: (event: React.DragEvent) => void;
+  onDrop: (event: React.DragEvent) => void;
+}) {
+  return (
+    <div
+      className={"builder-block " + (selected ? "is-selected " : "") + (dragging ? "is-dragging" : "")}
+      draggable
+      onDragStart={(event) => onDragStart(event, element.id)}
+      onDragEnd={onDragEnd}
+      onDragOver={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        onDragOver(event);
+      }}
+      onDrop={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        onDrop(event);
+      }}
+      onClick={(event) => { event.stopPropagation(); onSelect(); }}
+    >
+      <div className="builder-drag-handle" title="Drag to reorder">
+        <span>⋮⋮</span>
+      </div>
+      {selected && <div className="builder-selection-label">{element.type}</div>}
+      <ComponentPreview element={element}/>
+    </div>
+  );
 }
 
 function ComponentPreview({ element }: { element: BuilderElement }) {
