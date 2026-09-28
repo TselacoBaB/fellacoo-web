@@ -53,7 +53,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
   const { document, updateDocument, resetDocument, undo, redo, canUndo, canRedo } = useBuilderHistory(initialDocument);
   const [selectedId, setSelectedId] = useState("hero-1");
   const [viewport, setViewport] = useState<BuilderViewport>("desktop");
-  const [leftOpen, setLeftOpen] = useState(true);
+  const [leftOpen, setLeftOpen] = useState(false);
   const [rightOpen, setRightOpen] = useState(true);
   const [libraryFilter, setLibraryFilter] = useState<ComponentDefinition["category"] | "All">("All");
   const [saved, setSaved] = useState(true);
