@@ -4,6 +4,8 @@ import Link from "next/link";
 import { Activity, BarChart3, Bell, Box, ChevronDown, ChevronRight, CircleHelp, CreditCard, FileImage, Globe2, Home, LayoutTemplate, Link2, Menu, MoreVertical, Plus, Search, Settings, Sparkles, Users, X, Zap } from "lucide-react";
 import { useState } from "react";
 
+function ArrowUpRightIcon(){ return <ChevronRight size={15} />; }
+
 const nav = [
   { label: "Dashboard", icon: Home },
   { label: "Create Website", icon: Plus, href: "/builder/new/site" },
@@ -28,6 +30,19 @@ const websites = [
 
 export default function DashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [prompt, setPrompt] = useState("");
+  const [aiThinking, setAiThinking] = useState(false);
+  const [aiMessage, setAiMessage] = useState("Tell me what you want to build and I’ll turn it into a website.");
+
+  function askAi() {
+    if (!prompt.trim()) return;
+    setAiThinking(true);
+    setAiMessage("Fellacoo AI is mapping your business, audience and conversion path…");
+    window.setTimeout(() => {
+      setAiThinking(false);
+      setAiMessage("Ready. Your website brief is prepared — let’s build it.");
+    }, 1100);
+  }
 
   return (
     <main className="dashboard-shell">
@@ -50,7 +65,7 @@ export default function DashboardPage() {
         <div className="dashboard-content">
           <div className="dashboard-primary">
             <section className="welcome-card">
-              <div className="welcome-copy"><div className="dashboard-eyebrow">WELCOME TO FELLACOO</div><h1>Build Stunning Websites<br />That <span>Grow Your Business.</span></h1><p>Use AI, beautiful templates and powerful tools to create, launch and grow your online presence — no coding needed.</p><div className="welcome-actions"><Link href="/builder/new/site" className="primary-action"><Plus size={19} />Create New Website</Link><button className="secondary-action"><span className="play-icon">▶</span>Watch Demo</button></div></div>
+              <div className="welcome-copy"><div className="dashboard-eyebrow">WELCOME TO FELLACOO <span className="live-pulse">● LIVE</span></div><h1>Build Stunning Websites<br />That <span>Grow Your Business.</span></h1><p>Use AI, beautiful templates and powerful tools to create, launch and grow your online presence — no coding needed.</p><div className="hero-status-row"><span><i /> AI Engine Online</span><span><i /> Publishing Ready</span><span><i /> Analytics Live</span></div><div className="welcome-actions"><Link href="/builder/new/site" className="primary-action"><Plus size={19} />Create New Website</Link><button className="secondary-action"><span className="play-icon">▶</span>Watch Demo</button></div></div>
               <div className="welcome-art"><div className="logo-orbit"><div className="orbit-a" /><div className="orbit-b" /><div className="orbit-c" /><div className="orbit-core" /></div><div className="feature-stack">{[["AI Powered","Generate in seconds",Sparkles],["Drag & Drop","No coding needed",Box],["Mobile Responsive","Looks perfect everywhere",Activity],["SEO Optimized","Rank higher on Google",BarChart3]].map(([title, sub, Icon]) => {const FeatureIcon=Icon as typeof Sparkles;return <div className="feature-chip" key={String(title)}><span><FeatureIcon size={16}/></span><div><strong>{String(title)}</strong><small>{String(sub)}</small></div></div>})}</div></div>
             </section>
 
