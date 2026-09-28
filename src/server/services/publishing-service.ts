@@ -106,7 +106,7 @@ function compilePage(document:BuilderDocument,page:BuilderPage,businessName:stri
     "@media(max-width:768px){.header-block{padding:0 20px}.header-block nav a:not(.nav-cta){display:none}.hero-block{grid-template-columns:1fr;min-height:auto;padding:64px 24px}.hero-block h1{font-size:clamp(42px,13vw,64px)}.hero-shape{width:220px}.feature-block,.form-block,.builder-section-block{padding:60px 24px}.feature-grid{grid-template-columns:1fr}.builder-primitive-columns.columns-2,.builder-primitive-columns.columns-3,.builder-primitive-columns.columns-4{grid-template-columns:1fr}.footer-block{padding:28px 24px;flex-direction:column;align-items:flex-start}}",
     responsiveRules(page.elements)
   ].join("");
-  return "<!doctype html><html lang=\\"en\\"><head><meta charset=\\"utf-8\\"><meta name=\\"viewport\\" content=\\"width=device-width,initial-scale=1\\"><title>"+escapeHtml(page.seo?.title||page.title||businessName||"Website")+"</title><meta name=\\"description\\" content=\\""+escapeHtml(page.seo?.description||document.site.seo.description||businessName||"Website")+"\\"><style>"+css+"</style></head><body>"+body+"</body></html>";
+  return "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>"+escapeHtml(page.seo?.title||page.title||businessName||"Website")+"</title><meta name=\"description\" content=\""+escapeHtml(page.seo?.description||document.site.seo.description||businessName||"Website")+"\"><style>"+css+"</style></head><body>"+body+"</body></html>";
 }
 
 async function uploadR2(path:string,data:string,contentType:string){
