@@ -573,6 +573,7 @@ function BuilderBlock({
   element,
   selected,
   selectedId,
+  selectElement,
   dragging,
   onSelect,
   onDragStart,
