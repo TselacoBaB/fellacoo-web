@@ -3,9 +3,10 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
-  Activity, BookOpen, Box, BriefcaseBusiness, Calculator, CalendarDays,
-  ChevronRight, CreditCard, FileImage, FileText, Globe2, LayoutTemplate,
-  MoreVertical, PanelTop, Receipt, ShoppingCart, Sparkles, Store, Users
+  Activity, BarChart3, Bell, BookOpen, Box, BriefcaseBusiness, Calculator,
+  CalendarDays, ChevronDown, ChevronRight, CircleHelp, CreditCard, FileImage,
+  FileText, Globe2, LayoutTemplate, MoreVertical, Package, PanelTop,
+  Plus, Receipt, Search, ShoppingCart, Sparkles, Store, Users, Zap
 } from "lucide-react";
 import { useAppState, type WebsiteFilter } from "@/lib/state/app-store";
 import { AppSidebar } from "@/components/navigation/app-sidebar";
@@ -55,14 +56,6 @@ export default function DashboardPage() {
     setActiveTool
   } = useAppState();
 
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
-    Websites: true,
-    Design: true,
-    Business: false,
-    "Sales & Finance": false,
-    Growth: false
-  });
-
   const visibleWebsites = websiteFilter === "all"
     ? websites
     : websites.filter(
@@ -71,12 +64,6 @@ export default function DashboardPage() {
           websiteFilter.replace("published", "published").replace("drafts", "draft")
       );
 
-  const toggleGroup = (label: string) => {
-    setOpenGroups((current) => ({ ...current, [label]: !current[label] }));
-  };
-
-  const closeMobileMenu = () => setSidebarOpen(false);
-
   return (
     <main className="dashboard-shell">
       <AppSidebar />
@@ -84,9 +71,6 @@ export default function DashboardPage() {
       <section className="dashboard-main">
         <header className="dashboard-topbar">
           <div className="topbar-left">
-            <button className="menu-button" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
-              <Menu size={22} />
-            </button>
             <div className="dashboard-search">
               <Search size={18} />
               <input placeholder="Search websites, templates, components..." />
