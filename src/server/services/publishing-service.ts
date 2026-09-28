@@ -184,88 +184,46 @@ export async function publishWebsite(input: PublishInput): Promise<PublishResult
 
   await uploadR2(path, html, "text/html; charset=utf-8");
 
-  const previousLive = await admin
-    .from("site_versions")
-    .update({ status: "SUPERSEDED" })
-    .eq("build_request_id", build.id)
-    .eq("status", "LIVE");
+  const url = `${(process.env.R2_PUBLIC_BASE || "https://cdn.fellacoo.xyz").replace(/\/$/, "")}/sites/${slug}/index.html`;
 
-  if (previousLive.error) throw previousLive.error;
-
-  const siteVersionId = crypto.randomUUID();
-  const { error: versionError } = await admin
-    .from("site_versions")
-    .insert({
-      id: siteVersionId,
-      build_request_id: build.id,
-      version,
-      status: "LIVE",
-      total_bytes: bytes,
-      initial_payload_bytes: bytes,
-      qa: { warnings: [] },
-      files: [{ path, bytes }],
-      created_at: new Date().toISOString(),
-      pinned: false,
-    });
-
-  if (versionError) throw versionError;
-
-  const url = `https://${slug}.${siteRootDomain()}`;
-  const { error: updateError } = await admin
-    .from("build_requests")
-    .update({
-      assembly: document,
-      preview: document,
-      compiled_html: html,
-      slug,
-      status: "published",
-      published_url: url,
-      published_bytes: bytes,
-      live_version: version,
-    })
-    .eq("id", build.id)
-    .eq("owner_id", input.ownerId);
-
-  if (updateError) throw updateError;
-
-  const { data: domainRow } = await admin
-    .from("site_domains")
-    .select("id")
-    .eq("site_id", build.id)
-    .eq("hostname", `${slug}.${siteRootDomain()}`)
-    .maybeSingle();
-
-  if (!domainRow) {
-    const { error: domainError } = await admin
-      .from("site_domains")
-      .insert({
-        id: crypto.randomUUID(),
-        site_id: build.id,
-        hostname: `${slug}.${siteRootDomain()}`,
-        slug,
-        domain_type: "FELACOO_SUBDOMAIN",
-        status: "ACTIVE",
-        created_at: new Date().toISOString(),
-        verified_at: new Date().toISOString(),
-        meta: { source: "fellacoo-web" },
-      });
-    if (domainError) throw domainError;
-  }
-
-  const { error: websiteVersionError } = await admin
-    .from("website_versions")
-    .insert({
-      id: crypto.randomUUID(),
-      build_request_id: build.id,
-      preview: document,
-      label: `Published v${version}`,
-      credits_charged: 0,
-      created_by: input.ownerId,
-      created_at: new Date().toISOString(),
-    });
-
-  if (websiteVersionError) throw websiteVersionError;
-
+  await sql.begin(async (tx) => {
+    await tx`update public.site_versions set status = ${"SUPERSEDED"} where build_request_id = ${build.id} and status = ${"LIVE"}`;
+    await tx`
+      insert into public.site_versions
+        (id, build_request_id, version, status, total_bytes, initial_payload_bytes, qa, files, created_at, pinned)
+      values
+        (${crypto.randomUUID()}, ${build.id}, ${version}, ${"LIVE"}, ${bytes}, ${bytes}, ${JSON.stringify({ warnings: [] })}::jsonb, ${JSON.stringify([{ path, bytes }])}::jsonb, ${new Date().toISOString()}, ${false})
+    `;
+    await tx`
+      update public.build_requests
+      set assembly = ${JSON.stringify(document)}::jsonb,
+          preview = ${JSON.stringify(document)}::jsonb,
+          compiled_html = ${html},
+          slug = ${slug},
+          status = ${"published"},
+          published_url = ${url},
+          published_bytes = ${bytes},
+          live_version = ${version}
+      where id = ${build.id} and owner_id = ${input.ownerId}
+    `;
+    const domains = await tx<{ id: string }[]>`
+      select id from public.site_domains where site_id = ${build.id} and hostname = ${slug + "." + siteRootDomain()} limit 1
+    `;
+    if (!domains[0]) {
+      await tx`
+        insert into public.site_domains
+          (id, site_id, hostname, slug, domain_type, status, created_at, verified_at, meta)
+        values
+          (${crypto.randomUUID()}, ${build.id}, ${slug + "." + siteRootDomain()}, ${slug}, ${"FELACOO_SUBDOMAIN"}, ${"ACTIVE"}, ${new Date().toISOString()}, ${new Date().toISOString()}, ${JSON.stringify({ source: "fellacoo-web", publicUrl: url })}::jsonb)
+      `;
+    }
+    await tx`
+      insert into public.website_versions
+        (id, build_request_id, preview, label, credits_charged, created_by, created_at)
+      values
+        (${crypto.randomUUID()}, ${build.id}, ${JSON.stringify(document)}::jsonb, ${"Published v" + version}, ${0}, ${input.ownerId}, ${new Date().toISOString()})
+    `;
+  });
   return {
     ok: true,
     buildRequestId: build.id,
