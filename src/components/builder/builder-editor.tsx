@@ -140,7 +140,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
 
     loadRemoteDraft();
     return () => { active = false; };
-  }, [projectId]);
+  }, [projectId, authLoading, isAuthenticated]);
 
   useEffect(() => {
     setSaved(false);
