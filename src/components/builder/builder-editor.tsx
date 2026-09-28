@@ -10,6 +10,7 @@ import {
 import type { BuilderDocument, BuilderElement, BuilderViewport } from "@/types/builder";
 import { PrimitivePreview } from "@/components/builder/primitives";
 import { useBuilderHistory } from "@/lib/builder/use-builder-history";
+import { useAuth } from "@/lib/state/auth-store";
 
 type ComponentDefinition = {
   type: string;
@@ -81,8 +82,17 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [draggingElementId, setDraggingElementId] = useState<string | null>(null);
   const router = useRouter();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!isAuthenticated) {
+      router.replace("/login?next=" + encodeURIComponent(window.location.pathname));
+    }
+  }, [authLoading, isAuthenticated, router]);
+
+  useEffect(() => {
+    if (authLoading || !isAuthenticated) return;
     let active = true;
 
     async function loadRemoteDraft() {
