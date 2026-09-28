@@ -1,5 +1,4 @@
 import {
-  Activity,
   BarChart3,
   BellRing,
   BookOpen,
@@ -19,8 +18,6 @@ import {
   Palette,
   PanelTop,
   Receipt,
-  Search,
-  Settings,
   ShoppingCart,
   Sparkles,
   Store,
