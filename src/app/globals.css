@@ -22,6 +22,15 @@ a{text-decoration:none}
 
 .hero-title{font-size:clamp(5rem,10.5vw,11rem);font-weight:500;line-height:.77;letter-spacing:-.09em}
 .hero-title span{background:linear-gradient(100deg,#fff 0%,#d7baff 32%,#8d4dff 58%,#55a7ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-word{display:inline-block;min-width:2.7ch;animation:heroWordIn .72s cubic-bezier(.16,1,.3,1) both;text-shadow:0 0 45px rgba(166,86,255,.22)}
+.hero-message{animation:heroMessageIn .65s cubic-bezier(.16,1,.3,1) both}
+@keyframes heroWordIn{0%{opacity:0;transform:translateY(.35em) scale(.96);filter:blur(12px)}55%{opacity:1;transform:translateY(-.03em) scale(1.01);filter:blur(0)}100%{opacity:1;transform:none}}
+@keyframes heroMessageIn{0%{opacity:0;transform:translateY(10px);filter:blur(6px)}100%{opacity:1;transform:none;filter:none}}
+.hero-marquee{position:relative;margin:18px 0 10px;overflow:hidden;border-top:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07);padding:12px 0;mask-image:linear-gradient(to right,transparent,black 8%,black 92%,transparent)}
+.hero-marquee-track{display:flex;width:max-content;align-items:center;gap:28px;animation:marquee 24s linear infinite;font-size:9px;font-weight:600;letter-spacing:.32em;color:rgba(255,255,255,.26);white-space:nowrap}
+.hero-marquee-track b{font-size:8px;color:rgba(178,100,255,.8)}
+@keyframes marquee{to{transform:translateX(-50%)}}
+
 
 .reveal-up{animation:revealUp 1s cubic-bezier(.16,1,.3,1) both}
 .delay-1{animation-delay:.12s}.delay-2{animation-delay:.22s}.delay-3{animation-delay:.34s}.delay-4{animation-delay:.46s}
@@ -68,5 +77,5 @@ a{text-decoration:none}
 .magnetic-button{transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s}
 .magnetic-button:hover{transform:translateY(-3px);box-shadow:0 15px 50px rgba(255,255,255,.12)}
 
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.hero-word,.hero-message{animation:none!important}.hero-marquee-track{animation:none!important}}
 @media(max-width:767px){.hero-title{font-size:21vw}.display-heading{font-size:18vw}.hero{min-height:900px}.site-nav img{width:120px}.site-nav .magnetic-button{padding:10px 14px;font-size:9px}.engine-card{min-height:260px}.ai-orbit{margin-top:10px}}
