@@ -1500,3 +1500,251 @@ a{text-decoration:none}
   border-radius: 8px;
   color: #64748b;
 }
+
+
+/* =========================================================
+   Fellacoo Builder v3 — overlay panels + real drag/drop canvas
+   Side panels never resize or cover the design unexpectedly.
+   ========================================================= */
+.builder-workspace{
+  position:relative;
+  display:block;
+  height:calc(100vh - 64px);
+  min-width:0;
+  overflow:hidden;
+}
+
+.builder-canvas-area{
+  width:100%;
+  height:100%;
+  min-width:0;
+}
+
+.builder-left,
+.builder-right{
+  position:absolute;
+  top:0;
+  bottom:0;
+  z-index:40;
+  display:flex;
+  flex-direction:column;
+  width:300px;
+  max-width:min(86vw,360px);
+  background:#0b1120;
+  box-shadow:0 20px 70px rgba(0,0,0,.38);
+  transition:transform .24s cubic-bezier(.22,1,.36,1),opacity .18s ease;
+  will-change:transform;
+}
+
+.builder-left{
+  left:0;
+  border-right:1px solid #252e47;
+  transform:translateX(-102%);
+  opacity:0;
+  pointer-events:none;
+}
+
+.builder-left.is-open{
+  transform:translateX(0);
+  opacity:1;
+  pointer-events:auto;
+}
+
+.builder-right{
+  right:0;
+  width:350px;
+  border-left:1px solid #252e47;
+  transform:translateX(102%);
+  opacity:0;
+  pointer-events:none;
+}
+
+.builder-right.is-open{
+  transform:translateX(0);
+  opacity:1;
+  pointer-events:auto;
+}
+
+.builder-left .component-library{
+  flex:1;
+  min-height:0;
+  overflow:auto;
+  padding-bottom:20px;
+}
+
+.builder-left-footer{
+  flex:none;
+}
+
+.builder-right .properties-body{
+  flex:1;
+  min-height:0;
+  overflow:auto;
+}
+
+.canvas-stage{
+  position:relative;
+  width:100%;
+  height:100%;
+  min-height:0;
+  box-sizing:border-box;
+}
+
+.website-canvas{
+  position:relative;
+  overflow:visible;
+}
+
+.component-item{
+  cursor:grab;
+  user-select:none;
+}
+
+.component-item:active{
+  cursor:grabbing;
+}
+
+.component-item-icon{
+  transition:transform .18s ease,background .18s ease;
+}
+
+.component-item:hover .component-item-icon{
+  transform:translateY(-1px) scale(1.04);
+}
+
+.component-drag-grip{
+  flex:none;
+  margin-left:auto;
+  color:#4f5c79;
+  font-size:12px;
+  letter-spacing:-2px;
+  opacity:.7;
+}
+
+.builder-drop-wrapper{
+  position:relative;
+}
+
+.builder-drop-indicator{
+  position:relative;
+  z-index:25;
+  height:5px;
+  margin:0 14px;
+  border-radius:999px;
+  background:linear-gradient(90deg,#8e39ff,#5c72ff);
+  box-shadow:0 0 0 3px rgba(142,57,255,.10),0 4px 18px rgba(111,48,255,.35);
+  pointer-events:none;
+}
+
+.builder-drop-indicator span{
+  position:absolute;
+  left:50%;
+  top:-25px;
+  transform:translateX(-50%);
+  padding:4px 8px;
+  border-radius:999px;
+  background:#171d31;
+  border:1px solid rgba(158,91,255,.35);
+  color:#c9b5ff;
+  font-size:8px;
+  white-space:nowrap;
+  box-shadow:0 8px 24px rgba(0,0,0,.22);
+}
+
+.builder-drop-indicator.is-end{
+  margin:0 14px 8px;
+}
+
+.canvas-drop-zone{
+  height:8px;
+  margin:0 12px;
+  border-radius:999px;
+  transition:height .16s ease,background .16s ease;
+}
+
+.canvas-drop-zone.is-active{
+  height:34px;
+  margin:8px 12px;
+  border:1px dashed rgba(157,75,255,.55);
+  background:rgba(142,57,255,.08);
+}
+
+.builder-block{
+  cursor:grab;
+  transition:opacity .16s ease,transform .16s ease,outline-color .16s ease;
+}
+
+.builder-block:active{
+  cursor:grabbing;
+}
+
+.builder-block.is-dragging{
+  opacity:.45;
+  transform:scale(.995);
+}
+
+.builder-drag-handle{
+  position:absolute;
+  z-index:22;
+  top:50%;
+  left:8px;
+  transform:translateY(-50%);
+  width:22px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(125,138,171,.24);
+  border-radius:7px;
+  background:rgba(9,14,25,.78);
+  color:#94a0bb;
+  font-size:11px;
+  line-height:1;
+  opacity:0;
+  transition:opacity .16s ease,background .16s ease,color .16s ease;
+  cursor:grab;
+}
+
+.builder-block:hover .builder-drag-handle,
+.builder-block.is-selected .builder-drag-handle{
+  opacity:1;
+}
+
+.builder-drag-handle:hover{
+  color:#fff;
+  background:#202a45;
+}
+
+.canvas-stage.is-dragging .website-canvas{
+  outline:1px dashed rgba(142,57,255,.32);
+  outline-offset:6px;
+}
+
+.floating-panel-button{
+  z-index:45;
+}
+
+@media(max-width:760px){
+  .builder-workspace{
+    height:calc(100vh - 58px);
+  }
+
+  .builder-left{
+    width:min(310px,88vw);
+  }
+
+  .builder-right{
+    width:min(340px,92vw);
+  }
+
+  .builder-canvas-area{
+    height:100%;
+  }
+
+  .canvas-stage{
+    padding:18px 10px;
+  }
+
+  .builder-drag-handle{
+    display:none;
+  }
+}
