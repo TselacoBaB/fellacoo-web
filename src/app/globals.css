@@ -3024,3 +3024,49 @@ a{text-decoration:none}
 .spin{animation:auth-spin .8s linear infinite}
 @keyframes auth-spin{to{transform:rotate(360deg)}}
 @media(max-width:520px){.auth-shell{padding:16px}.auth-card{padding:25px 20px;border-radius:22px}.auth-heading h1{font-size:24px}}
+
+
+/* =========================================================
+   Fellacoo Builder Stage 2 — pages, brand kit, responsive UI
+   ========================================================= */
+.builder-stage-tabs,
+.builder-inspector-tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:8px;border-bottom:1px solid #1c253a}
+.builder-stage-tabs button,
+.builder-inspector-tabs button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:32px;border:1px solid transparent;border-radius:7px;background:transparent;color:#76829f;font-size:9px;font-weight:800;cursor:pointer}
+.builder-stage-tabs button.active,
+.builder-inspector-tabs button.active{border-color:#343d58;background:rgba(139,66,255,.12);color:#eee9ff}
+.builder-pages-panel{padding:10px}
+.builder-add-page{width:100%;display:flex;align-items:center;justify-content:center;gap:7px;min-height:38px;border:1px solid #7c3aed;border-radius:8px;background:#7c3aed;color:#fff;font-size:10px;font-weight:850;cursor:pointer}
+.builder-add-page:hover{background:#6d28d9}
+.builder-page-list{display:grid;gap:7px;margin-top:10px}
+.builder-page-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px;padding:4px;border:1px solid #252f49;border-radius:9px;background:#11182a}
+.builder-page-card.active{border-color:#8b42ff;background:rgba(124,58,237,.12)}
+.builder-page-card>button:first-child{min-width:0;display:flex;align-items:center;gap:8px;border:0;border-radius:6px;background:transparent;color:#9aa5bd;text-align:left;cursor:pointer;padding:7px}
+.builder-page-card.active>button:first-child{color:#f0eaff}
+.builder-page-card>button:first-child>span{min-width:0;display:grid}
+.builder-page-card strong{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.builder-page-card small{margin-top:2px;color:#65718e;font-size:8px}
+.builder-page-card>div{display:flex;align-items:center;gap:2px}
+.builder-page-card>div button{width:27px;height:27px;display:grid;place-items:center;border:0;border-radius:6px;background:transparent;color:#66738f;cursor:pointer}
+.builder-page-card>div button:hover{background:#202a42;color:#fff}
+.builder-responsive-badge{display:flex;align-items:center;gap:7px;margin:0 0 12px;padding:7px 9px;border:1px solid #252f49;border-radius:8px;background:#11182a;color:#76829f;font-size:8px;text-transform:uppercase;letter-spacing:.08em}
+.builder-responsive-badge strong{color:#e7ddff;font-size:9px}
+.builder-responsive-badge button{margin-left:auto;border:0;background:transparent;color:#9b68ff;font-size:8px;font-weight:800;cursor:pointer}
+.builder-live-link{color:#9b68ff;text-decoration:none}
+.builder-live-link:hover{text-decoration:underline}
+.website-canvas{font-family:var(--fb-body-font,Inter,system-ui,sans-serif);color:var(--fb-text,#111522);background:var(--fb-background,#fff)}
+.website-canvas .hero-block h1,
+.website-canvas .feature-block h2,
+.website-canvas .form-block h2,
+.website-canvas .builder-primitive-heading{font-family:var(--fb-heading-font,Inter,system-ui,sans-serif)}
+.website-canvas .hero-block small,
+.website-canvas .feature-block>small,
+.website-canvas .form-block>small{color:var(--fb-primary,#7c3aed)}
+.website-canvas .hero-shape{background:linear-gradient(135deg,var(--fb-primary,#7c3aed),var(--fb-secondary,#ec4899) 50%,var(--fb-accent,#3b82f6))}
+.website-canvas .header-block nav button,
+.website-canvas .hero-block button,
+.website-canvas .form-block button{background:var(--fb-primary,#7c3aed)}
+.website-canvas .feature-grid article,
+.website-canvas .builder-column{border-radius:var(--fb-radius,12px);background:var(--fb-surface,#f7f8fb)}
+.website-canvas .builder-primitive-button{background:var(--fb-primary,#7c3aed);border-radius:var(--fb-radius,12px)}
+.website-canvas .builder-primitive-link{color:var(--fb-primary,#7c3aed)}
