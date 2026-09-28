@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { getDb } from "@/lib/db";
 
 export type FelacooIdentity = {
   supabaseUserId: string;
@@ -12,17 +12,19 @@ export async function getFelacooIdentity(): Promise<FelacooIdentity | null> {
 
   if (error || !user) return null;
 
-  const admin = createAdminClient();
-  const { data: link, error: linkError } = await admin
-    .from("felacoo_auth_links")
-    .select("user_id")
-    .eq("supabase_user_id", user.id)
-    .maybeSingle();
+  const sql = getDb();
+  const rows = await sql<{ user_id: string }[]>`
+    select user_id
+    from public.felacoo_auth_links
+    where supabase_user_id = ${user.id}
+    limit 1
+  `;
 
-  if (linkError || !link) return null;
+  const link = rows[0];
+  if (!link) return null;
 
   return {
     supabaseUserId: user.id,
-    felacooUserId: String(link.user_id)
+    felacooUserId: String(link.user_id),
   };
-}
+};
