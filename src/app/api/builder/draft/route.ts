@@ -27,7 +27,17 @@ type BuildRequestRow = {
   created_at: string;
 };
 
+function normalizeBuilderDocument(value: unknown): unknown {
+  if (typeof value !== "string") return value;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+}
+
 function isBuilderDocument(value: unknown): value is BuilderDocument {
+  value = normalizeBuilderDocument(value);
   if (!value || typeof value !== "object") return false;
 
   const candidate = value as Partial<BuilderDocument>;
@@ -145,8 +155,8 @@ export async function POST(request: Request) {
     if (body.buildRequestId) {
       const rows = await sql<{ id: string }[]>`
         update public.build_requests
-        set assembly = ${documentJson}::jsonb,
-            preview = ${documentJson}::jsonb
+        set assembly = ${sql.json(body.document)},
+            preview = ${sql.json(body.document)}
         where id = ${buildRequestId} and owner_id = ${felacooUserId}
         returning id
       `;
@@ -174,8 +184,8 @@ export async function POST(request: Request) {
          ${"draft"},
          ${felacooUserId},
          ${new Date().toISOString()},
-         ${documentJson}::jsonb,
-         ${documentJson}::jsonb)
+         ${sql.json(body.document)},
+         ${sql.json(body.document)})
     `;
 
     return NextResponse.json({ saved: true, buildRequestId });
