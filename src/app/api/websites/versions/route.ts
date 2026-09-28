@@ -55,7 +55,7 @@ export async function POST(request:Request){
     }
 
     const {data:history,error:historyError}=await admin.from("website_versions")
-      .select("preview,label").eq("build_request_id",site.id).ilike("label",\`%v\${version.version}%\`).order("created_at",{ascending:false}).limit(1).maybeSingle();
+      .select("preview,label").eq("build_request_id",site.id).ilike("label", "%v" + version.version + "%").order("created_at",{ascending:false}).limit(1).maybeSingle();
     if(historyError)throw historyError;
     if(!history?.preview)return NextResponse.json({error:"This version has no restorable builder document."},{status:409});
 
