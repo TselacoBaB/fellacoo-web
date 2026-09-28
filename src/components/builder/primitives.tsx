@@ -1,13 +1,17 @@
 import type { CSSProperties, ReactNode } from "react";
-import type { BuilderElement } from "@/types/builder";
+import type { BuilderElement, BuilderViewport } from "@/types/builder";
 
 type PrimitiveProps = {
   element: BuilderElement;
   children?: ReactNode;
+  viewport?: BuilderViewport;
 };
 
-function designStyle(element: BuilderElement): CSSProperties {
-  const design = (element.props.design ?? {}) as Record<string, unknown>;
+function designStyle(element: BuilderElement, viewport: BuilderViewport = "desktop"): CSSProperties {
+  const base = (element.props.design ?? {}) as Record<string, unknown>;
+  const responsive = (base.responsive ?? {}) as Record<string, unknown>;
+  const override = viewport === "desktop" ? {} : ((responsive[viewport] ?? {}) as Record<string, unknown>);
+  const design = { ...base, ...override } as Record<string, unknown>;
   const style: CSSProperties = {};
   if (typeof design.backgroundColor === "string" && design.backgroundColor) style.backgroundColor = design.backgroundColor;
   if (typeof design.textColor === "string" && design.textColor) style.color = design.textColor;
@@ -27,9 +31,9 @@ function value(props: Record<string, unknown>, key: string, fallback: string) {
   return String(props[key] ?? fallback);
 }
 
-export function PrimitivePreview({ element, children }: PrimitiveProps) {
+export function PrimitivePreview({ element, children, viewport = "desktop" }: PrimitiveProps) {
   const p = element.props;
-  const style = designStyle(element);
+  const style = designStyle(element, viewport);
 
   switch (element.type) {
     case "text":
