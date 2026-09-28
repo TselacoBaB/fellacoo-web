@@ -39,10 +39,10 @@ const initialDocument: BuilderDocument = {
     path: "/",
     title: "Home",
     elements: [
-      { id: "header-1", type: "header", props: { brand: "Your Business" } },
-      { id: "hero-1", type: "hero", props: { eyebrow: "WELCOME", title: "Build a business people remember.", description: "A responsive website built from reusable Fellacoo components.", primary: "Get Started", secondary: "Learn More" } },
-      { id: "features-1", type: "features", props: { title: "Everything your customers need." } },
-      { id: "footer-1", type: "footer", props: { brand: "Your Business" } }
+      { id: "header-1", type: "header", props: { brand: "Your Business", nav1: "Home", nav2: "Services", nav3: "About", nav4: "Contact", cta: "Get Started" } },
+      { id: "hero-1", type: "hero", props: { eyebrow: "WELCOME", title: "Build a business people remember.", description: "A responsive website built from reusable Fellacoo components.", primary: "Get Started", secondary: "Learn More", primaryUrl: "#", secondaryUrl: "#" } },
+      { id: "features-1", type: "features", props: { title: "Everything your customers need.", item1: "Fast setup", item1Description: "A clear foundation designed around your business.", item2: "Mobile ready", item2Description: "A responsive experience across every screen.", item3: "Built to convert", item3Description: "Focused content and calls to action." } },
+      { id: "footer-1", type: "footer", props: { brand: "Your Business", copyright: "© 2026 · Privacy · Terms · Contact" } }
     ]
   }]
 };
