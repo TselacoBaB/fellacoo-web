@@ -439,7 +439,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
     {publishState === "published" && publishedUrl
       ? <a href={publishedUrl} target="_blank" rel="noreferrer" className="builder-live-link">Live website ↗</a>
       : saved
-        ? syncStatus === "synced" ? "Synced with Supabase" : "Saved locally"
+        ? syncStatus === "synced" ? "Synced with Fellacoo" : "Saved locally"
         : "Saving…"}
   </small>
 </div>
@@ -452,7 +452,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
         </div>
 
         <div className="builder-top-actions">
-          <button className="builder-save" onClick={saveDraft} disabled={syncStatus === "saving"} title="Save the current draft to local storage and Supabase when connected"><Save size={15}/>{syncStatus === "saving" ? "Saving" : saved ? syncStatus === "synced" ? "Synced" : "Saved" : "Save"}</button>
+          <button className="builder-save" onClick={saveDraft} disabled={syncStatus === "saving"} title="Save the current draft locally and to the Fellacoo database when connected"><Save size={15}/>{syncStatus === "saving" ? "Saving" : saved ? syncStatus === "synced" ? "Synced" : "Saved" : "Save"}</button>
           <button className="builder-preview" onClick={() => setPreviewOpen(true)}><Eye size={16}/>Preview</button>
           <button className="builder-publish" onClick={publishCurrentWebsite} disabled={publishState === "publishing"}>
             {publishState === "publishing" ? "Publishing…" : publishState === "published" ? "Published" : "Publish"}
