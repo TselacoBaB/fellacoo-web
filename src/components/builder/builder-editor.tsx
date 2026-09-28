@@ -8,6 +8,7 @@ import {
   Save, Settings2, Smartphone, Tablet, Trash2, Undo2, X
 } from "lucide-react";
 import type { BuilderDocument, BuilderElement, BuilderViewport } from "@/types/builder";
+import { useBuilderHistory } from "@/lib/builder/use-builder-history";
 
 type ComponentDefinition = {
   type: string;
@@ -53,7 +54,7 @@ export default function BuilderEditorLegacy() {
 }
 
 export function BuilderEditor({ projectId }: { projectId?: string }) {
-  const [document, setDocument] = useState<BuilderDocument>(initialDocument);
+  const { document, updateDocument, resetDocument, undo, redo, canUndo, canRedo } = useBuilderHistory(initialDocument);
   const [selectedId, setSelectedId] = useState("hero-1");
   const [viewport, setViewport] = useState<BuilderViewport>("desktop");
   const [leftOpen, setLeftOpen] = useState(true);
@@ -64,8 +65,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
   const [remoteEnabled, setRemoteEnabled] = useState(false);
   const [buildRequestId, setBuildRequestId] = useState<string | null>(projectId ?? null);
   const [projectName, setProjectName] = useState("Untitled Website");
-  const [history, setHistory] = useState<BuilderDocument[]>([]);
-  const [future, setFuture] = useState<BuilderDocument[]>([]);
+
   const [previewOpen, setPreviewOpen] = useState(false);
   const router = useRouter();
 
@@ -87,8 +87,6 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
             if (payload.draft?.document) {
               setDocument(payload.draft.document);
               setProjectName(payload.draft.businessName?.trim() || "Untitled Website");
-              setHistory([]);
-              setFuture([]);
               setBuildRequestId(payload.draft.id);
               window.localStorage.setItem(storageKey, JSON.stringify(payload.draft.document));
               window.localStorage.setItem(storageKey + ":build-request-id", payload.draft.id);
@@ -178,7 +176,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [history, future, document]);
+  }, [undo, redo]);
 
   useEffect(() => {
     if (!previewOpen) return;
@@ -193,32 +191,6 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
 
   const page = document.pages[0];
   const selected = page.elements.find((element) => element.id === selectedId) ?? null;
-
-  function commitDocument(updater: (current: BuilderDocument) => BuilderDocument) {
-    const next = updater(document);
-    if (next === document) return;
-    setHistory((past) => [...past.slice(-49), document]);
-    setFuture([]);
-    setDocument(next);
-  }
-
-  function undo() {
-    const previous = history[history.length - 1];
-    if (!previous) return;
-    setHistory((past) => past.slice(0, -1));
-    setFuture((redoStack) => [...redoStack.slice(-49), document]);
-    setDocument(previous);
-    setSelectedId("");
-  }
-
-  function redo() {
-    const next = future[future.length - 1];
-    if (!next) return;
-    setFuture((redoStack) => redoStack.slice(0, -1));
-    setHistory((past) => [...past.slice(-49), document]);
-    setDocument(next);
-    setSelectedId("");
-  }
 
   async function saveDraft() {
     setSyncStatus("saving");
