@@ -49,11 +49,7 @@ const initialDocument: BuilderDocument = {
 
 const storageKey = "fellacoo-builder:draft:v1";
 
-export default function BuilderEditorLegacy() {
-  return <BuilderEditor />;
-}
-
-export function BuilderEditor({ projectId }: { projectId?: string }) {
+ export function BuilderEditor({ projectId }: { projectId?: string }) {
   const { document, updateDocument, resetDocument, undo, redo, canUndo, canRedo } = useBuilderHistory(initialDocument);
   const [selectedId, setSelectedId] = useState("hero-1");
   const [viewport, setViewport] = useState<BuilderViewport>("desktop");
