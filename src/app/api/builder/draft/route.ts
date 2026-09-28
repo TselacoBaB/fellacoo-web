@@ -46,7 +46,12 @@ async function getIdentity() {
   const supabase = await createClient();
   const { data: { user }, error } = await supabase.auth.getUser();
 
-  if (error || !user) return { user: null, felacooUserId: null };
+  if (error) {
+    throw new Error("Supabase Auth: " + error.message);
+  }
+  if (!user) {
+    throw new Error("No authenticated Supabase user found.");
+  }
 
   const sql = getDb();
   const rows = await sql<{ user_id: string }[]>`
