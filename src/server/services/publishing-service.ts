@@ -221,7 +221,7 @@ export async function publishWebsite(input: PublishInput): Promise<PublishResult
       insert into public.website_versions
         (id, build_request_id, preview, label, credits_charged, created_by, created_at)
       values
-        (${crypto.randomUUID()}, ${build.id}, ${JSON.stringify(document)}::jsonb, ${"Published v" + version}, ${0}, ${input.ownerId}, ${new Date().toISOString()})
+        (${crypto.randomUUID()}, ${build.id}, ${tx.json(document)}, ${"Published v" + version}, ${0}, ${input.ownerId}, ${new Date().toISOString()})
     `;
   });
   return {
