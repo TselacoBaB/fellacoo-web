@@ -72,13 +72,6 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
   useEffect(() => {
     let active = true;
 
-    try {
-      const savedDraft = window.localStorage.getItem(storageKey);
-      const savedBuildRequestId = window.localStorage.getItem(storageKey + ":build-request-id");
-      if (!projectId && savedDraft) setDocument(JSON.parse(savedDraft) as BuilderDocument);
-      if (!projectId && savedBuildRequestId) setBuildRequestId(savedBuildRequestId);
-    } catch {}
-
     async function loadRemoteDraft() {
       try {
         const draftUrl = projectId ? `/api/builder/draft?id=${encodeURIComponent(projectId)}` : "/api/builder/draft";
