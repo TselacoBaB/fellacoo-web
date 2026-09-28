@@ -1819,3 +1819,395 @@ a{text-decoration:none}
     flex-wrap:wrap;
   }
 }
+
+
+/* Website domains */
+.domain-manager{
+  padding:clamp(22px,3vw,38px);
+  min-height:640px;
+}
+
+.domain-manager h1{
+  margin:8px 0 10px;
+  font-size:clamp(32px,4vw,52px);
+  letter-spacing:-.045em;
+}
+
+.domain-lead{
+  max-width:760px;
+  margin:0 0 28px;
+  color:#64748b;
+  line-height:1.7;
+}
+
+.domain-loading,
+.domain-empty{
+  min-height:240px;
+  display:grid;
+  place-items:center;
+  align-content:center;
+  gap:8px;
+  border:1px dashed #d8deea;
+  border-radius:16px;
+  background:#fafbfe;
+  color:#64748b;
+  text-align:center;
+  padding:28px;
+}
+
+.domain-empty svg{
+  color:#8b42ff;
+}
+
+.domain-empty h2{
+  margin:4px 0 0;
+  color:#111827;
+}
+
+.domain-empty p{
+  max-width:520px;
+  margin:0 0 10px;
+  line-height:1.6;
+}
+
+.domain-site-picker{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:14px;
+  padding:16px;
+  border:1px solid #e2e8f0;
+  border-radius:14px;
+  background:#fff;
+}
+
+.domain-site-picker label{
+  display:grid;
+  gap:7px;
+  min-width:min(460px,100%);
+}
+
+.domain-site-picker label span{
+  color:#64748b;
+  font-size:11px;
+  font-weight:700;
+}
+
+.domain-site-picker select{
+  height:44px;
+  padding:0 12px;
+  border:1px solid #d9e0eb;
+  border-radius:9px;
+  background:#fff;
+  color:#111827;
+  outline:none;
+}
+
+.domain-live-link{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  height:42px;
+  padding:0 13px;
+  border-radius:9px;
+  background:#f5f1ff;
+  color:#7136c7;
+  font-size:11px;
+  font-weight:800;
+  text-decoration:none;
+  white-space:nowrap;
+}
+
+.domain-live-link.muted{
+  background:#f8fafc;
+  color:#64748b;
+}
+
+.domain-list{
+  margin-top:22px;
+}
+
+.domain-list-heading{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:10px;
+}
+
+.domain-list-heading h2{
+  margin:0;
+  font-size:15px;
+}
+
+.domain-list-heading span{
+  min-width:24px;
+  padding:4px 7px;
+  border-radius:999px;
+  background:#f1f5f9;
+  color:#64748b;
+  text-align:center;
+  font-size:10px;
+  font-weight:800;
+}
+
+.domain-muted{
+  margin:0;
+  padding:20px;
+  border:1px solid #e2e8f0;
+  border-radius:12px;
+  color:#64748b;
+  font-size:12px;
+  background:#fafbfe;
+}
+
+.domain-card{
+  margin-top:10px;
+  padding:14px;
+  border:1px solid #e2e8f0;
+  border-radius:13px;
+  background:#fff;
+}
+
+.domain-card-main{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+
+.domain-status-dot{
+  width:9px;
+  height:9px;
+  flex:none;
+  border-radius:50%;
+  background:#f59e0b;
+  box-shadow:0 0 0 4px rgba(245,158,11,.10);
+}
+
+.domain-status-dot.active{
+  background:#16a34a;
+  box-shadow:0 0 0 4px rgba(22,163,74,.10);
+}
+
+.domain-card-main div{
+  min-width:0;
+  display:grid;
+  gap:4px;
+}
+
+.domain-card-main strong{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#111827;
+  font-size:13px;
+}
+
+.domain-card-main small{
+  color:#64748b;
+  font-size:10px;
+}
+
+.domain-card-actions{
+  display:flex;
+  gap:5px;
+  margin-left:auto;
+  margin-top:-35px;
+  width:max-content;
+}
+
+.domain-card-actions button,
+.dns-row button{
+  width:31px;
+  height:31px;
+  display:grid;
+  place-items:center;
+  border:1px solid #e2e8f0;
+  border-radius:8px;
+  background:#fff;
+  color:#64748b;
+  cursor:pointer;
+}
+
+.domain-card-actions button:hover,
+.dns-row button:hover{
+  border-color:#c7a7ff;
+  color:#7c3aed;
+}
+
+.dns-records{
+  margin-top:13px;
+  padding-top:13px;
+  border-top:1px solid #edf0f5;
+}
+
+.dns-records>small{
+  display:block;
+  margin-bottom:8px;
+  color:#64748b;
+  font-size:10px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+.dns-row{
+  display:grid;
+  grid-template-columns:48px minmax(100px,1fr) minmax(100px,1.5fr) 31px;
+  align-items:center;
+  gap:8px;
+  margin-top:6px;
+  padding:7px;
+  border-radius:8px;
+  background:#f8fafc;
+}
+
+.dns-row b{
+  color:#7c3aed;
+  font-size:10px;
+}
+
+.dns-row code{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#475569;
+  font-size:9px;
+}
+
+.domain-connect-card{
+  margin-top:22px;
+  padding:17px;
+  border:1px solid #ddd3ff;
+  border-radius:14px;
+  background:linear-gradient(145deg,#faf7ff,#fff);
+}
+
+.domain-connect-card>div:first-child{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.domain-connect-icon{
+  width:36px;
+  height:36px;
+  display:grid;
+  place-items:center;
+  flex:none;
+  border-radius:10px;
+  background:#eee6ff;
+  color:#8b42ff;
+}
+
+.domain-connect-card strong{
+  color:#111827;
+  font-size:12px;
+}
+
+.domain-connect-card p{
+  margin:4px 0 0;
+  color:#64748b;
+  font-size:10px;
+}
+
+.domain-connect-form{
+  display:flex;
+  gap:8px;
+  margin-top:14px;
+}
+
+.domain-connect-form input{
+  flex:1;
+  min-width:0;
+  height:44px;
+  padding:0 12px;
+  border:1px solid #d9dfe9;
+  border-radius:9px;
+  outline:none;
+  font:inherit;
+  font-size:12px;
+}
+
+.domain-connect-form input:focus{
+  border-color:#9b61ff;
+  box-shadow:0 0 0 3px rgba(139,66,255,.10);
+}
+
+.domain-connect-form button{
+  min-width:108px;
+  height:44px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  border:0;
+  border-radius:9px;
+  background:#8b42ff;
+  color:#fff;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.domain-connect-form button:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+.domain-feedback{
+  margin-top:12px;
+  padding:11px 13px;
+  border-radius:9px;
+  font-size:11px;
+}
+
+.domain-feedback.success{
+  background:#ecfdf5;
+  color:#047857;
+}
+
+.domain-feedback.error{
+  background:#fff1f2;
+  color:#be123c;
+}
+
+.spin{
+  animation:domainSpin .8s linear infinite;
+}
+
+@keyframes domainSpin{
+  to{transform:rotate(360deg)}
+}
+
+@media(max-width:700px){
+  .domain-site-picker{
+    align-items:stretch;
+    flex-direction:column;
+  }
+
+  .domain-site-picker label{
+    min-width:0;
+  }
+
+  .domain-card-actions{
+    margin-top:10px;
+  }
+
+  .dns-row{
+    grid-template-columns:42px minmax(0,1fr) 31px;
+  }
+
+  .dns-row code:nth-of-type(2){
+    grid-column:2;
+  }
+
+  .domain-connect-form{
+    flex-direction:column;
+  }
+
+  .domain-connect-form button{
+    width:100%;
+  }
+}
