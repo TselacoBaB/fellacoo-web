@@ -557,7 +557,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
               <div className={"website-canvas viewport-" + viewport}>
                 {page.elements.map((element) => (
                   <div className="builder-preview-block" key={element.id}>
-                    <ComponentPreview element={element}/>
+                    <StaticPreviewTree element={element}/>
                   </div>
                 ))}
               </div>
@@ -721,6 +721,14 @@ function ComponentPreview({ element, children }: { element: BuilderElement; chil
     default:
       return <div className="site-block feature-block" style={style}><h2>Component</h2>{nested}</div>;
   }
+}
+
+function StaticPreviewTree({ element }: { element: BuilderElement }) {
+  return (
+    <ComponentPreview element={element}>
+      {element.children?.map((child) => <StaticPreviewTree key={child.id} element={child} />)}
+    </ComponentPreview>
+  );
 }
 
 type PropertyPanelProps = {
