@@ -8,6 +8,7 @@ import {
   Save, Settings2, Smartphone, Tablet, Trash2, Undo2, X
 } from "lucide-react";
 import type { BuilderDocument, BuilderElement, BuilderViewport } from "@/types/builder";
+import { PrimitivePreview } from "@/components/builder/primitives";
 import { useBuilderHistory } from "@/lib/builder/use-builder-history";
 
 type ComponentDefinition = {
@@ -20,6 +21,15 @@ type ComponentDefinition = {
 const library: ComponentDefinition[] = [
   { type: "section", label: "Section", description: "Full-width content section", category: "Layout" },
   { type: "container", label: "Container", description: "Centered content wrapper", category: "Layout" },
+  { type: "columns", label: "Columns", description: "Multi-column layout", category: "Layout" },
+  { type: "spacer", label: "Spacer", description: "Flexible vertical space", category: "Layout" },
+  { type: "text", label: "Text", description: "Paragraph text", category: "Content" },
+  { type: "heading", label: "Heading", description: "Section or page heading", category: "Content" },
+  { type: "image", label: "Image", description: "Image or visual media", category: "Content" },
+  { type: "icon", label: "Icon", description: "Simple visual icon", category: "Content" },
+  { type: "link", label: "Link", description: "Text link", category: "Content" },
+  { type: "divider", label: "Divider", description: "Horizontal separator", category: "Content" },
+  { type: "button", label: "Button", description: "Call-to-action button", category: "Content" },
   { type: "header", label: "Header", description: "Navigation and brand", category: "Layout" },
   { type: "hero", label: "Hero", description: "Headline and primary CTA", category: "Layout" },
   { type: "features", label: "Features", description: "Benefits or services", category: "Content" },
@@ -647,6 +657,10 @@ function ComponentPreview({ element, children }: { element: BuilderElement; chil
   const style = getElementStyle(element);
   const nested = children ? <div className="builder-nested-content">{children}</div> : null;
 
+  if (["text", "heading", "button", "image", "icon", "link", "divider", "spacer", "columns"].includes(element.type)) {
+    return <PrimitivePreview element={element}>{nested}</PrimitivePreview>;
+  }
+
   switch (element.type) {
     case "section":
       return <section className="site-block builder-section-block" style={style}>
@@ -750,6 +764,15 @@ function PropertyPanel({ element, update, remove, move, addChild }: PropertyPane
   const contentFields: Record<string, Array<[string,string]>> = {
     section:[["Section label","label"],["Section title","title"]],
     container:[["Container label","label"]],
+    columns:[["Column count","columns"]],
+    spacer:[["Height","height"]],
+    text:[["Text","text"]],
+    heading:[["Heading","text"],["Heading level","level"]],
+    button:[["Button label","label"],["Button URL","url"],["Variant","variant"]],
+    image:[["Image URL","src"],["Alt text","alt"],["Caption","caption"]],
+    icon:[["Symbol","symbol"],["Accessible label","label"]],
+    link:[["Link label","label"],["URL","url"]],
+    divider:[],
     header:[["Brand name","brand"],["Navigation 1","nav1"],["Navigation 2","nav2"],["Navigation 3","nav3"],["Navigation 4","nav4"],["CTA","cta"]],
     hero:[["Eyebrow","eyebrow"],["Headline","title"],["Description","description"],["Primary CTA","primary"],["Secondary CTA","secondary"],["Primary URL","primaryUrl"],["Secondary URL","secondaryUrl"]],
     features:[["Section title","title"],["Card 1 title","item1"],["Card 1 description","item1Description"],["Card 2 title","item2"],["Card 2 description","item2Description"],["Card 3 title","item3"],["Card 3 description","item3Description"]],
@@ -858,6 +881,15 @@ function defaultProps(type: string): Record<string, unknown> {
   const defaults: Record<string, Record<string, unknown>> = {
     section:{label:"SECTION",title:"Your section"},
     container:{label:"CONTAINER"},
+    columns:{columns:3},
+    spacer:{height:"48px"},
+    text:{text:"Your text goes here."},
+    heading:{text:"Your heading",level:"h2"},
+    button:{label:"Get Started",url:"#",variant:"primary"},
+    image:{src:"",alt:"Add an image",caption:""},
+    icon:{symbol:"✦",label:"Icon"},
+    link:{label:"Learn more",url:"#"},
+    divider:{},
     header:{brand:"Your Business",nav1:"Home",nav2:"Services",nav3:"About",nav4:"Contact",cta:"Get Started"},
     hero:{eyebrow:"WELCOME",title:"Your next customer starts here.",description:"Tell visitors what you do and why they should choose you.",primary:"Get Started",secondary:"Learn More",primaryUrl:"#",secondaryUrl:"#"},
     features:{title:"Everything your customers need.",item1:"Fast setup",item1Description:"A clear foundation designed around your business.",item2:"Mobile ready",item2Description:"A responsive experience across every screen.",item3:"Built to convert",item3Description:"Focused content and calls to action."},
