@@ -2524,3 +2524,107 @@ a{text-decoration:none}
     display:none;
   }
 }
+
+/* =========================================================
+   Builder Inspector v4 — content, color, layout controls
+   ========================================================= */
+.property-section-collapsible{
+  overflow:hidden;
+}
+.property-section-collapsible>summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  list-style:none;
+  cursor:pointer;
+  color:#e6e9f2;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.02em;
+  user-select:none;
+}
+.property-section-collapsible>summary::-webkit-details-marker{
+  display:none;
+}
+.property-section-collapsible>summary::after{
+  content:"+";
+  color:#6f7b96;
+  font-size:14px;
+  font-weight:400;
+}
+.property-section-collapsible[open]>summary::after{
+  content:"−";
+}
+.property-color-field{
+  display:block;
+  margin-top:13px;
+}
+.property-color-field>span{
+  display:block;
+  margin-bottom:6px;
+  color:#76829f;
+  font-size:8px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.property-color-field>div{
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr);
+  gap:7px;
+}
+.property-color-field input[type="color"]{
+  width:38px;
+  height:38px;
+  padding:3px;
+  border:1px solid #252f49;
+  border-radius:8px;
+  background:#11182a;
+  cursor:pointer;
+}
+.property-color-field input:not([type="color"]),
+.property-field select{
+  width:100%;
+  height:38px;
+  padding:0 10px;
+  border:1px solid #252f49;
+  border-radius:8px;
+  outline:0;
+  background:#11182a;
+  color:#e8ebf5;
+  font-size:10px;
+}
+.property-field select{
+  appearance:auto;
+}
+.property-color-field input:focus,
+.property-field select:focus{
+  border-color:#9a4cff;
+  box-shadow:0 0 0 2px rgba(154,76,255,.1);
+}
+.property-toggle{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  min-height:40px;
+  padding:0 10px;
+  border:1px solid #252f49;
+  border-radius:8px;
+  background:#11182a;
+  color:#cbd2e2;
+  font-size:10px;
+}
+.property-toggle input{
+  width:16px;
+  height:16px;
+  accent-color:#9a4cff;
+}
+.property-hint{
+  margin:9px 0 0;
+  color:#697593;
+  font-size:9px;
+  line-height:1.55;
+}
+.property-section-collapsible .property-field:first-of-type{
+  margin-top:12px;
+}
