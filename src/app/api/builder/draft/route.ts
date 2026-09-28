@@ -155,8 +155,8 @@ export async function POST(request: Request) {
     if (body.buildRequestId) {
       const rows = await sql<{ id: string }[]>`
         update public.build_requests
-        set assembly = ${sql.json(body.document)},
-            preview = ${sql.json(body.document)}
+        set assembly = ${sql.json(JSON.parse(JSON.stringify(body.document)))},
+            preview = ${sql.json(JSON.parse(JSON.stringify(body.document)))}
         where id = ${buildRequestId} and owner_id = ${felacooUserId}
         returning id
       `;
@@ -184,8 +184,8 @@ export async function POST(request: Request) {
          ${"draft"},
          ${felacooUserId},
          ${new Date().toISOString()},
-         ${sql.json(body.document)},
-         ${sql.json(body.document)})
+         ${sql.json(JSON.parse(JSON.stringify(body.document)))},
+         ${sql.json(JSON.parse(JSON.stringify(body.document)))})
     `;
 
     return NextResponse.json({ saved: true, buildRequestId });
