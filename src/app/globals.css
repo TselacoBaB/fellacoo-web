@@ -1291,3 +1291,117 @@ a{text-decoration:none}
     animation-duration:.01ms!important;
   }
 }
+
+
+/* Builder functional controls */
+.builder-top-actions button:disabled,
+.canvas-toolbar button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.canvas-toolbar button:not(:disabled):hover {
+  background: #f1f5f9;
+}
+
+.builder-preview-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(8px);
+}
+
+.builder-preview-shell {
+  display: flex;
+  width: min(1500px, 100%);
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 18px;
+  background: #eef1f4;
+  box-shadow: 0 24px 80px rgba(0,0,0,.28);
+}
+
+.builder-preview-toolbar {
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+.builder-preview-toolbar > div {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.builder-preview-toolbar strong {
+  font-size: 14px;
+}
+
+.builder-preview-toolbar span {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.builder-preview-toolbar button {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 0;
+  border-radius: 9px;
+  background: #f1f5f9;
+  cursor: pointer;
+}
+
+.builder-preview-toolbar button:hover {
+  background: #e2e8f0;
+}
+
+.builder-preview-stage {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  padding: 24px;
+}
+
+.builder-preview-stage .website-canvas {
+  margin: 0 auto;
+  min-height: 100%;
+  box-shadow: 0 10px 40px rgba(15,23,42,.12);
+}
+
+.builder-preview-block {
+  width: 100%;
+}
+
+@media (max-width: 700px) {
+  .builder-preview-overlay {
+    padding: 0;
+  }
+
+  .builder-preview-shell {
+    border-radius: 0;
+  }
+
+  .builder-preview-stage {
+    padding: 12px;
+  }
+
+  .builder-preview-toolbar > div {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 2px;
+  }
+}
