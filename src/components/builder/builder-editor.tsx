@@ -389,7 +389,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
     <main className="builder-app">
       <header className="builder-topbar">
         <div className="builder-top-left">
-          <button className="builder-icon-button" onClick={() => setLeftOpen((v) => !v)} title="Toggle components"><Menu size={19}/></button>
+          <button className="builder-icon-button" onClick={() => { setLeftOpen((v) => !v); setRightOpen(false); }} title="Toggle components"><Menu size={19}/></button>
           <a className="builder-back" href="/dashboard"><ArrowLeft size={16}/>Dashboard</a>
           <span className="builder-divider"/>
           <div className="builder-project">
@@ -434,6 +434,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
       )}
 
       <div className="builder-workspace">
+        {(leftOpen || rightOpen) && <button className="builder-panel-backdrop" aria-label="Close panels" onClick={() => { setLeftOpen(false); setRightOpen(false); }} />}
         {leftOpen && <aside className={"builder-left " + (leftOpen ? "is-open" : "")}>
           <div className="builder-panel-head"><div><small>WEBSITE BUILDER</small><strong>Components</strong></div><button onClick={() => setLeftOpen(false)}><X size={16}/></button></div>
           <div className="builder-page-select"><LayoutTemplate size={15}/><span>Home</span><ChevronDown size={14}/></div>
