@@ -82,6 +82,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    if (requestedId && !draft) {
+      return NextResponse.json({ error: "Builder project was not found." }, { status: 404 });
+    }
+
     return NextResponse.json({
       authenticated: true,
       linked: true,
