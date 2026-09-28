@@ -49,7 +49,7 @@ const initialDocument: BuilderDocument = {
 
 const storageKey = "fellacoo-builder:draft:v1";
 
- export function BuilderEditor({ projectId }: { projectId?: string }) {
+export function BuilderEditor({ projectId }: { projectId?: string }) {
   const { document, updateDocument, resetDocument, undo, redo, canUndo, canRedo } = useBuilderHistory(initialDocument);
   const [selectedId, setSelectedId] = useState("hero-1");
   const [viewport, setViewport] = useState<BuilderViewport>("desktop");
@@ -247,7 +247,7 @@ const storageKey = "fellacoo-builder:draft:v1";
   function addComponent(type: string) {
     const id = type + "-" + Date.now();
     const element: BuilderElement = { id, type, props: defaultProps(type) };
-    commitDocument((current) => ({
+    updateDocument((current) => ({
       ...current,
       pages: current.pages.map((p, index) => index === 0 ? { ...p, elements: [...p.elements, element] } : p)
     }));
@@ -255,7 +255,7 @@ const storageKey = "fellacoo-builder:draft:v1";
   }
 
   function updateSelected(patch: Record<string, unknown>) {
-    commitDocument((current) => ({
+    updateDocument((current) => ({
       ...current,
       pages: current.pages.map((p, index) => index === 0
         ? { ...p, elements: p.elements.map((element) => element.id === selectedId ? { ...element, props: { ...element.props, ...patch } } : element) }
@@ -267,7 +267,7 @@ const storageKey = "fellacoo-builder:draft:v1";
     if (!selectedId || page.elements.length <= 1) return;
     const index = page.elements.findIndex((element) => element.id === selectedId);
     const next = page.elements[index - 1] ?? page.elements[index + 1];
-    commitDocument((current) => ({ ...current, pages: current.pages.map((p, i) => i === 0 ? { ...p, elements: p.elements.filter((element) => element.id !== selectedId) } : p) }));
+    updateDocument((current) => ({ ...current, pages: current.pages.map((p, i) => i === 0 ? { ...p, elements: p.elements.filter((element) => element.id !== selectedId) } : p) }));
     setSelectedId(next?.id ?? "");
   }
 
@@ -277,7 +277,7 @@ const storageKey = "fellacoo-builder:draft:v1";
     if (index < 0 || nextIndex < 0 || nextIndex >= page.elements.length) return;
     const elements = [...page.elements];
     [elements[index], elements[nextIndex]] = [elements[nextIndex], elements[index]];
-    commitDocument((current) => ({ ...current, pages: current.pages.map((p, i) => i === 0 ? { ...p, elements } : p) }));
+    updateDocument((current) => ({ ...current, pages: current.pages.map((p, i) => i === 0 ? { ...p, elements } : p) }));
   }
 
   return (
@@ -329,8 +329,8 @@ const storageKey = "fellacoo-builder:draft:v1";
           <div className="canvas-toolbar">
             <span><MousePointer2 size={14}/>Live design canvas</span>
             <div>
-              <button onClick={undo} disabled={history.length === 0} title="Undo"><Undo2 size={15}/></button>
-              <button onClick={redo} disabled={future.length === 0} title="Redo"><Redo2 size={15}/></button>
+              <button onClick={undo} disabled={!canUndo} title="Undo"><Undo2 size={15}/></button>
+              <button onClick={redo} disabled={!canRedo} title="Redo"><Redo2 size={15}/></button>
             </div>
           </div>
           <div className="canvas-stage" onClick={() => setSelectedId("")}>
