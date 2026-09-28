@@ -638,26 +638,81 @@ function ComponentPreview({ element, children }: { element: BuilderElement; chil
   const p = element.props;
   const style = getElementStyle(element);
   const nested = children ? <div className="builder-nested-content">{children}</div> : null;
+
   switch (element.type) {
-    case "section": return <section className="site-block builder-section-block" style={style}><small>{String(p.label ?? "SECTION")}</small><h2>{String(p.title ?? "Your section")}</h2>{nested}</section>;
-    case "container": return <div className="builder-container-block" style={style}>{nested}</div>;
-    case "header": return <div className="site-block header-block" style={style}><strong>{String(p.brand ?? "Your Business")}</strong><nav><span>{String(p.nav1 ?? "Home")}</span><span>{String(p.nav2 ?? "Services")}</span><span>{String(p.nav3 ?? "About")}</span><span>{String(p.nav4 ?? "Contact")}</span><button>{String(p.cta ?? "Get Started")}</button></nav>{nested}</div>;
-    case "hero": return <section className="site-block hero-block" style={style}><div><small>{String(p.eyebrow ?? "WELCOME")}</small><h1>{String(p.title ?? "Your next customer starts here.")}</h1><p>{String(p.description ?? "")}</p><div><button>{String(p.primary ?? "Get Started")}</button><button className="ghost">{String(p.secondary ?? "Learn More")}</button></div></div><div className="hero-shape"><span/></div>{nested}</section>;
-    case "features": return <section className="site-block feature-block" style={style}><small>WHY CHOOSE US</small><h2>{String(p.title ?? "Everything your customers need.")}</h2><div className="feature-grid">{[[p.item1 ?? "Fast setup",p.item1Description ?? "A clear foundation designed around your business."],[p.item2 ?? "Mobile ready",p.item2Description ?? "A responsive experience across every screen."],[p.item3 ?? "Built to convert",p.item3Description ?? "Focused content and calls to action."]].map(([title,description])=><article key={String(title)}><span>✦</span><strong>{String(title)}</strong><p>{String(description)}</p></article>)}</div>{nested}</section>;
-    case "services": return <section className="site-block feature-block" style={style}><small>{String(p.eyebrow ?? "SERVICES")}</small><h2>{String(p.title ?? "What we do.")}</h2><div className="feature-grid">{[1,2,3].map((index)=><article key={index}><span>◈</span><strong>{String(p["item"+index] ?? ["Consulting","Design","Support"][index-1])}</strong><p>{String(p["item"+index+"Description"] ?? "Present your service clearly.")}</p></article>)}</div>{nested}</section>;
-    case "products": return <section className="site-block feature-block" style={style}><small>STORE</small><h2>{String(p.title ?? "Featured products.")}</h2><div className="feature-grid">{[1,2,3].map((index)=><article key={index}><span>□</span><strong>{String(p["item"+index] ?? ["Product One","Product Two","Product Three"][index-1])}</strong><p>{String(p["price"+index] ?? "R299.00")} · {String(p.cta ?? "Add to cart")}</p></article>)}</div>{nested}</section>;
-    case "pricing": return <section className="site-block feature-block" style={style}><small>PRICING</small><h2>{String(p.title ?? "Simple plans.")}</h2><div className="feature-grid">{[1,2,3].map((index)=><article key={index}><span>◇</span><strong>{String(p["item"+index] ?? ["Starter","Growth","Pro"][index-1])}</strong><p>{String(p["price"+index] ?? "From R299 / month")}</p></article>)}</div></section>;
-    case "lead-form": return <section className="site-block form-block" style={style}><small>{String(p.eyebrow ?? "GET IN TOUCH")}</small><h2>{String(p.title ?? "Tell us what you need.")}</h2><input placeholder={String(p.namePlaceholder ?? "Your name")}/><input placeholder={String(p.emailPlaceholder ?? "Email address")}/><textarea placeholder={String(p.messagePlaceholder ?? "How can we help?")}/><button>{String(p.cta ?? "Send enquiry")}</button></section>{nested}
+    case "section":
+      return <section className="site-block builder-section-block" style={style}>
+        <small>{String(p.label ?? "SECTION")}</small>
+        <h2>{String(p.title ?? "Your section")}</h2>
+        {nested}
       </section>;
-    case "booking": return <section className="site-block form-block" style={style}><small>BOOKING</small><h2>{String(p.title ?? "Choose a time.")}</h2><div className="calendar-placeholder">{String(p.helper ?? "Select date · Select time · Confirm booking")}</div></section>{nested}
+    case "container":
+      return <div className="builder-container-block" style={style}>{nested}</div>;
+    case "header":
+      return <div className="site-block header-block" style={style}>
+        <strong>{String(p.brand ?? "Your Business")}</strong>
+        <nav><span>{String(p.nav1 ?? "Home")}</span><span>{String(p.nav2 ?? "Services")}</span><span>{String(p.nav3 ?? "About")}</span><span>{String(p.nav4 ?? "Contact")}</span><button>{String(p.cta ?? "Get Started")}</button></nav>
+        {nested}
+      </div>;
+    case "hero":
+      return <section className="site-block hero-block" style={style}>
+        <div><small>{String(p.eyebrow ?? "WELCOME")}</small><h1>{String(p.title ?? "Your next customer starts here.")}</h1><p>{String(p.description ?? "")}</p><div><button>{String(p.primary ?? "Get Started")}</button><button className="ghost">{String(p.secondary ?? "Learn More")}</button></div></div>
+        <div className="hero-shape"><span/></div>
+        {nested}
       </section>;
-    case "quote": return <section className="site-block form-block" style={style}><small>QUOTE</small><h2>{String(p.title ?? "Request a quote.")}</h2><input placeholder={String(p.placeholder ?? "What do you need?")}/><button>{String(p.cta ?? "Request quotation")}</button></section>{nested}
+    case "features":
+      return <section className="site-block feature-block" style={style}>
+        <small>WHY CHOOSE US</small><h2>{String(p.title ?? "Everything your customers need.")}</h2>
+        <div className="feature-grid">{[[p.item1 ?? "Fast setup",p.item1Description ?? "A clear foundation designed around your business."],[p.item2 ?? "Mobile ready",p.item2Description ?? "A responsive experience across every screen."],[p.item3 ?? "Built to convert",p.item3Description ?? "Focused content and calls to action."]].map(([title,description])=><article key={String(title)}><span>✦</span><strong>{String(title)}</strong><p>{String(description)}</p></article>)}</div>
+        {nested}
       </section>;
-    case "testimonials": return <section className="site-block feature-block" style={style}><small>TRUSTED</small><h2>{String(p.title ?? "What customers say.")}</h2><div className="quote-card">“{String(p.quote ?? "Excellent service and a beautiful experience.")}”<strong>— {String(p.author ?? "Happy customer")}</strong></div></section>{nested}
+    case "services":
+      return <section className="site-block feature-block" style={style}>
+        <small>{String(p.eyebrow ?? "SERVICES")}</small><h2>{String(p.title ?? "What we do.")}</h2>
+        <div className="feature-grid">{[1,2,3].map((index)=><article key={index}><span>◈</span><strong>{String(p["item"+index] ?? ["Consulting","Design","Support"][index-1])}</strong><p>{String(p["item"+index+"Description"] ?? "Present your service clearly.")}</p></article>)}</div>
+        {nested}
       </section>;
-    case "faq": return <section className="site-block feature-block" style={style}><small>FAQ</small><h2>{String(p.title ?? "Questions, answered.")}</h2><div className="faq-list">{[1,2,3].map((index)=><div key={index}>{String(p["question"+index] ?? ["What do you offer?","How does it work?","How do I get started?"][index-1])}<ChevronDown size={15}/></div>)}</div></section>;
-    case "footer": return <footer className="site-block footer-block" style={style}><strong>{String(p.brand ?? "Your Business")}</strong><span>{String(p.copyright ?? "© 2026 · Privacy · Terms · Contact")}</span></footer>;
-    default: return <div className="site-block feature-block" style={style}><h2>Component</h2></div>;
+    case "products":
+      return <section className="site-block feature-block" style={style}>
+        <small>STORE</small><h2>{String(p.title ?? "Featured products.")}</h2>
+        <div className="feature-grid">{[1,2,3].map((index)=><article key={index}><span>□</span><strong>{String(p["item"+index] ?? ["Product One","Product Two","Product Three"][index-1])}</strong><p>{String(p["price"+index] ?? "R299.00")} · {String(p.cta ?? "Add to cart")}</p></article>)}</div>
+        {nested}
+      </section>;
+    case "pricing":
+      return <section className="site-block feature-block" style={style}>
+        <small>PRICING</small><h2>{String(p.title ?? "Simple plans.")}</h2>
+        <div className="feature-grid">{[1,2,3].map((index)=><article key={index}><span>◇</span><strong>{String(p["item"+index] ?? ["Starter","Growth","Pro"][index-1])}</strong><p>{String(p["price"+index] ?? "From R299 / month")}</p></article>)}</div>
+        {nested}
+      </section>;
+    case "lead-form":
+      return <section className="site-block form-block" style={style}>
+        <small>{String(p.eyebrow ?? "GET IN TOUCH")}</small><h2>{String(p.title ?? "Tell us what you need.")}</h2><input placeholder={String(p.namePlaceholder ?? "Your name")}/><input placeholder={String(p.emailPlaceholder ?? "Email address")}/><textarea placeholder={String(p.messagePlaceholder ?? "How can we help?")}/><button>{String(p.cta ?? "Send enquiry")}</button>
+        {nested}
+      </section>;
+    case "booking":
+      return <section className="site-block form-block" style={style}>
+        <small>BOOKING</small><h2>{String(p.title ?? "Choose a time.")}</h2><div className="calendar-placeholder">{String(p.helper ?? "Select date · Select time · Confirm booking")}</div>
+        {nested}
+      </section>;
+    case "quote":
+      return <section className="site-block form-block" style={style}>
+        <small>QUOTE</small><h2>{String(p.title ?? "Request a quote.")}</h2><input placeholder={String(p.placeholder ?? "What do you need?")}/><button>{String(p.cta ?? "Request quotation")}</button>
+        {nested}
+      </section>;
+    case "testimonials":
+      return <section className="site-block feature-block" style={style}>
+        <small>TRUSTED</small><h2>{String(p.title ?? "What customers say.")}</h2><div className="quote-card">“{String(p.quote ?? "Excellent service and a beautiful experience.")}”<strong>— {String(p.author ?? "Happy customer")}</strong></div>
+        {nested}
+      </section>;
+    case "faq":
+      return <section className="site-block feature-block" style={style}>
+        <small>FAQ</small><h2>{String(p.title ?? "Questions, answered.")}</h2><div className="faq-list">{[1,2,3].map((index)=><div key={index}>{String(p["question"+index] ?? ["What do you offer?","How does it work?","How do I get started?"][index-1])}<ChevronDown size={15}/></div>)}</div>
+        {nested}
+      </section>;
+    case "footer":
+      return <footer className="site-block footer-block" style={style}><strong>{String(p.brand ?? "Your Business")}</strong><span>{String(p.copyright ?? "© 2026 · Privacy · Terms · Contact")}</span>{nested}</footer>;
+    default:
+      return <div className="site-block feature-block" style={style}><h2>Component</h2>{nested}</div>;
   }
 }
 
