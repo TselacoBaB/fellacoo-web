@@ -558,7 +558,7 @@ function defaultProps(type:string):Record<string,unknown>{
   return d[type]??{};
 }
 
-function LayerTreeItem({element,selectedId,onSelect,depth}:{element:BuilderElement;selectedId:string;onSelect:(id:string)=>void;depth:number}){return <div className="builder-layer-item" style={{paddingLeft:Math.min(depth,5)*10}}><button className={selectedId===element.id?"selected":""} onClick={()=>onSelect(element.id)}><span>{element.type}</span><small>{element.props.title||element.props.text||element.props.brand||""}</small></button>{element.children?.map(child=><LayerTreeItem key={child.id} element={child} selectedId={selectedId} onSelect={onSelect} depth={depth+1}/>)}</div>}
+function LayerTreeItem({element,selectedId,onSelect,depth}:{element:BuilderElement;selectedId:string;onSelect:(id:string)=>void;depth:number}){return <div className="builder-layer-item" style={{paddingLeft:Math.min(depth,5)*10}}><button className={selectedId===element.id?"selected":""} onClick={()=>onSelect(element.id)}><span>{element.type}</span><small>{String(element.props.title||element.props.text||element.props.brand||"")}</small></button>{element.children?.map(child=><LayerTreeItem key={child.id} element={child} selectedId={selectedId} onSelect={onSelect} depth={depth+1}/>)}</div>}
 
 function ViewportButton({active,onClick,icon,label}:{active:boolean;onClick:()=>void;icon:ReactNode;label:string}){return <button title={label} onClick={onClick} className={"builder-viewport-button "+(active?"active":"")}>{icon}</button>;}
 
