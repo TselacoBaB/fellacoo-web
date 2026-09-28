@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type ReactNode } from "react";
 import {
   Activity, BarChart3, Bell, BookOpen, Box, BriefcaseBusiness, Calculator,
   CalendarDays, ChevronDown, ChevronRight, CircleHelp, CreditCard, FileImage,
@@ -10,6 +9,7 @@ import {
   Store, Users, X, Zap
 } from "lucide-react";
 import { useAppState, type WebsiteFilter } from "@/lib/state/app-store";
+import { AppSidebar } from "@/components/navigation/app-sidebar";
 import { DashboardCard, CardHeader, ToolCard } from "@/components/dashboard/primitives";
 
 type NavItem = {
@@ -24,57 +24,6 @@ type NavGroup = {
   icon: typeof Home;
   items: NavItem[];
 };
-
-const navGroups: NavGroup[] = [
-  {
-    label: "Websites",
-    icon: LayoutTemplate,
-    items: [
-      { label: "My Websites", icon: LayoutTemplate, href: "/dashboard" },
-      { label: "Templates", icon: Box, href: "/dashboard" },
-      { label: "Domains", icon: Globe2, href: "/dashboard" }
-    ]
-  },
-  {
-    label: "Design",
-    icon: Palette,
-    items: [
-      { label: "Components", icon: PanelTop, href: "#components" },
-      { label: "Brand Kit", icon: BookOpen, href: "#components" },
-      { label: "Media Library", icon: FileImage, href: "#components" }
-    ]
-  },
-  {
-    label: "Business",
-    icon: BriefcaseBusiness,
-    items: [
-      { label: "Store", icon: Store, href: "#business-tools" },
-      { label: "Shopping Cart", icon: ShoppingCart, href: "#business-tools" },
-      { label: "CRM", icon: BriefcaseBusiness, href: "#business-tools" },
-      { label: "Bookings", icon: CalendarDays, href: "#business-tools" },
-      { label: "Leads", icon: Users, href: "#business-tools" },
-      { label: "Operations", icon: BriefcaseBusiness, href: "#business-tools" }
-    ]
-  },
-  {
-    label: "Sales & Finance",
-    icon: CreditCard,
-    items: [
-      { label: "Quotes", icon: FileText, href: "#business-tools" },
-      { label: "Invoices", icon: Receipt, href: "#business-tools" },
-      { label: "Payments", icon: CreditCard, href: "#business-tools" },
-      { label: "Accounting", icon: Calculator, href: "#business-tools" },
-      { label: "Orders", icon: Package, href: "#business-tools" }
-    ]
-  },
-  {
-    label: "Growth",
-    icon: Sparkles,
-    items: [
-      { label: "Analytics", icon: BarChart3, href: "#business-tools" }
-    ]
-  }
-];
 
 const websites = [
   { name: "Bake 'N Mo", domain: "bakenmo.co.za", kind: "bakery", status: "Published" },
@@ -114,8 +63,6 @@ const filters: { label: string; value: WebsiteFilter }[] = [
 
 export default function DashboardPage() {
   const {
-    sidebarOpen,
-    setSidebarOpen,
     websiteFilter,
     setWebsiteFilter,
     activeTool,
@@ -146,100 +93,7 @@ export default function DashboardPage() {
 
   return (
     <main className="dashboard-shell">
-      <aside className={sidebarOpen ? "dashboard-sidebar is-open" : "dashboard-sidebar"}>
-        <div className="dashboard-brand">
-          <div className="brand-mark"><span /><span /><span /></div>
-          <span>FELLACOO</span>
-          <button className="sidebar-close" onClick={closeMobileMenu} aria-label="Close menu">
-            <X size={18} />
-          </button>
-        </div>
-
-        <nav className="dashboard-nav">
-          <Link
-            href="/dashboard"
-            onClick={closeMobileMenu}
-            className="dashboard-nav-item active"
-          >
-            <Home size={18} strokeWidth={1.8} />
-            <span>Dashboard</span>
-          </Link>
-
-          <Link
-            href="/builder/new/site"
-            onClick={closeMobileMenu}
-            className="dashboard-nav-item primary-nav-item"
-          >
-            <Plus size={18} strokeWidth={1.8} />
-            <span>Create Website</span>
-            <span className="nav-plus"><Plus size={12} /></span>
-          </Link>
-
-          <div className="nav-divider" />
-
-          {navGroups.map((group) => {
-            const GroupIcon = group.icon;
-            const isOpen = openGroups[group.label];
-
-            return (
-              <div className={`nav-group ${isOpen ? "is-open" : ""}`} key={group.label}>
-                <button
-                  className="nav-group-trigger"
-                  onClick={() => toggleGroup(group.label)}
-                  aria-expanded={isOpen}
-                >
-                  <span className="nav-group-title">
-                    <GroupIcon size={16} strokeWidth={1.8} />
-                    <span>{group.label}</span>
-                  </span>
-                  <ChevronDown size={14} />
-                </button>
-
-                <div className="nav-group-items">
-                  {group.items.map(({ label, icon: Icon, href = "#", primary }) => (
-                    <Link
-                      key={label}
-                      href={href}
-                      onClick={closeMobileMenu}
-                      className={`dashboard-nav-item nav-child ${primary ? "primary-nav-item" : ""}`}
-                    >
-                      <Icon size={16} strokeWidth={1.8} />
-                      <span>{label}</span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-
-          <div className="nav-divider" />
-
-          <Link
-            href="/dashboard"
-            onClick={closeMobileMenu}
-            className="dashboard-nav-item"
-          >
-            <Settings size={18} strokeWidth={1.8} />
-            <span>Settings</span>
-          </Link>
-        </nav>
-
-        <div className="plan-card">
-          <div className="plan-icon"><Zap size={18} /></div>
-          <div className="plan-name">Pro Plan</div>
-          <div className="plan-count"><strong>2</strong> / 10 websites</div>
-          <div className="plan-progress"><span /></div>
-          <button className="upgrade-button">Upgrade Plan <ChevronRight size={15} /></button>
-        </div>
-      </aside>
-
-      {sidebarOpen && (
-        <button
-          className="dashboard-backdrop"
-          onClick={closeMobileMenu}
-          aria-label="Close navigation"
-        />
-      )}
+      <AppSidebar />
 
       <section className="dashboard-main">
         <header className="dashboard-topbar">
