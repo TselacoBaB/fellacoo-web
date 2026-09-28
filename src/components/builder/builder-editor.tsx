@@ -323,7 +323,16 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
           <button className="builder-icon-button" onClick={() => setLeftOpen((v) => !v)} title="Toggle components"><Menu size={19}/></button>
           <a className="builder-back" href="/dashboard"><ArrowLeft size={16}/>Dashboard</a>
           <span className="builder-divider"/>
-          <div className="builder-project"><strong>{projectName}</strong><small>{saved ? syncStatus === "synced" ? "Synced with Supabase" : "Saved locally" : "Saving…"}</small></div>
+          <div className="builder-project">
+  <input
+    value={projectName}
+    onChange={(event) => setProjectName(event.target.value)}
+    onBlur={() => { if (projectName.trim()) void saveDraft(); }}
+    aria-label="Website name"
+    title="Website name"
+  />
+  <small>{saved ? syncStatus === "synced" ? "Synced with Supabase" : "Saved locally" : "Saving…"}</small>
+</div>
         </div>
 
         <div className="builder-viewport">
