@@ -157,34 +157,28 @@ export default function BuilderPage() {
   const selected = page.elements.find((element) => element.id === selectedId) ?? null;
 
   function commitDocument(updater: (current: BuilderDocument) => BuilderDocument) {
-    setDocument((current) => {
-      const next = updater(current);
-      if (next === current) return current;
-      setHistory((past) => [...past.slice(-49), current]);
-      setFuture([]);
-      return next;
-    });
+    const next = updater(document);
+    if (next === document) return;
+    setHistory((past) => [...past.slice(-49), document]);
+    setFuture([]);
+    setDocument(next);
   }
 
   function undo() {
-    setHistory((past) => {
-      const previous = past[past.length - 1];
-      if (!previous) return past;
-      setFuture((redoStack) => [...redoStack.slice(-49), document]);
-      setDocument(previous);
-      return past.slice(0, -1);
-    });
+    const previous = history[history.length - 1];
+    if (!previous) return;
+    setHistory((past) => past.slice(0, -1));
+    setFuture((redoStack) => [...redoStack.slice(-49), document]);
+    setDocument(previous);
     setSelectedId("");
   }
 
   function redo() {
-    setFuture((redoStack) => {
-      const next = redoStack[redoStack.length - 1];
-      if (!next) return redoStack;
-      setHistory((past) => [...past.slice(-49), document]);
-      setDocument(next);
-      return redoStack.slice(0, -1);
-    });
+    const next = future[future.length - 1];
+    if (!next) return;
+    setFuture((redoStack) => redoStack.slice(0, -1));
+    setHistory((past) => [...past.slice(-49), document]);
+    setDocument(next);
     setSelectedId("");
   }
 
