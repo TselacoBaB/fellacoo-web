@@ -197,7 +197,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
   }, [previewOpen]);
 
   const page = document.pages[0];
-  const selected = page.elements.find((element) => element.id === selectedId) ?? null;
+  const selected = findElementById(page.elements, selectedId);
 
   async function saveDraft(): Promise<string | null> {
     setSyncStatus("saving");
@@ -770,6 +770,17 @@ function PropertyPanel({ element, update, remove, move, addChild }: PropertyPane
     <div className="property-section"><small>POSITION</small><div className="property-actions"><button onClick={()=>move("up")}><ArrowUp size={15}/>Move up</button><button onClick={()=>move("down")}><ArrowDown size={15}/>Move down</button></div></div>
     <div className="property-section"><small>COMPONENT</small><button className="delete-component" onClick={remove}><Trash2 size={15}/>Remove element</button></div>
   </div>;
+}
+
+function findElementById(elements: BuilderElement[], id: string): BuilderElement | null {
+  for (const element of elements) {
+    if (element.id === id) return element;
+    if (element.children?.length) {
+      const found = findElementById(element.children, id);
+      if (found) return found;
+    }
+  }
+  return null;
 }
 
 function appendChildToTree(elements: BuilderElement[], parentId: string, child: BuilderElement): BuilderElement[] {
