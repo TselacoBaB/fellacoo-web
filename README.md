@@ -45,6 +45,23 @@ The builder route is:
 When a signed-in user has a matching `felacoo_auth_links` row, builder autosave syncs to the existing `build_requests` data. Without that auth link, the editor remains usable with local draft storage.
 
 
+## Website lifecycle foundation
+
+The website workspace now supports the core multi-site lifecycle around the existing Supabase schema:
+
+- create and save independent website projects
+- edit reusable builder components with click-to-add or drag-to-canvas
+- reorder components directly on the canvas
+- desktop, tablet and mobile canvas modes
+- preview the current website without leaving the builder
+- publish versioned HTML through the server-side Cloudflare R2 publishing service
+- automatically register the Fellacoo subdomain for a published site
+- manage website projects from the dashboard, including duplicate/archive/restore
+- inspect published deployment history at `/websites/versions?site=<project-id>`
+- connect custom domains through Cloudflare Custom Hostnames when the server-side Cloudflare configuration is present
+
+Publishing remains server-side: browser code never receives service-role keys, Cloudflare API tokens, or other infrastructure secrets.
+
 ## Functional foundation
 
 The current application foundation includes:
