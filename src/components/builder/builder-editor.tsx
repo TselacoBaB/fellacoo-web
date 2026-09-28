@@ -648,6 +648,9 @@ function getElementStyle(element: BuilderElement): CSSProperties {
   if (typeof design.paddingBottom === "string" && design.paddingBottom) style.paddingBottom = design.paddingBottom;
   if (typeof design.textAlign === "string" && design.textAlign) style.textAlign = design.textAlign as CSSProperties["textAlign"];
   if (typeof design.boxShadow === "string" && design.boxShadow) style.boxShadow = design.boxShadow;
+  if (typeof design.fontSize === "string" && design.fontSize) style.fontSize = design.fontSize;
+  if (typeof design.fontWeight === "string" && design.fontWeight) style.fontWeight = design.fontWeight;
+  if (typeof design.lineHeight === "string" && design.lineHeight) style.lineHeight = design.lineHeight;
   if (design.hidden === true) style.display = "none";
   return style;
 }
