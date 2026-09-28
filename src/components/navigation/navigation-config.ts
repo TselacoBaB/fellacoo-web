@@ -50,8 +50,8 @@ export const navigationGroups: NavigationGroup[] = [
     icon: LayoutTemplate,
     items: [
       { label: "My Websites", icon: LayoutTemplate, href: "/dashboard" },
-      { label: "Templates", icon: Box, href: "#design-tools" },
-      { label: "Domains", icon: Globe2, href: "#business-tools" }
+      { label: "Templates", icon: Box, href: "/design/templates" },
+      { label: "Domains", icon: Globe2, href: "/websites/domains" }
     ]
   },
   {
@@ -59,9 +59,9 @@ export const navigationGroups: NavigationGroup[] = [
     label: "Design",
     icon: Palette,
     items: [
-      { label: "Components", icon: PanelTop, href: "#design-tools" },
-      { label: "Brand Kit", icon: BookOpen, href: "#design-tools" },
-      { label: "Media Library", icon: FileImage, href: "#design-tools" }
+      { label: "Components", icon: PanelTop, href: "/design/components" },
+      { label: "Brand Kit", icon: BookOpen, href: "/design/brand-kit" },
+      { label: "Media Library", icon: FileImage, href: "/design/media-library" }
     ]
   },
   {
@@ -69,12 +69,12 @@ export const navigationGroups: NavigationGroup[] = [
     label: "Business",
     icon: BriefcaseBusiness,
     items: [
-      { label: "Store", icon: Store, href: "#business-tools" },
-      { label: "Shopping Cart", icon: ShoppingCart, href: "#business-tools" },
-      { label: "CRM", icon: BriefcaseBusiness, href: "#business-tools" },
-      { label: "Bookings", icon: CalendarDays, href: "#business-tools" },
-      { label: "Leads", icon: Users, href: "#business-tools" },
-      { label: "Operations", icon: Workflow, href: "#business-tools" }
+      { label: "Store", icon: Store, href: "/business/store" },
+      { label: "Shopping Cart", icon: ShoppingCart, href: "/business/shopping-cart" },
+      { label: "CRM", icon: BriefcaseBusiness, href: "/business/crm" },
+      { label: "Bookings", icon: CalendarDays, href: "/business/bookings" },
+      { label: "Leads", icon: Users, href: "/business/leads" },
+      { label: "Operations", icon: Workflow, href: "/business/operations" }
     ]
   },
   {
@@ -82,11 +82,11 @@ export const navigationGroups: NavigationGroup[] = [
     label: "Sales & Finance",
     icon: CreditCard,
     items: [
-      { label: "Quotes", icon: FileText, href: "#business-tools" },
-      { label: "Invoices", icon: Receipt, href: "#business-tools" },
-      { label: "Payments", icon: CreditCard, href: "#business-tools" },
-      { label: "Accounting", icon: Calculator, href: "#business-tools" },
-      { label: "Orders", icon: Package, href: "#business-tools" }
+      { label: "Quotes", icon: FileText, href: "/sales/quotes" },
+      { label: "Invoices", icon: Receipt, href: "/sales/invoices" },
+      { label: "Payments", icon: CreditCard, href: "/sales/payments" },
+      { label: "Accounting", icon: Calculator, href: "/sales/accounting" },
+      { label: "Orders", icon: Package, href: "/sales/orders" }
     ]
   },
   {
@@ -94,10 +94,10 @@ export const navigationGroups: NavigationGroup[] = [
     label: "Growth",
     icon: Sparkles,
     items: [
-      { label: "Analytics", icon: BarChart3, href: "#business-tools" },
-      { label: "Conversion", icon: Target, href: "#business-tools" },
-      { label: "Campaigns", icon: Megaphone, href: "#business-tools" },
-      { label: "Automations", icon: Workflow, href: "#business-tools" }
+      { label: "Analytics", icon: BarChart3, href: "/growth/analytics" },
+      { label: "Conversion", icon: Target, href: "/growth/conversion" },
+      { label: "Campaigns", icon: Megaphone, href: "/growth/campaigns" },
+      { label: "Automations", icon: Workflow, href: "/growth/automations" }
     ]
   },
   {
@@ -105,10 +105,10 @@ export const navigationGroups: NavigationGroup[] = [
     label: "Communication",
     icon: MessageCircle,
     items: [
-      { label: "WhatsApp", icon: MessageCircle, href: "#business-tools" },
-      { label: "Conversations", icon: BellRing, href: "#business-tools" },
-      { label: "Email", icon: BellRing, href: "#business-tools" },
-      { label: "Notifications", icon: BellRing, href: "#business-tools" }
+      { label: "WhatsApp", icon: MessageCircle, href: "/communication/whatsapp" },
+      { label: "Conversations", icon: BellRing, href: "/communication/conversations" },
+      { label: "Email", icon: BellRing, href: "/communication/email" },
+      { label: "Notifications", icon: BellRing, href: "/communication/notifications" }
     ]
   },
   {
@@ -117,9 +117,9 @@ export const navigationGroups: NavigationGroup[] = [
     icon: Sparkles,
     items: [
       { label: "AI Builder", icon: Sparkles, href: "/builder/new/site" },
-      { label: "AI Assistant", icon: Zap, href: "#business-tools" },
-      { label: "AI Content", icon: FileText, href: "#business-tools" },
-      { label: "AI Automations", icon: Workflow, href: "#business-tools" }
+      { label: "AI Assistant", icon: Zap, href: "/ai/assistant" },
+      { label: "AI Content", icon: FileText, href: "/ai/content" },
+      { label: "AI Automations", icon: Workflow, href: "/ai/automations" }
     ]
   }
 ];
