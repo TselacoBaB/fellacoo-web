@@ -507,8 +507,8 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
           {selected ? <PropertyPanel element={selected} update={updateSelected} remove={removeSelected} move={moveSelected} /> : <div className="empty-properties"><Settings2 size={22}/><p>Select a component to edit it.</p></div>}
         </aside>}
 
-        {!leftOpen && <button className="floating-panel-button left" onClick={() => setLeftOpen(true)}><PanelLeft size={17}/></button>}
-        {!rightOpen && <button className="floating-panel-button right" onClick={() => setRightOpen(true)}><PanelRight size={17}/></button>}
+        {!leftOpen && <button className="floating-panel-button left" onClick={() => { setRightOpen(false); setLeftOpen(true); }}><PanelLeft size={17}/></button>}
+        {!rightOpen && <button className="floating-panel-button right" onClick={() => { setLeftOpen(false); setRightOpen(true); }}><PanelRight size={17}/></button>}
       </div>
       {previewOpen && (
         <div className="builder-preview-overlay" role="dialog" aria-modal="true" aria-label="Website preview">
