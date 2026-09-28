@@ -1405,3 +1405,56 @@ a{text-decoration:none}
     gap: 2px;
   }
 }
+
+
+.feature-route-card {
+  padding: 32px;
+  min-height: 360px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.feature-route-card h1 {
+  margin: 8px 0 12px;
+  font-size: clamp(30px, 4vw, 48px);
+  letter-spacing: -0.04em;
+}
+
+.feature-route-card p {
+  max-width: 720px;
+  color: #64748b;
+  line-height: 1.7;
+  margin: 0 0 24px;
+}
+
+.feature-route-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.feature-route-status span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 11px;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.feature-route-card .primary-action {
+  width: fit-content;
+  text-decoration: none;
+}
+
+@media (max-width: 700px) {
+  .feature-route-card {
+    padding: 22px;
+  }
+}
