@@ -2295,3 +2295,20 @@ a{text-decoration:none}
   font-size:10px;
   font-weight:700;
 }
+
+
+.builder-panel-backdrop{
+  position:absolute;
+  inset:0;
+  z-index:35;
+  border:0;
+  background:rgba(3,7,18,.34);
+  backdrop-filter:blur(1px);
+  cursor:pointer;
+}
+
+@media(min-width:1101px){
+  .builder-panel-backdrop{
+    background:rgba(3,7,18,.18);
+  }
+}
