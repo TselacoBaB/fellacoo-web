@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import {
-  ArrowDown, ArrowLeft, ArrowUp, ChevronDown, ChevronRight, Eye, LayoutTemplate,
+  ArrowDown, ArrowLeft, ArrowUp, ChevronDown, ChevronRight, Eye, LayoutTemplate, Layers3,
   Menu, Monitor, MousePointer2, PanelLeft, PanelRight, Palette, Plus, Redo2,
   Save, Settings2, Smartphone, Tablet, Trash2, Undo2, X
 } from "lucide-react";
@@ -18,6 +18,8 @@ type ComponentDefinition = {
 };
 
 const library: ComponentDefinition[] = [
+  { type: "section", label: "Section", description: "Full-width content section", category: "Layout" },
+  { type: "container", label: "Container", description: "Centered content wrapper", category: "Layout" },
   { type: "header", label: "Header", description: "Navigation and brand", category: "Layout" },
   { type: "hero", label: "Hero", description: "Headline and primary CTA", category: "Layout" },
   { type: "features", label: "Features", description: "Benefits or services", category: "Content" },
@@ -287,6 +289,24 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
     [libraryFilter]
   );
 
+  function addChildComponent(type: string) {
+    if (!selectedId) return;
+    const child: BuilderElement = {
+      id: type + "-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7),
+      type,
+      props: defaultProps(type)
+    };
+    updateDocument((current) => ({
+      ...current,
+      pages: current.pages.map((p, pageIndex) =>
+        pageIndex === 0
+          ? { ...p, elements: appendChildToTree(p.elements, selectedId, child) }
+          : p
+      )
+    }));
+    setSelectedId(child.id);
+  }
+
   function insertComponent(type: string, index = page.elements.length) {
     const id = type + "-" + Date.now();
     const element: BuilderElement = { id, type, props: defaultProps(type) };
@@ -363,26 +383,31 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
     updateDocument((current) => ({
       ...current,
       pages: current.pages.map((p, index) => index === 0
-        ? { ...p, elements: p.elements.map((element) => element.id === selectedId ? { ...element, props: { ...element.props, ...patch } } : element) }
+        ? { ...p, elements: updateElementTree(p.elements, selectedId, (element) => ({ ...element, props: { ...element.props, ...patch } })) }
         : p)
     }));
   }
 
   function removeSelected() {
-    if (!selectedId || page.elements.length <= 1) return;
-    const index = page.elements.findIndex((element) => element.id === selectedId);
-    const next = page.elements[index - 1] ?? page.elements[index + 1];
-    updateDocument((current) => ({ ...current, pages: current.pages.map((p, i) => i === 0 ? { ...p, elements: p.elements.filter((element) => element.id !== selectedId) } : p) }));
+    if (!selectedId) return;
+    const next = findAdjacentElement(page.elements, selectedId);
+    updateDocument((current) => ({
+      ...current,
+      pages: current.pages.map((p, i) => i === 0 ? { ...p, elements: removeElementTree(p.elements, selectedId) } : p)
+    }));
     setSelectedId(next?.id ?? "");
   }
 
   function moveSelected(direction: "up" | "down") {
-    const index = page.elements.findIndex((element) => element.id === selectedId);
-    const nextIndex = direction === "up" ? index - 1 : index + 1;
-    if (index < 0 || nextIndex < 0 || nextIndex >= page.elements.length) return;
-    const elements = [...page.elements];
-    [elements[index], elements[nextIndex]] = [elements[nextIndex], elements[index]];
-    updateDocument((current) => ({ ...current, pages: current.pages.map((p, i) => i === 0 ? { ...p, elements } : p) }));
+    updateDocument((current) => ({
+      ...current,
+      pages: current.pages.map((p, i) => {
+        if (i !== 0) return p;
+        const elements = [...p.elements];
+        moveElementTree(elements, selectedId, direction);
+        return { ...p, elements };
+      })
+    }));
   }
 
   return (
@@ -438,6 +463,12 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
         {leftOpen && <aside className={"builder-left " + (leftOpen ? "is-open" : "")}>
           <div className="builder-panel-head"><div><small>WEBSITE BUILDER</small><strong>Components</strong></div><button onClick={() => setLeftOpen(false)}><X size={16}/></button></div>
           <div className="builder-page-select"><LayoutTemplate size={15}/><span>Home</span><ChevronDown size={14}/></div>
+          <div className="builder-layers-head"><span><Layers3 size={13}/>Layers</span><small>{countElements(page.elements)} elements</small></div>
+          <div className="builder-layer-tree">
+            {page.elements.map((element) => (
+              <LayerTreeItem key={element.id} element={element} selectedId={selectedId} onSelect={setSelectedId} depth={0}/>
+            ))}
+          </div>
           <div className="component-tabs">
             {(["All", "Layout", "Content", "Commerce", "Business"] as const).map((category) => <button key={category} className={libraryFilter === category ? "active" : ""} onClick={() => setLibraryFilter(category)}>{category}</button>)}
           </div>
@@ -504,7 +535,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
 
         {rightOpen && <aside className={"builder-right " + (rightOpen ? "is-open" : "")}>
           <div className="builder-panel-head"><div><small>DESIGN SYSTEM</small><strong>Properties</strong></div><button onClick={() => setRightOpen(false)}><X size={16}/></button></div>
-          {selected ? <PropertyPanel element={selected} update={updateSelected} remove={removeSelected} move={moveSelected} /> : <div className="empty-properties"><Settings2 size={22}/><p>Select a component to edit it.</p></div>}
+          {selected ? <PropertyPanel element={selected} update={updateSelected} remove={removeSelected} move={moveSelected} addChild={addChildComponent} /> : <div className="empty-properties"><Settings2 size={22}/><p>Select a component to edit it.</p></div>}
         </aside>}
 
         {!leftOpen && <button className="floating-panel-button left" onClick={() => { setRightOpen(false); setLeftOpen(true); }}><PanelLeft size={17}/></button>}
@@ -561,23 +592,30 @@ function BuilderBlock({
       draggable
       onDragStart={(event) => onDragStart(event, element.id)}
       onDragEnd={onDragEnd}
-      onDragOver={(event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        onDragOver(event);
-      }}
-      onDrop={(event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        onDrop(event);
-      }}
+      onDragOver={(event) => { event.preventDefault(); event.stopPropagation(); onDragOver(event); }}
+      onDrop={(event) => { event.preventDefault(); event.stopPropagation(); onDrop(event); }}
       onClick={(event) => { event.stopPropagation(); onSelect(); }}
     >
       <div className="builder-drag-handle" title="Drag to reorder">
         <span>⋮⋮</span>
       </div>
       {selected && <div className="builder-selection-label">{element.type}</div>}
-      <ComponentPreview element={element}/>
+      <ComponentPreview element={element}>
+        {element.children?.map((child) => (
+          <div className="builder-nested-element" key={child.id}>
+            <BuilderBlock
+              element={child}
+              selected={false}
+              dragging={false}
+              onSelect={() => {}}
+              onDragStart={() => {}}
+              onDragEnd={() => {}}
+              onDragOver={() => {}}
+              onDrop={() => {}}
+            />
+          </div>
+        ))}
+      </ComponentPreview>
     </div>
   );
 }
@@ -616,9 +654,15 @@ function ComponentPreview({ element }: { element: BuilderElement }) {
   }
 }
 
-type PropertyPanelProps = { element: BuilderElement; update: (patch: Record<string, unknown>) => void; remove: () => void; move: (direction: "up" | "down") => void };
+type PropertyPanelProps = {
+  element: BuilderElement;
+  update: (patch: Record<string, unknown>) => void;
+  remove: () => void;
+  move: (direction: "up" | "down") => void;
+  addChild: (type: string) => void;
+};
 
-function PropertyPanel({ element, update, remove, move }: PropertyPanelProps) {
+function PropertyPanel({ element, update, remove, move, addChild }: PropertyPanelProps) {
   const p = element.props;
   const design = (p.design ?? {}) as Record<string, unknown>;
   const textField = (label: string, key: string) => <label className="property-field"><span>{label}</span><input value={String(p[key] ?? "")} onChange={(e) => update({ [key]: e.target.value })}/></label>;
@@ -626,6 +670,8 @@ function PropertyPanel({ element, update, remove, move }: PropertyPanelProps) {
   const colorField = (label: string, key: string, fallback: string) => <label className="property-color-field"><span>{label}</span><div><input type="color" value={String(design[key] ?? fallback)} onChange={(e) => updateDesign(key,e.target.value)} aria-label={label}/><input value={String(design[key] ?? fallback)} onChange={(e) => updateDesign(key,e.target.value)} aria-label={label + " hex value"}/></div></label>;
   const selectField = (label: string, key: string, options: Array<[string,string]>, fallback: string) => <label className="property-field"><span>{label}</span><select value={String(design[key] ?? fallback)} onChange={(e)=>updateDesign(key,e.target.value)}>{options.map(([value,text])=><option key={value} value={value}>{text}</option>)}</select></label>;
   const contentFields: Record<string, Array<[string,string]>> = {
+    section:[["Section label","label"],["Section title","title"]],
+    container:[["Container label","label"]],
     header:[["Brand name","brand"],["Navigation 1","nav1"],["Navigation 2","nav2"],["Navigation 3","nav3"],["Navigation 4","nav4"],["CTA","cta"]],
     hero:[["Eyebrow","eyebrow"],["Headline","title"],["Description","description"],["Primary CTA","primary"],["Secondary CTA","secondary"],["Primary URL","primaryUrl"],["Secondary URL","secondaryUrl"]],
     features:[["Section title","title"],["Card 1 title","item1"],["Card 1 description","item1Description"],["Card 2 title","item2"],["Card 2 description","item2Description"],["Card 3 title","item3"],["Card 3 description","item3Description"]],
@@ -640,19 +686,89 @@ function PropertyPanel({ element, update, remove, move }: PropertyPanelProps) {
     footer:[["Brand name","brand"],["Footer text","copyright"]]
   };
   const fields = contentFields[element.type] ?? [];
+  const childOptions = library.filter((item) => item.type !== "header" && item.type !== "footer");
+
   return <div className="properties-body">
-    <div className="selected-component"><span><MousePointer2 size={14}/></span><div><small>SELECTED COMPONENT</small><strong>{element.type.replace("-", " ")}</strong></div></div>
-    <details className="property-section property-section-collapsible" open><summary>Content</summary>{fields.length ? fields.map(([label,key])=><div key={key}>{textField(label,key)}</div>) : <p className="property-hint">This component has no editable content yet.</p>}</details>
+    <div className="selected-component"><span><MousePointer2 size={14}/></span><div><small>SELECTED ELEMENT</small><strong>{element.type.replace("-", " ")}</strong></div></div>
+    <details className="property-section property-section-collapsible" open><summary>Content</summary>{fields.length ? fields.map(([label,key])=><div key={key}>{textField(label,key)}</div>) : <p className="property-hint">This element has no editable content yet.</p>}</details>
     <details className="property-section property-section-collapsible" open><summary>Colors</summary>{colorField("Background","backgroundColor","#ffffff")}{colorField("Text","textColor","#111522")}</details>
     <details className="property-section property-section-collapsible"><summary>Layout</summary>{selectField("Text alignment","textAlign",[["left","Left"],["center","Center"],["right","Right"]],"left")}{selectField("Corner radius","borderRadius",[["0px","Square"],["8px","Small"],["16px","Medium"],["28px","Large"],["999px","Pill"]],"0px")}{selectField("Top spacing","paddingTop",[["0px","None"],["24px","Small"],["48px","Medium"],["70px","Large"],["100px","Extra large"]],"0px")}{selectField("Bottom spacing","paddingBottom",[["0px","None"],["24px","Small"],["48px","Medium"],["70px","Large"],["100px","Extra large"]],"0px")}{selectField("Shadow","boxShadow",[["none","None"],["0 8px 24px rgba(15,23,42,.10)","Soft"],["0 20px 50px rgba(15,23,42,.16)","Strong"]],"none")}</details>
-    <details className="property-section property-section-collapsible"><summary>Visibility</summary><label className="property-toggle"><span>Hide component</span><input type="checkbox" checked={design.hidden === true} onChange={(e)=>updateDesign("hidden",e.target.checked)}/></label><p className="property-hint">Hidden components remain in your document and can be shown again later.</p></details>
+    <details className="property-section property-section-collapsible" open><summary>Nested elements</summary>
+      <p className="property-hint">Add an element inside the selected component. This creates a real parent → child relationship in the saved document.</p>
+      <div className="nested-add-grid">{childOptions.map((item)=><button key={item.type} onClick={()=>addChild(item.type)}><Plus size={12}/>{item.label}</button>)}</div>
+    </details>
+    <details className="property-section property-section-collapsible"><summary>Visibility</summary><label className="property-toggle"><span>Hide component</span><input type="checkbox" checked={design.hidden === true} onChange={(e)=>updateDesign("hidden",e.target.checked)}/></label><p className="property-hint">Hidden elements remain in your document and can be shown again later.</p></details>
     <div className="property-section"><small>POSITION</small><div className="property-actions"><button onClick={()=>move("up")}><ArrowUp size={15}/>Move up</button><button onClick={()=>move("down")}><ArrowDown size={15}/>Move down</button></div></div>
-    <div className="property-section"><small>COMPONENT</small><button className="delete-component" onClick={remove}><Trash2 size={15}/>Remove component</button></div>
+    <div className="property-section"><small>COMPONENT</small><button className="delete-component" onClick={remove}><Trash2 size={15}/>Remove element</button></div>
+  </div>;
+}
+
+function appendChildToTree(elements: BuilderElement[], parentId: string, child: BuilderElement): BuilderElement[] {
+  return elements.map((element) => {
+    if (element.id === parentId) return { ...element, children: [...(element.children ?? []), child] };
+    if (element.children?.length) return { ...element, children: appendChildToTree(element.children, parentId, child) };
+    return element;
+  });
+}
+
+function updateElementTree(elements: BuilderElement[], id: string, updater: (element: BuilderElement) => BuilderElement): BuilderElement[] {
+  return elements.map((element) => {
+    const updated = element.id === id ? updater(element) : element;
+    return updated.children?.length ? { ...updated, children: updateElementTree(updated.children, id, updater) } : updated;
+  });
+}
+
+function removeElementTree(elements: BuilderElement[], id: string): BuilderElement[] {
+  return elements
+    .filter((element) => element.id !== id)
+    .map((element) => element.children?.length ? { ...element, children: removeElementTree(element.children, id) } : element);
+}
+
+function moveElementTree(elements: BuilderElement[], id: string, direction: "up" | "down"): boolean {
+  const index = elements.findIndex((element) => element.id === id);
+  if (index >= 0) {
+    const next = direction === "up" ? index - 1 : index + 1;
+    if (next < 0 || next >= elements.length) return false;
+    [elements[index], elements[next]] = [elements[next], elements[index]];
+    return true;
+  }
+  for (const element of elements) {
+    if (element.children?.length && moveElementTree(element.children, id, direction)) return true;
+  }
+  return false;
+}
+
+function findAdjacentElement(elements: BuilderElement[], id: string): BuilderElement | null {
+  const index = elements.findIndex((element) => element.id === id);
+  if (index >= 0) return elements[index - 1] ?? elements[index + 1] ?? null;
+  for (const element of elements) {
+    if (element.children?.length) {
+      const nested = findAdjacentElement(element.children, id);
+      if (nested) return nested;
+    }
+  }
+  return null;
+}
+
+function countElements(elements: BuilderElement[]): number {
+  return elements.reduce((count, element) => count + 1 + (element.children ? countElements(element.children) : 0), 0);
+}
+
+function LayerTreeItem({ element, selectedId, onSelect, depth }: { element: BuilderElement; selectedId: string; onSelect: (id: string) => void; depth: number }) {
+  return <div className="builder-layer-item-wrap">
+    <button className={"builder-layer-item " + (selectedId === element.id ? "active" : "")} style={{ paddingLeft: 10 + depth * 14 }} onClick={() => onSelect(element.id)}>
+      <span className="builder-layer-dot"></span>
+      <span>{element.type.replace("-", " ")}</span>
+      {element.children?.length ? <small>{element.children.length}</small> : null}
+    </button>
+    {element.children?.map((child) => <LayerTreeItem key={child.id} element={child} selectedId={selectedId} onSelect={onSelect} depth={depth + 1}/>)}
   </div>;
 }
 
 function defaultProps(type: string): Record<string, unknown> {
   const defaults: Record<string, Record<string, unknown>> = {
+    section:{label:"SECTION",title:"Your section"},
+    container:{label:"CONTAINER"},
     header:{brand:"Your Business",nav1:"Home",nav2:"Services",nav3:"About",nav4:"Contact",cta:"Get Started"},
     hero:{eyebrow:"WELCOME",title:"Your next customer starts here.",description:"Tell visitors what you do and why they should choose you.",primary:"Get Started",secondary:"Learn More",primaryUrl:"#",secondaryUrl:"#"},
     features:{title:"Everything your customers need.",item1:"Fast setup",item1Description:"A clear foundation designed around your business.",item2:"Mobile ready",item2Description:"A responsive experience across every screen.",item3:"Built to convert",item3Description:"Focused content and calls to action."},
