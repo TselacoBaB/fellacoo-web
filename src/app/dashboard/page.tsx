@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import {
   Activity, BarChart3, Bell, BookOpen, Box, BriefcaseBusiness, Calculator,
@@ -48,6 +49,22 @@ const filters: { label: string; value: WebsiteFilter }[] = [
   { label: "Archived", value: "archived" }
 ];
 
+type DashboardWebsite = {
+  id: string;
+  name: string;
+  domain: string;
+  kind: string;
+  status: string;
+};
+
+type DashboardActivity = {
+  id: string;
+  title: string;
+  name: string;
+  time: string;
+  tone: string;
+};
+
 export default function DashboardPage() {
   const {
     websiteFilter,
@@ -56,12 +73,55 @@ export default function DashboardPage() {
     setActiveTool
   } = useAppState();
 
+  const [dashboardWebsites, setDashboardWebsites] = useState<DashboardWebsite[]>(
+    websites.map((site, index) => ({ ...site, id: "fallback-" + index }))
+  );
+  const [metrics, setMetrics] = useState({ websites: websites.length, visitors: 0, leads: 0, revenue: 0 });
+  const [recentActivity, setRecentActivity] = useState<DashboardActivity[]>([]);
+  const [search, setSearch] = useState("");
+  const [loadingDashboard, setLoadingDashboard] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    const controller = new AbortController();
+
+    const timer = window.setTimeout(async () => {
+      try {
+        const response = await fetch(
+          "/api/dashboard/summary" + (search.trim() ? "?q=" + encodeURIComponent(search.trim()) : ""),
+          { signal: controller.signal, cache: "no-store" }
+        );
+
+        if (!response.ok) return;
+
+        const payload = await response.json();
+        if (!active || !payload.authenticated) return;
+
+        setDashboardWebsites(payload.websites ?? []);
+        setMetrics(payload.metrics ?? { websites: 0, visitors: 0, leads: 0, revenue: 0 });
+        setRecentActivity(payload.recentActivity ?? []);
+      } catch {
+        // Keep the local dashboard fallback when the account is not linked or the API is unavailable.
+      } finally {
+        if (active) setLoadingDashboard(false);
+      }
+    }, 250);
+
+    return () => {
+      active = false;
+      controller.abort();
+      window.clearTimeout(timer);
+    };
+  }, [search]);
+
   const visibleWebsites = websiteFilter === "all"
-    ? websites
-    : websites.filter(
-        (site) =>
-          site.status.toLowerCase() ===
-          websiteFilter.replace("published", "published").replace("drafts", "draft")
+    ? dashboardWebsites
+    : dashboardWebsites.filter((site) =>
+        websiteFilter === "published"
+          ? site.status.toLowerCase() === "published"
+          : websiteFilter === "drafts"
+            ? site.status.toLowerCase() === "draft"
+            : site.status.toLowerCase() === "archived"
       );
 
   return (
@@ -73,7 +133,7 @@ export default function DashboardPage() {
           <div className="topbar-left">
             <div className="dashboard-search">
               <Search size={18} />
-              <input placeholder="Search websites, templates, components..." />
+              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search websites, templates, components..." />
               <kbd>Ctrl K</kbd>
             </div>
           </div>
@@ -150,10 +210,10 @@ export default function DashboardPage() {
             )}
 
             <section className="metrics-grid">
-              <Metric icon={LayoutTemplate} label="Total Websites" value="6" trend="↑ 2 this month" tone="purple" />
-              <Metric icon={Users} label="Total Visitors" value="12,458" trend="↑ 23% this month" tone="blue" spark />
-              <Metric icon={Users} label="Total Leads" value="320" trend="↑ 18% this month" tone="green" spark />
-              <Metric icon={CreditCard} label="Revenue" value="R48,240" trend="↑ 12% this month" tone="orange" spark />
+              <Metric icon={LayoutTemplate} label="Total Websites" value={String(metrics.websites)} trend={loadingDashboard ? "Loading…" : "Live data"} tone="purple" />
+              <Metric icon={Users} label="Total Visitors" value={metrics.visitors.toLocaleString()} trend={loadingDashboard ? "Loading…" : "Live data"} tone="blue" spark />
+              <Metric icon={Users} label="Total Leads" value={metrics.leads.toLocaleString()} trend={loadingDashboard ? "Loading…" : "Live data"} tone="green" spark />
+              <Metric icon={CreditCard} label="Revenue" value={new Intl.NumberFormat("en-ZA", { style: "currency", currency: "ZAR", maximumFractionDigits: 0 }).format(metrics.revenue)} trend={loadingDashboard ? "Loading…" : "Live data"} tone="orange" spark />
             </section>
 
             <DashboardCard className="tools-panel" id="components">
@@ -223,16 +283,11 @@ export default function DashboardPage() {
 
             <DashboardCard className="activity-card">
               <div className="activity-heading"><h2><Activity size={17} /> Recent Activity</h2><button>View All →</button></div>
-              {[
-                ["Website published", "Bake 'N Mo", "2m ago", "green"],
-                ["New lead received", "Savor Restaurant", "12m ago", "pink"],
-                ["Component added", "Elite Fitness", "1h ago", "purple"],
-                ["Invoice paid", "Komane Consulting", "3h ago", "blue"]
-              ].map(([title, name, time, tone]) => (
+              {recentActivity.map(({ id, title, name, time, tone }) => (
                 <div className="activity-row" key={title + name}>
                   <span className={"activity-icon " + tone}><Globe2 size={15} /></span>
                   <div><strong>{title}</strong><small>{name}</small></div>
-                  <time>{time}</time>
+                  <time>{formatRelativeTime(time)}</time>
                 </div>
               ))}
             </DashboardCard>
@@ -241,6 +296,17 @@ export default function DashboardPage() {
       </section>
     </main>
   );
+}
+
+function formatRelativeTime(value: string) {
+  const timestamp = new Date(value).getTime();
+  if (!Number.isFinite(timestamp)) return value;
+  const minutes = Math.max(0, Math.round((Date.now() - timestamp) / 60000));
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return minutes + "m ago";
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return hours + "h ago";
+  return Math.floor(hours / 24) + "d ago";
 }
 
 function ToolGroup({
