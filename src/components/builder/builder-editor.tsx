@@ -86,6 +86,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
   const [inspectorTab, setInspectorTab] = useState<"element"|"site">("element");
   const [saved, setSaved] = useState(true);
   const [syncStatus, setSyncStatus] = useState<"checking"|"local"|"saving"|"synced"|"error">("checking");
+  const [remoteReady, setRemoteReady] = useState(false);
   const [buildRequestId, setBuildRequestId] = useState<string | null>(projectId ?? null);
   const [projectName, setProjectName] = useState("Untitled Website");
   const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
@@ -108,12 +109,13 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
   useEffect(() => {
     if (authLoading || !isAuthenticated) return;
     let active = true;
+    setRemoteReady(false);
     (async () => {
       try {
         const url = projectId ? "/api/builder/draft?id="+encodeURIComponent(projectId) : "/api/builder/draft";
         const response = await fetch(url,{cache:"no-store"});
         if (!active) return;
-        if (!response.ok) { setSyncStatus(response.status===401||response.status===403?"local":"error"); return; }
+        if (!response.ok) { setSyncStatus(response.status===401||response.status===403?"local":"error"); setRemoteReady(true); return; }
         const payload = await response.json() as { draft?: { id:string; document:unknown; businessName?:string|null; publishedUrl?:string|null }|null };
         if (projectId) {
           if (!payload.draft?.document) { setSyncStatus("error"); return; }
@@ -128,7 +130,8 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
           window.localStorage.setItem(storageKey+":build-request-id",payload.draft.id);
         }
         setSyncStatus("synced");
-      } catch { if (active) setSyncStatus("local"); }
+        setRemoteReady(true);
+      } catch { if (active) { setSyncStatus("local"); setRemoteReady(true); } }
     })();
     return () => { active=false; };
   }, [projectId,authLoading,isAuthenticated,resetDocument]);
@@ -137,7 +140,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
     setSaved(false);
     const timer = window.setTimeout(async () => {
       try { window.localStorage.setItem(storageKey,JSON.stringify(document)); setSaved(true); } catch {}
-      if (!isAuthenticated || authLoading) return;
+      if (!isAuthenticated || authLoading || !remoteReady) return;
       setSyncStatus("saving");
       try {
         const response = await fetch("/api/builder/draft",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
@@ -150,7 +153,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
       } catch { setSyncStatus("local"); }
     },650);
     return () => window.clearTimeout(timer);
-  }, [document,projectName,isAuthenticated,authLoading,buildRequestId]);
+  }, [document,projectName,isAuthenticated,authLoading,buildRequestId,remoteReady]);
 
   useEffect(() => {
     const handler = (event:KeyboardEvent) => {
@@ -232,7 +235,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
 
   function duplicatePage(index:number) {
     const source=document.pages[index];
-    const copy:BuilderPage={...source,id:"page-"+Date.now(),title:source.title+" Copy",path:source.path===" /" ? "/" : source.path+"-copy",elements:cloneElements(source.elements),seo:{...source.seo}};
+    const copy:BuilderPage={...source,id:"page-"+Date.now(),title:source.title+" Copy",path:source.path==="/" ? "/" : source.path+"-copy",elements:cloneElements(source.elements),seo:{...source.seo}};
     copy.path=uniquePagePath(document.pages,copy.path);
     patchDocument(current=>({...current,pages:[...current.pages,copy]}));
     setActivePageIndex(document.pages.length);setSelectedId(copy.elements[0]?.id??"");
