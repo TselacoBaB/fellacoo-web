@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AppStateProvider } from "@/lib/state/app-store";
+import { AuthStateProvider } from "@/lib/state/auth-store";
 
 export const metadata: Metadata = {
   title: "Fellacoo Web",
@@ -11,7 +12,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body>
-        <AppStateProvider>{children}</AppStateProvider>
+        <AuthStateProvider>
+          <AppStateProvider>{children}</AppStateProvider>
+        </AuthStateProvider>
       </body>
     </html>
   );
