@@ -35,16 +35,38 @@ async function findSupabaseUser(email:string) {
   return data.users.find(user=>user.email?.toLowerCase()===email.toLowerCase()) ?? null;
 }
 
-async function verifyLegacyCredentials(email:string,password:string) {
-  const response=await fetch(LEGACY_API_URL+"/api/auth/login",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({email,password}),
-    cache:"no-store",
+async function verifyLegacyCredentials(email: string, password: string) {
+  const response = await fetch(`${LEGACY_API_URL}/api/auth/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, password }),
+    cache: "no-store",
   });
-  if(!response.ok) return false;
-  const payload=await response.json().catch(()=>null);
-  return Boolean(payload?.id || payload?.user_id || payload?.email || payload?.name);
+
+  const payload = await response.json().catch(() => null);
+
+  if (response.ok) {
+    return {
+      ok: true as const,
+      status: response.status,
+      user: payload,
+    };
+  }
+
+  const detail =
+    typeof payload?.detail === "string"
+      ? payload.detail
+      : typeof payload?.error === "string"
+        ? payload.error
+        : "Legacy authentication request failed.";
+
+  return {
+    ok: false as const,
+    status: response.status,
+    detail,
+  };
 }
 
 export async function getCurrentFelacooAccount(): Promise<AuthenticatedFelacooAccount | null> {
@@ -79,8 +101,27 @@ export async function signInFelacoo(email:string,password:string):Promise<Authen
   let {data:signedIn,error:signInError}=await supabase.auth.signInWithPassword({email:normalized,password});
 
   if(signInError || !signedIn.user) {
-    const legacyValid=await verifyLegacyCredentials(normalized,password);
-    if(!legacyValid) throw new Error("Invalid email or password.");
+    const legacyResult = await verifyLegacyCredentials(normalized, password);
+
+    if (!legacyResult.ok) {
+      console.error("[auth/login] Legacy authentication failed:", {
+        status: legacyResult.status,
+        detail: legacyResult.detail,
+      });
+
+      if (legacyResult.status === 429) {
+        throw new Error(legacyResult.detail);
+      }
+
+      if (legacyResult.status >= 500) {
+        throw new Error(
+          "The existing Fellacoo authentication service is temporarily unavailable."
+        );
+      }
+
+      throw new Error("Invalid email or password.");
+    }
+
     const admin=createAdminClient();
     let authUser=await findSupabaseUser(normalized);
     if(!authUser) {
