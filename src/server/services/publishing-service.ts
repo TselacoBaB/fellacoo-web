@@ -144,7 +144,8 @@ export async function publishWebsite(input:PublishInput):Promise<PublishResult>{
 
   const bytes=files.reduce((sum,file)=>sum+file.bytes,0);
   const version=Number(build.live_version||0)+1;
-  const rootUrl=(process.env.R2_PUBLIC_BASE||"https://cdn.fellacoo.xyz").replace(/\/$/,"")+"/sites/"+slug+"/index.html";
+  const rootUrl="https://"+slug+"."+siteRootDomain();
+  const deliveryUrl=(process.env.R2_PUBLIC_BASE||"https://cdn.fellacoo.xyz").replace(/\/$/,"")+"/sites/"+slug+"/index.html";
 
   await sql.begin(async(tx)=>{
     await tx\`update public.site_versions set status=\${"SUPERSEDED"} where build_request_id=\${build.id} and status=\${"LIVE"}\`;
@@ -152,7 +153,7 @@ export async function publishWebsite(input:PublishInput):Promise<PublishResult>{
     await tx\`update public.build_requests set assembly=\${tx.json(document)},preview=\${tx.json(document)},compiled_html=\${htmlByPage[0]?.html||""},slug=\${slug},status=\${"published"},published_url=\${rootUrl},published_bytes=\${bytes},live_version=\${version} where id=\${build.id} and owner_id=\${input.ownerId}\`;
     const hostname=slug+"."+siteRootDomain();
     const domains=await tx<any[]> \`select id from public.site_domains where site_id=\${build.id} and hostname=\${hostname} limit 1\`;
-    if(!domains[0])await tx\`insert into public.site_domains (id,site_id,hostname,slug,domain_type,status,created_at,verified_at,meta) values (\${crypto.randomUUID()},\${build.id},\${hostname},\${slug},\${"FELACOO_SUBDOMAIN"},\${"ACTIVE"},\${new Date().toISOString()},\${new Date().toISOString()},\${tx.json({source:"fellacoo-web",publicUrl:rootUrl})})\`;
+    if(!domains[0])await tx\`insert into public.site_domains (id,site_id,hostname,slug,domain_type,status,created_at,verified_at,meta) values (\${crypto.randomUUID()},\${build.id},\${hostname},\${slug},\${"FELACOO_SUBDOMAIN"},\${"ACTIVE"},\${new Date().toISOString()},\${new Date().toISOString()},\${tx.json({source:"fellacoo-web",publicUrl:rootUrl,deliveryUrl})})\`;
     await tx\`insert into public.website_versions (id,build_request_id,preview,label,credits_charged,created_by,created_at) values (\${crypto.randomUUID()},\${build.id},\${tx.json(document)},\${"Published v"+version},\${0},\${input.ownerId},\${new Date().toISOString()})\`;
   });
 
