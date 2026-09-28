@@ -85,7 +85,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
 
           if (projectId) {
             if (payload.draft?.document) {
-              setDocument(payload.draft.document);
+              resetDocument(payload.draft.document);
               setProjectName(payload.draft.businessName?.trim() || "Untitled Website");
               setBuildRequestId(payload.draft.id);
               window.localStorage.setItem(storageKey, JSON.stringify(payload.draft.document));
