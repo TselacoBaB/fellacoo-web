@@ -55,24 +55,100 @@ export default function BuilderPage() {
   const [rightOpen, setRightOpen] = useState(true);
   const [libraryFilter, setLibraryFilter] = useState<ComponentDefinition["category"] | "All">("All");
   const [saved, setSaved] = useState(true);
+  const [syncStatus, setSyncStatus] = useState<"checking" | "local" | "saving" | "synced" | "error">("checking");
+  const [remoteEnabled, setRemoteEnabled] = useState(false);
+  const [buildRequestId, setBuildRequestId] = useState<string | null>(null);
 
   useEffect(() => {
+    let active = true;
+
     try {
       const savedDraft = window.localStorage.getItem(storageKey);
+      const savedBuildRequestId = window.localStorage.getItem(storageKey + ":build-request-id");
       if (savedDraft) setDocument(JSON.parse(savedDraft) as BuilderDocument);
+      if (savedBuildRequestId) setBuildRequestId(savedBuildRequestId);
     } catch {}
+
+    async function loadRemoteDraft() {
+      try {
+        const response = await fetch("/api/builder/draft", { cache: "no-store" });
+        if (!active) return;
+
+        if (response.ok) {
+          const payload = await response.json() as {
+            draft?: { id: string; document: BuilderDocument | null } | null;
+          };
+
+          if (payload.draft?.document) {
+            setDocument(payload.draft.document);
+            setBuildRequestId(payload.draft.id);
+            window.localStorage.setItem(storageKey, JSON.stringify(payload.draft.document));
+            window.localStorage.setItem(storageKey + ":build-request-id", payload.draft.id);
+          } else {
+            setBuildRequestId(null);
+            window.localStorage.removeItem(storageKey + ":build-request-id");
+          }
+
+          setRemoteEnabled(true);
+          setSyncStatus("synced");
+          return;
+        }
+
+        if (response.status === 401 || response.status === 403) {
+          setSyncStatus("local");
+          return;
+        }
+
+        setSyncStatus("error");
+      } catch {
+        if (active) setSyncStatus("local");
+      }
+    }
+
+    loadRemoteDraft();
+    return () => { active = false; };
   }, []);
 
   useEffect(() => {
     setSaved(false);
-    const timer = window.setTimeout(() => {
+
+    const timer = window.setTimeout(async () => {
       try {
         window.localStorage.setItem(storageKey, JSON.stringify(document));
         setSaved(true);
       } catch {}
-    }, 450);
+
+      if (!remoteEnabled) return;
+
+      setSyncStatus("saving");
+      try {
+        const response = await fetch("/api/builder/draft", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            buildRequestId,
+            document,
+          }),
+        });
+
+        if (!response.ok) {
+          setSyncStatus(response.status === 401 || response.status === 403 ? "local" : "error");
+          return;
+        }
+
+        const payload = await response.json() as { buildRequestId?: string };
+        if (payload.buildRequestId) {
+          setBuildRequestId(payload.buildRequestId);
+          window.localStorage.setItem(storageKey + ":build-request-id", payload.buildRequestId);
+        }
+        setSyncStatus("synced");
+      } catch {
+        setSyncStatus("local");
+      }
+    }, 650);
+
     return () => window.clearTimeout(timer);
-  }, [document]);
+  }, [document, buildRequestId, remoteEnabled]);
 
   const page = document.pages[0];
   const selected = page.elements.find((element) => element.id === selectedId) ?? null;
@@ -124,7 +200,7 @@ export default function BuilderPage() {
           <button className="builder-icon-button" onClick={() => setLeftOpen((v) => !v)} title="Toggle components"><Menu size={19}/></button>
           <a className="builder-back" href="/dashboard"><ArrowLeft size={16}/>Dashboard</a>
           <span className="builder-divider"/>
-          <div className="builder-project"><strong>Untitled Website</strong><small>{saved ? "Saved locally" : "Saving…"}</small></div>
+          <div className="builder-project"><strong>Untitled Website</strong><small>{saved ? syncStatus === "synced" ? "Synced with Supabase" : "Saved locally" : "Saving…"}</small></div>
         </div>
 
         <div className="builder-viewport">
@@ -134,7 +210,7 @@ export default function BuilderPage() {
         </div>
 
         <div className="builder-top-actions">
-          <button className="builder-save"><Save size={15}/>{saved ? "Saved" : "Saving"}</button>
+          <button className="builder-save" title="Drafts use the existing Supabase build_requests table"><Save size={15}/>{saved ? syncStatus === "synced" ? "Synced" : "Saved" : "Saving"}</button>
           <button className="builder-preview"><Eye size={16}/>Preview</button>
           <button className="builder-publish">Publish</button>
         </div>
