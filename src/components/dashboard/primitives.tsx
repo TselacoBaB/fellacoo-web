@@ -3,11 +3,13 @@ import type { ReactNode } from "react";
 export function DashboardCard({
   children,
   className = "",
+  id,
 }: {
   children: ReactNode;
   className?: string;
+  id?: string;
 }) {
-  return <section className={`dashboard-card ${className}`}>{children}</section>;
+  return <section id={id} className={`dashboard-card ${className}`}>{children}</section>;
 }
 
 export function CardHeader({
