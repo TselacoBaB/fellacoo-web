@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import {
   Activity, BarChart3, Bell, BookOpen, Box, BriefcaseBusiness, Calculator,
   CalendarDays, ChevronDown, ChevronRight, CircleHelp, CreditCard, FileImage,
@@ -427,7 +427,7 @@ function ToolGroup({
 }: {
   title: string;
   description: string;
-  tools: Array<{ title: string; description: string; icon: React.ReactNode }>;
+  tools: Array<{ title: string; description: string; icon: ReactNode }>;
   onSelect: (title: string) => void;
 }) {
   return (
