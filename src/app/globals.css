@@ -1480,3 +1480,23 @@ a{text-decoration:none}
     width: 150px;
   }
 }
+
+
+.website-card-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.website-card-link:hover {
+  color: inherit;
+}
+
+.website-card-more {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 8px;
+  color: #64748b;
+}
