@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { getDb } from "@/lib/db";
+import { ensureFelacooWebUser } from "@/server/auth/felacoo-identity";
 import type { BuilderDocument } from "@/types/builder";
 
 export const dynamic = "force-dynamic";
@@ -43,27 +43,16 @@ function isBuilderDocument(value: unknown): value is BuilderDocument {
 }
 
 async function getIdentity() {
-  const supabase = await createClient();
-  const { data: { user }, error } = await supabase.auth.getUser();
-
-  if (error) {
-    throw new Error("Supabase Auth: " + error.message);
-  }
-  if (!user) {
+  const identity = await ensureFelacooWebUser();
+  if (!identity) {
     throw new Error("No authenticated Supabase user found.");
   }
 
-  const sql = getDb();
-  const rows = await sql<{ user_id: string }[]>`
-    select user_id
-    from public.felacoo_auth_links
-    where supabase_user_id = ${user.id}
-    limit 1
-  `;
-
-  return { user, felacooUserId: rows[0]?.user_id ?? null };
+  return {
+    user: { id: identity.supabaseUserId },
+    felacooUserId: identity.felacooUserId,
+  };
 }
-
 export async function GET(request: Request) {
   try {
     const { user, felacooUserId } = await getIdentity();
