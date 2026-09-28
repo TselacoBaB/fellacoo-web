@@ -123,10 +123,11 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error("[builder/draft] GET failed:", error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Unable to load builder draft." },
-      { status: 500 },
-    );
+    const message = error instanceof Error ? error.message : "Unable to load builder draft.";
+    const status = message.includes("No authenticated Supabase user") || message.startsWith("Supabase Auth:")
+      ? 401
+      : 500;
+    return NextResponse.json({ authenticated: false, error: message }, { status });
   }
 }
 
