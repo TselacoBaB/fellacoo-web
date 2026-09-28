@@ -58,6 +58,9 @@ export default function BuilderPage() {
   const [syncStatus, setSyncStatus] = useState<"checking" | "local" | "saving" | "synced" | "error">("checking");
   const [remoteEnabled, setRemoteEnabled] = useState(false);
   const [buildRequestId, setBuildRequestId] = useState<string | null>(null);
+  const [history, setHistory] = useState<BuilderDocument[]>([]);
+  const [future, setFuture] = useState<BuilderDocument[]>([]);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -152,6 +155,77 @@ export default function BuilderPage() {
 
   const page = document.pages[0];
   const selected = page.elements.find((element) => element.id === selectedId) ?? null;
+
+  function commitDocument(updater: (current: BuilderDocument) => BuilderDocument) {
+    setDocument((current) => {
+      const next = updater(current);
+      if (next === current) return current;
+      setHistory((past) => [...past.slice(-49), current]);
+      setFuture([]);
+      return next;
+    });
+  }
+
+  function undo() {
+    setHistory((past) => {
+      const previous = past[past.length - 1];
+      if (!previous) return past;
+      setFuture((redoStack) => [...redoStack.slice(-49), document]);
+      setDocument(previous);
+      return past.slice(0, -1);
+    });
+    setSelectedId("");
+  }
+
+  function redo() {
+    setFuture((redoStack) => {
+      const next = redoStack[redoStack.length - 1];
+      if (!next) return redoStack;
+      setHistory((past) => [...past.slice(-49), document]);
+      setDocument(next);
+      return redoStack.slice(0, -1);
+    });
+    setSelectedId("");
+  }
+
+  async function saveDraft() {
+    setSyncStatus("saving");
+
+    try {
+      window.localStorage.setItem(storageKey, JSON.stringify(document));
+      setSaved(true);
+    } catch {
+      setSaved(false);
+    }
+
+    if (!remoteEnabled) {
+      setSyncStatus("local");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/builder/draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ buildRequestId, document })
+      });
+
+      if (!response.ok) {
+        setSyncStatus(response.status === 401 || response.status === 403 ? "local" : "error");
+        return;
+      }
+
+      const payload = await response.json() as { buildRequestId?: string };
+      if (payload.buildRequestId) {
+        setBuildRequestId(payload.buildRequestId);
+        window.localStorage.setItem(storageKey + ":build-request-id", payload.buildRequestId);
+      }
+      setSaved(true);
+      setSyncStatus("synced");
+    } catch {
+      setSyncStatus("local");
+    }
+  }
   const visibleLibrary = useMemo(
     () => library.filter((item) => libraryFilter === "All" || item.category === libraryFilter),
     [libraryFilter]
@@ -160,7 +234,7 @@ export default function BuilderPage() {
   function addComponent(type: string) {
     const id = type + "-" + Date.now();
     const element: BuilderElement = { id, type, props: defaultProps(type) };
-    setDocument((current) => ({
+    commitDocument((current) => ({
       ...current,
       pages: current.pages.map((p, index) => index === 0 ? { ...p, elements: [...p.elements, element] } : p)
     }));
@@ -168,7 +242,7 @@ export default function BuilderPage() {
   }
 
   function updateSelected(patch: Record<string, unknown>) {
-    setDocument((current) => ({
+    commitDocument((current) => ({
       ...current,
       pages: current.pages.map((p, index) => index === 0
         ? { ...p, elements: p.elements.map((element) => element.id === selectedId ? { ...element, props: { ...element.props, ...patch } } : element) }
@@ -180,7 +254,7 @@ export default function BuilderPage() {
     if (!selectedId || page.elements.length <= 1) return;
     const index = page.elements.findIndex((element) => element.id === selectedId);
     const next = page.elements[index - 1] ?? page.elements[index + 1];
-    setDocument((current) => ({ ...current, pages: current.pages.map((p, i) => i === 0 ? { ...p, elements: p.elements.filter((element) => element.id !== selectedId) } : p) }));
+    commitDocument((current) => ({ ...current, pages: current.pages.map((p, i) => i === 0 ? { ...p, elements: p.elements.filter((element) => element.id !== selectedId) } : p) }));
     setSelectedId(next?.id ?? "");
   }
 
@@ -190,7 +264,7 @@ export default function BuilderPage() {
     if (index < 0 || nextIndex < 0 || nextIndex >= page.elements.length) return;
     const elements = [...page.elements];
     [elements[index], elements[nextIndex]] = [elements[nextIndex], elements[index]];
-    setDocument((current) => ({ ...current, pages: current.pages.map((p, i) => i === 0 ? { ...p, elements } : p) }));
+    commitDocument((current) => ({ ...current, pages: current.pages.map((p, i) => i === 0 ? { ...p, elements } : p) }));
   }
 
   return (
@@ -210,8 +284,8 @@ export default function BuilderPage() {
         </div>
 
         <div className="builder-top-actions">
-          <button className="builder-save" title="Drafts use the existing Supabase build_requests table"><Save size={15}/>{saved ? syncStatus === "synced" ? "Synced" : "Saved" : "Saving"}</button>
-          <button className="builder-preview"><Eye size={16}/>Preview</button>
+          <button className="builder-save" onClick={saveDraft} disabled={syncStatus === "saving"} title="Save the current draft to local storage and Supabase when connected"><Save size={15}/>{syncStatus === "saving" ? "Saving" : saved ? syncStatus === "synced" ? "Synced" : "Saved" : "Save"}</button>
+          <button className="builder-preview" onClick={() => setPreviewOpen(true)}><Eye size={16}/>Preview</button>
           <button className="builder-publish">Publish</button>
         </div>
       </header>
@@ -232,7 +306,10 @@ export default function BuilderPage() {
         <section className="builder-canvas-area">
           <div className="canvas-toolbar">
             <span><MousePointer2 size={14}/>Live design canvas</span>
-            <div><button><Undo2 size={15}/></button><button><Redo2 size={15}/></button></div>
+            <div>
+              <button onClick={undo} disabled={history.length === 0} title="Undo"><Undo2 size={15}/></button>
+              <button onClick={redo} disabled={future.length === 0} title="Redo"><Redo2 size={15}/></button>
+            </div>
           </div>
           <div className="canvas-stage" onClick={() => setSelectedId("")}>
             <div className={"website-canvas viewport-" + viewport}>
@@ -251,6 +328,28 @@ export default function BuilderPage() {
         {!leftOpen && <button className="floating-panel-button left" onClick={() => setLeftOpen(true)}><PanelLeft size={17}/></button>}
         {!rightOpen && <button className="floating-panel-button right" onClick={() => setRightOpen(true)}><PanelRight size={17}/></button>}
       </div>
+      {previewOpen && (
+        <div className="builder-preview-overlay" role="dialog" aria-modal="true" aria-label="Website preview">
+          <div className="builder-preview-shell">
+            <div className="builder-preview-toolbar">
+              <div>
+                <strong>Website Preview</strong>
+                <span>Viewing the current saved design</span>
+              </div>
+              <button onClick={() => setPreviewOpen(false)} aria-label="Close preview"><X size={18}/></button>
+            </div>
+            <div className="builder-preview-stage">
+              <div className={"website-canvas viewport-" + viewport}>
+                {page.elements.map((element) => (
+                  <div className="builder-preview-block" key={element.id}>
+                    <ComponentPreview element={element}/>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
