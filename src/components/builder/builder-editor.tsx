@@ -571,6 +571,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
 function BuilderBlock({
   element,
   selected,
+  selectedId,
   dragging,
   onSelect,
   onDragStart,
@@ -610,7 +611,7 @@ function BuilderBlock({
               selected={selectedId === child.id}
               selectedId={selectedId}
               dragging={false}
-              onSelect={() => {}}
+              onSelect={onSelect}
               onDragStart={() => {}}
               onDragEnd={() => {}}
               onDragOver={() => {}}
