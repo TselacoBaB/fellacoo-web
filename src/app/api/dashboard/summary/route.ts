@@ -42,42 +42,24 @@ export async function GET(request: Request) {
       }
     }
 
-    const [
-      websitesResult,
-      visitorsResult,
-      leadsResult,
-      invoicesResult
-    ] = await Promise.all([
+    const ownedBuilds = await admin
+      .from("build_requests")
+      .select("id")
+      .eq("owner_id", identity.felacooUserId);
+
+    if (ownedBuilds.error) throw ownedBuilds.error;
+
+    const buildIds = ownedBuilds.data?.map((row) => row.id) ?? [];
+
+    const [websitesResult, visitorsResult, leadsResult, invoicesResult] = await Promise.all([
       websitesQuery,
-      admin
-        .from("analytics_events")
-        .select("id", { count: "exact", head: true })
-        .in(
-          "build_request_id",
-          (
-            await admin
-              .from("build_requests")
-              .select("id")
-              .eq("owner_id", identity.felacooUserId)
-          ).data?.map((row) => row.id) ?? []
-        ),
-      admin
-        .from("leads")
-        .select("id", { count: "exact", head: true })
-        .in(
-          "build_request_id",
-          (
-            await admin
-              .from("build_requests")
-              .select("id")
-              .eq("owner_id", identity.felacooUserId)
-          ).data?.map((row) => row.id) ?? []
-        ),
-      admin
-        .from("invoices")
-        .select("total,status,created_at")
-        .eq("owner_id", identity.felacooUserId)
-        .limit(1000)
+      buildIds.length
+        ? admin.from("analytics_events").select("id", { count: "exact", head: true }).in("build_request_id", buildIds)
+        : Promise.resolve({ count: 0, error: null }),
+      buildIds.length
+        ? admin.from("leads").select("id", { count: "exact", head: true }).in("build_request_id", buildIds)
+        : Promise.resolve({ count: 0, error: null }),
+      admin.from("invoices").select("total,status,created_at").eq("owner_id", identity.felacooUserId).limit(1000)
     ]);
 
     if (websitesResult.error) throw websitesResult.error;
