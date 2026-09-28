@@ -214,7 +214,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
         body: JSON.stringify({
           buildRequestId,
           document,
-          businessName: projectName === "Untitled Website" ? undefined : projectName,
+          businessName: projectName.trim() || "Untitled Website",
           activity: "Website",
           location: "Online"
         })
