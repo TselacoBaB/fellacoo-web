@@ -437,7 +437,10 @@ function WebsiteCard({
       {fallback ? (
         <div className="website-card-link">
           <div className={"site-preview " + kind}>
-            <div className="preview-nav"><span>{name.split(" ")[0]}</span><i /><i /><i /></div>
+            <div className="preview-nav">
+                <span>{name.split(" ")[0]}</span>
+                <i></i><i></i><i></i>
+              </div>
             <div className="preview-content">
               <b>{kind === "bakery" ? "Fresh Bakes\nHappier Days" : kind === "fitness" ? "STRONGER\nEVERY DAY" : kind === "consulting" ? "Grow Your\nBusiness Faster" : "Exceptional\nDining Experience"}</b>
               <small>{kind === "bakery" ? "BAKE 'N MO" : kind === "fitness" ? "ELITE FITNESS" : kind === "consulting" ? "KOMANE" : "SAVOR"}</small>
@@ -447,7 +450,10 @@ function WebsiteCard({
             <div><strong>{name}</strong><small>{domain}</small></div>
             <span className="website-card-more"><MoreVertical size={16} /></span>
           </div>
-          <div className={"site-status " + status.toLowerCase()}><span />{status}</div>
+          <div className={"site-status " + status.toLowerCase()}>
+              <span></span>
+              {status}
+            </div>
         </div>
       ) : (
         <>
