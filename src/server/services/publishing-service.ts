@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabase/admin";
+import { getDb } from "@/lib/db";
 import type { BuilderDocument, BuilderElement } from "@/types/builder";
 
 type PublishInput = {
@@ -153,16 +153,14 @@ function siteRootDomain() {
 }
 
 export async function publishWebsite(input: PublishInput): Promise<PublishResult> {
-  const admin = createAdminClient();
-
-  const { data: build, error: buildError } = await admin
-    .from("build_requests")
-    .select("id,business_name,status,assembly,preview,slug,live_version")
-    .eq("id", input.buildRequestId)
-    .eq("owner_id", input.ownerId)
-    .maybeSingle();
-
-  if (buildError) throw buildError;
+  const sql = getDb();
+  const builds = await sql<any[]>`
+    select id,business_name,status,assembly,preview,slug,live_version
+    from public.build_requests
+    where id = ${input.buildRequestId} and owner_id = ${input.ownerId}
+    limit 1
+  `;
+  const build = builds[0];
   if (!build) throw new Error("Website project was not found.");
   const document = isBuilderDocument(build.assembly)
     ? build.assembly
@@ -173,16 +171,12 @@ export async function publishWebsite(input: PublishInput): Promise<PublishResult
   if (!document) throw new Error("This website has no valid builder document to publish.");
 
   let slug = slugify(input.slug?.trim() || build.slug || build.business_name);
-  const { data: slugConflict } = await admin
-    .from("build_requests")
-    .select("id")
-    .eq("slug", slug)
-    .neq("id", build.id)
-    .limit(1)
-    .maybeSingle();
-
-  if (slugConflict) slug = `${slug}-${build.id.slice(0, 6)}`;
-
+  const slugConflicts = await sql<any[]>`
+    select id from public.build_requests
+    where slug = ${slug} and id <> ${build.id}
+    limit 1
+  `;
+  if (slugConflicts[0]) slug = `${slug}-${build.id.slice(0, 6)}`;
   const html = compileDocument(document, build.business_name);
   const bytes = new TextEncoder().encode(html).byteLength;
   const version = Number(build.live_version || 0) + 1;
