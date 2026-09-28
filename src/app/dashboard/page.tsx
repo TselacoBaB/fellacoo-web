@@ -1,29 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import type { ReactNode } from "react";
 import {
-  Activity, BarChart3, Bell, BookOpen, Box, BriefcaseBusiness, Calculator,
-  CalendarDays, ChevronDown, ChevronRight, CircleHelp, CreditCard, FileImage,
-  FileText, Globe2, Home, LayoutTemplate, Menu, MoreVertical, Package,
-  PanelTop, Palette, Plus, Receipt, Search, Settings, ShoppingCart, Sparkles,
-  Store, Users, X, Zap
+  Activity, BookOpen, Box, BriefcaseBusiness, Calculator, CalendarDays,
+  ChevronRight, CreditCard, FileImage, FileText, Globe2, LayoutTemplate,
+  MoreVertical, PanelTop, Receipt, ShoppingCart, Sparkles, Store, Users
 } from "lucide-react";
 import { useAppState, type WebsiteFilter } from "@/lib/state/app-store";
 import { AppSidebar } from "@/components/navigation/app-sidebar";
 import { DashboardCard, CardHeader, ToolCard } from "@/components/dashboard/primitives";
-
-type NavItem = {
-  label: string;
-  icon: typeof Home;
-  href?: string;
-  primary?: boolean;
-};
-
-type NavGroup = {
-  label: string;
-  icon: typeof Home;
-  items: NavItem[];
-};
 
 const websites = [
   { name: "Bake 'N Mo", domain: "bakenmo.co.za", kind: "bakery", status: "Published" },
