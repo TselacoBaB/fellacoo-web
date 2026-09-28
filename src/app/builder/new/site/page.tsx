@@ -84,6 +84,8 @@ export default function BuilderPage() {
 
           if (payload.draft?.document) {
             setDocument(payload.draft.document);
+            setHistory([]);
+            setFuture([]);
             setBuildRequestId(payload.draft.id);
             window.localStorage.setItem(storageKey, JSON.stringify(payload.draft.document));
             window.localStorage.setItem(storageKey + ":build-request-id", payload.draft.id);
@@ -152,6 +154,36 @@ export default function BuilderPage() {
 
     return () => window.clearTimeout(timer);
   }, [document, buildRequestId, remoteEnabled]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey)) return;
+
+      const key = event.key.toLowerCase();
+      if (key === "z") {
+        event.preventDefault();
+        if (event.shiftKey) redo();
+        else undo();
+      } else if (key === "y") {
+        event.preventDefault();
+        redo();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [history, future, document]);
+
+  useEffect(() => {
+    if (!previewOpen) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setPreviewOpen(false);
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [previewOpen]);
 
   const page = document.pages[0];
   const selected = page.elements.find((element) => element.id === selectedId) ?? null;
