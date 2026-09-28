@@ -374,6 +374,7 @@ function Metric({
 }
 
 function WebsiteCard({
+  id,
   name,
   domain,
   kind,
@@ -404,7 +405,7 @@ function WebsiteCard({
       </div>
       <div className="site-info">
         <div><strong>{name}</strong><small>{domain}</small></div>
-        <button><MoreVertical size={16} /></button>
+        <span className="website-card-more"><MoreVertical size={16} /></span>
       </div>
       <div className={"site-status " + status.toLowerCase()}><span />{status}</div>
     </>
