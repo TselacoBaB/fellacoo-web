@@ -33,10 +33,12 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       const saved = window.localStorage.getItem(STORAGE_KEY);
       if (!saved) return;
       const state = JSON.parse(saved) as Partial<{
+        sidebarPinned: boolean;
         websiteFilter: WebsiteFilter;
         lastVisitedWebsite: string | null;
         activeTool: string | null;
       }>;
+      if (typeof state.sidebarPinned === "boolean") setSidebarPinned(state.sidebarPinned);
       if (state.websiteFilter) setWebsiteFilter(state.websiteFilter);
       if (state.lastVisitedWebsite !== undefined) setLastVisitedWebsite(state.lastVisitedWebsite);
       if (state.activeTool !== undefined) setActiveTool(state.activeTool);
@@ -49,12 +51,12 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     try {
       window.localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ websiteFilter, lastVisitedWebsite, activeTool })
+        JSON.stringify({ sidebarPinned, websiteFilter, lastVisitedWebsite, activeTool })
       );
     } catch {
       // Storage may be unavailable in private browsing or restricted environments.
     }
-  }, [websiteFilter, lastVisitedWebsite, activeTool]);
+  }, [sidebarPinned, websiteFilter, lastVisitedWebsite, activeTool]);
 
   const value = useMemo(
     () => ({
