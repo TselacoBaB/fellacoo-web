@@ -133,7 +133,7 @@ export default function DashboardPage() {
           <div className="topbar-left">
             <div className="dashboard-search">
               <Search size={18} />
-              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search websites, templates, components..." />
+              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search websites..." />
               <kbd>Ctrl K</kbd>
             </div>
           </div>
@@ -383,9 +383,10 @@ function WebsiteCard({
   domain: string;
   kind: string;
   status: string;
+  id: string;
 }) {
-  return (
-    <article className="website-card">
+  const content = (
+    <>
       <div className={"site-preview " + kind}>
         <div className="preview-nav"><span>{name.split(" ")[0]}</span><i /><i /><i /></div>
         <div className="preview-content">
@@ -398,9 +399,7 @@ function WebsiteCard({
                   ? "Grow Your\nBusiness Faster"
                   : "Exceptional\nDining Experience"}
           </b>
-          <small>
-            {kind === "bakery" ? "BAKE 'N MO" : kind === "fitness" ? "ELITE FITNESS" : kind === "consulting" ? "KOMANE" : "SAVOR"}
-          </small>
+          <small>{kind === "bakery" ? "BAKE 'N MO" : kind === "fitness" ? "ELITE FITNESS" : kind === "consulting" ? "KOMANE" : "SAVOR"}</small>
         </div>
       </div>
       <div className="site-info">
@@ -408,6 +407,12 @@ function WebsiteCard({
         <button><MoreVertical size={16} /></button>
       </div>
       <div className={"site-status " + status.toLowerCase()}><span />{status}</div>
+    </>
+  );
+
+  return (
+    <article className="website-card">
+      {id.startsWith("fallback-") ? content : <Link href={"/builder/" + id} className="website-card-link">{content}</Link>}
     </article>
   );
 }
