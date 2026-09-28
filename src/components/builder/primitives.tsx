@@ -51,7 +51,7 @@ export function PrimitivePreview({ element, children }: PrimitiveProps) {
       return (
         <figure className="builder-primitive-image-wrap" style={style}>
           <div className="builder-primitive-image">
-            {p.src ? <img src={String(p.src)} alt={value(p, "alt", "")} /> : <div className="builder-image-placeholder"><span>IMAGE</span><small>{value(p, "alt", "Add an image")}</small></div>}
+            {p.src ? <><img src={String(p.src)} alt={value(p, "alt", "")} /></> : <div className="builder-image-placeholder"><span>IMAGE</span><small>{value(p, "alt", "Add an image")}</small></div>}
           </div>
           {p.caption ? <figcaption>{String(p.caption)}</figcaption> : null}
         </figure>
