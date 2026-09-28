@@ -2251,3 +2251,47 @@ a{text-decoration:none}
   background:#7d2ff1;
   color:#fff;
 }
+
+
+.website-card-actions button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:29px;
+  padding:0 9px;
+  border:1px solid #e1e6ef;
+  border-radius:7px;
+  background:#fff;
+  color:#475569;
+  font:inherit;
+  font-size:9px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.website-card-actions button:hover{
+  border-color:#c8a7ff;
+  color:#7c3aed;
+  background:#faf7ff;
+}
+
+.website-card-actions button:disabled{
+  opacity:.55;
+  cursor:wait;
+}
+
+.website-card-actions button.danger:hover{
+  border-color:#fecdd3;
+  background:#fff1f2;
+  color:#be123c;
+}
+
+.dashboard-inline-message{
+  margin:-8px 0 14px;
+  padding:9px 12px;
+  border-radius:8px;
+  background:#ecfdf5;
+  color:#047857;
+  font-size:10px;
+  font-weight:700;
+}
