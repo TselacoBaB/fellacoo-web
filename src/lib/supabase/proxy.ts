@@ -1,13 +1,34 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
+const PUBLIC_PREFIXES = [
+  "/login",
+  "/auth/",
+  "/api/auth/",
+];
+
+function isPublicPath(pathname: string) {
+  return PUBLIC_PREFIXES.some((prefix) =>
+    prefix.endsWith("/") ? pathname.startsWith(prefix) : pathname === prefix
+  );
+}
+
+function noStore(response: NextResponse) {
+  response.headers.set("Cache-Control", "private, no-store, max-age=0, must-revalidate");
+  response.headers.set("Pragma", "no-cache");
+  response.headers.set("Expires", "0");
+  return response;
+}
+
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
-  if (!url || !key) return response;
+  if (!url || !key) {
+    return NextResponse.redirect(new URL("/login?error=auth_config", request.url));
+  }
 
   const supabase = createServerClient(url, key, {
     cookies: {
@@ -17,49 +38,42 @@ export async function updateSession(request: NextRequest) {
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
         response = NextResponse.next({ request });
-        cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+        cookiesToSet.forEach(({ name, value, options }) => {
+          response.cookies.set(name, value, options);
+        });
       },
     },
   });
+
+  const pathname = request.nextUrl.pathname;
+  const publicPath = isPublicPath(pathname);
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   const authenticated = Boolean(user);
-  const pathname = request.nextUrl.pathname;
-  const publicPage =
-    pathname === "/" ||
-    pathname === "/login" ||
-    pathname.startsWith("/auth/") ||
-    pathname.startsWith("/api/auth/");
-  const isApi = pathname.startsWith("/api/");
 
-  if (!authenticated && !publicPage && !isApi) {
-    const target = request.nextUrl.clone();
-    target.pathname = "/login";
-    target.search = "";
-    target.searchParams.set("next", pathname);
-    response = NextResponse.redirect(target);
+  if (!authenticated && !publicPath) {
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json(
+        { authenticated: false, error: "Authentication required." },
+        { status: 401, headers: { "Cache-Control": "no-store" } }
+      );
+    }
+
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("next", pathname);
+    return noStore(NextResponse.redirect(loginUrl));
   }
 
   if (authenticated && pathname === "/login") {
-    const target = request.nextUrl.clone();
-    target.pathname = "/dashboard";
-    target.search = "";
-    response = NextResponse.redirect(target);
+    return noStore(NextResponse.redirect(new URL("/dashboard", request.url)));
   }
 
-  if (
-    pathname === "/login" ||
-    pathname.startsWith("/auth/") ||
-    pathname.startsWith("/dashboard") ||
-    pathname.startsWith("/builder")
-  ) {
-    response.headers.set("Cache-Control", "private, no-store, max-age=0, must-revalidate");
-    response.headers.set("Pragma", "no-cache");
-    response.headers.set("Expires", "0");
+  if (!authenticated && publicPath) {
+    return noStore(response);
   }
 
-  return response;
+  return noStore(response);
 }
