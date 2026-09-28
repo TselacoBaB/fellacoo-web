@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { ChevronDown, ChevronLeft, Menu, Plus, Settings as NavigationSettingsIcon, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useAppState } from "@/lib/state/app-store";
+import { LogoutButton } from "@/components/auth/logout-button";
 import {
   navigationGroups,
   primaryNavigation,
@@ -148,6 +149,8 @@ export function AppSidebar() {
             />
           </nav>
         </div>
+
+        <div className="app-sidebar-logout"><LogoutButton compact={!expanded} /></div>
 
         <div className="app-sidebar-plan">
           <div className="app-plan-icon"><Plus size={15} /></div>
