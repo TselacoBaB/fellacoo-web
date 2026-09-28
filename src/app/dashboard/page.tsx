@@ -386,34 +386,50 @@ function WebsiteCard({
   status: string;
   id: string;
 }) {
-  const content = (
-    <>
-      <div className={"site-preview " + kind}>
-        <div className="preview-nav"><span>{name.split(" ")[0]}</span><i /><i /><i /></div>
-        <div className="preview-content">
-          <b>
-            {kind === "bakery"
-              ? "Fresh Bakes\nHappier Days"
-              : kind === "fitness"
-                ? "STRONGER\nEVERY DAY"
-                : kind === "consulting"
-                  ? "Grow Your\nBusiness Faster"
-                  : "Exceptional\nDining Experience"}
-          </b>
-          <small>{kind === "bakery" ? "BAKE 'N MO" : kind === "fitness" ? "ELITE FITNESS" : kind === "consulting" ? "KOMANE" : "SAVOR"}</small>
-        </div>
-      </div>
-      <div className="site-info">
-        <div><strong>{name}</strong><small>{domain}</small></div>
-        <span className="website-card-more"><MoreVertical size={16} /></span>
-      </div>
-      <div className={"site-status " + status.toLowerCase()}><span />{status}</div>
-    </>
-  );
+  const fallback = id.startsWith("fallback-");
+  const isPublished = status.toLowerCase() === "published";
+  const liveUrl = domain.startsWith("http") ? domain : null;
 
   return (
     <article className="website-card">
-      {id.startsWith("fallback-") ? content : <Link href={"/builder/" + id} className="website-card-link">{content}</Link>}
+      {fallback ? (
+        <div className="website-card-link">
+          <div className={"site-preview " + kind}>
+            <div className="preview-nav"><span>{name.split(" ")[0]}</span><i /><i /><i /></div>
+            <div className="preview-content">
+              <b>{kind === "bakery" ? "Fresh Bakes\nHappier Days" : kind === "fitness" ? "STRONGER\nEVERY DAY" : kind === "consulting" ? "Grow Your\nBusiness Faster" : "Exceptional\nDining Experience"}</b>
+              <small>{kind === "bakery" ? "BAKE 'N MO" : kind === "fitness" ? "ELITE FITNESS" : kind === "consulting" ? "KOMANE" : "SAVOR"}</small>
+            </div>
+          </div>
+          <div className="site-info">
+            <div><strong>{name}</strong><small>{domain}</small></div>
+            <span className="website-card-more"><MoreVertical size={16} /></span>
+          </div>
+          <div className={"site-status " + status.toLowerCase()}><span />{status}</div>
+        </div>
+      ) : (
+        <>
+          <Link href={"/builder/" + id} className="website-card-link">
+            <div className={"site-preview " + kind}>
+              <div className="preview-nav"><span>{name.split(" ")[0]}</span><i /><i /><i /></div>
+              <div className="preview-content">
+                <b>{kind === "bakery" ? "Fresh Bakes\nHappier Days" : kind === "fitness" ? "STRONGER\nEVERY DAY" : kind === "consulting" ? "Grow Your\nBusiness Faster" : "Exceptional\nDining Experience"}</b>
+                <small>{kind === "bakery" ? "BAKE 'N MO" : kind === "fitness" ? "ELITE FITNESS" : kind === "consulting" ? "KOMANE" : "SAVOR"}</small>
+              </div>
+            </div>
+            <div className="site-info">
+              <div><strong>{name}</strong><small>{domain}</small></div>
+              <span className="website-card-more"><MoreVertical size={16} /></span>
+            </div>
+            <div className={"site-status " + status.toLowerCase()}><span />{status}</span>
+          </Link>
+          <div className="website-card-actions">
+            <Link href={"/builder/" + id}>Edit</Link>
+            {isPublished && liveUrl && <a href={liveUrl} target="_blank" rel="noreferrer">Live ↗</a>}
+            <Link href="/websites/domains">Domain</Link>
+          </div>
+        </>
+      )}
     </article>
   );
 }
