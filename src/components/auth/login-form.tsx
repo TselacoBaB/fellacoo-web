@@ -78,5 +78,8 @@ export default function LoginForm(){
       <button type="submit" className="auth-submit" disabled={busy}>{busy?<><Loader2 size={18} className="spin"/> Signing in…</>:"Sign in to Fellacoo"}</button>
     </form>
     <div className="auth-security-note"><LockKeyhole size={14}/><span>Your session uses Supabase Auth cookies and server-side route protection.</span></div>
+    <div style={{ marginTop: 18, textAlign: "center" }}>
+      <a href="/signup">Create a new Fellacoo account</a>
+    </div>
   </section></main>;
 }
