@@ -80,6 +80,8 @@ export default function DashboardPage() {
   const [recentActivity, setRecentActivity] = useState<DashboardActivity[]>([]);
   const [search, setSearch] = useState("");
   const [loadingDashboard, setLoadingDashboard] = useState(true);
+  const [projectAction, setProjectAction] = useState<string | null>(null);
+  const [dashboardMessage, setDashboardMessage] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -258,8 +260,21 @@ export default function DashboardPage() {
                 <button className="view-all">View All <ChevronRight size={15} /></button>
               </div>
 
+              {dashboardMessage && <div className="dashboard-inline-message">{dashboardMessage}</div>}
               <div className="website-grid">
-                {visibleWebsites.map((site) => <WebsiteCard key={site.name} {...site} />)}
+                {visibleWebsites.map((site) => (
+                  <WebsiteCard
+                    key={site.id}
+                    {...site}
+                    projectAction={projectAction}
+                    setProjectAction={setProjectAction}
+                    onProjectChanged={() => {
+                      setDashboardMessage("Website library updated.");
+                      window.setTimeout(() => setDashboardMessage(""), 1800);
+                      window.location.reload();
+                    }}
+                  />
+                ))}
               </div>
             </DashboardCard>
           </div>
@@ -378,14 +393,41 @@ function WebsiteCard({
   name,
   domain,
   kind,
-  status
+  status,
+  projectAction,
+  setProjectAction,
+  onProjectChanged
 }: {
   name: string;
   domain: string;
   kind: string;
   status: string;
   id: string;
+  projectAction: string | null;
+  setProjectAction: (value: string | null) => void;
+  onProjectChanged: () => void;
 }) {
+  async function manageProject(action: "duplicate" | "archive" | "restore") {
+    setProjectAction(id + ":" + action);
+    try {
+      const response = await fetch("/api/websites/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, siteId: id })
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Unable to update website.");
+      if (action === "duplicate" && payload.url) {
+        window.location.href = payload.url;
+        return;
+      }
+      onProjectChanged();
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : "Unable to update website.");
+    } finally {
+      setProjectAction(null);
+    }
+  }
   const fallback = id.startsWith("fallback-");
   const isPublished = status.toLowerCase() === "published";
   const liveUrl = domain.startsWith("http") ? domain : null;
@@ -427,6 +469,18 @@ function WebsiteCard({
             <Link href={"/builder/" + id}>Edit</Link>
             {isPublished && liveUrl && <a href={liveUrl} target="_blank" rel="noreferrer">Live ↗</a>}
             <Link href="/websites/domains">Domain</Link>
+            <button type="button" onClick={() => void manageProject("duplicate")} disabled={projectAction === id + ":duplicate"}>
+              {projectAction === id + ":duplicate" ? "Copying…" : "Duplicate"}
+            </button>
+            {status.toLowerCase() === "archived" ? (
+              <button type="button" onClick={() => void manageProject("restore")} disabled={projectAction === id + ":restore"}>
+                {projectAction === id + ":restore" ? "Restoring…" : "Restore"}
+              </button>
+            ) : (
+              <button type="button" className="danger" onClick={() => void manageProject("archive")} disabled={projectAction === id + ":archive"}>
+                {projectAction === id + ":archive" ? "Archiving…" : "Archive"}
+              </button>
+            )}
           </div>
         </>
       )}
