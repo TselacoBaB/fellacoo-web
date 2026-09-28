@@ -47,6 +47,28 @@ async function verifyLegacyCredentials(email:string,password:string) {
   return Boolean(payload?.id || payload?.user_id || payload?.email || payload?.name);
 }
 
+export async function getCurrentFelacooAccount(): Promise<AuthenticatedFelacooAccount | null> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const sql = getDb();
+  const rows = await sql.unsafe(
+    "select u.id,u.name,u.email,u.is_disabled from public.users u join public.felacoo_auth_links l on l.user_id=u.id where l.supabase_user_id=$1 limit 1",
+    [user.id]
+  ) as { id:string; name:string; email:string; is_disabled:boolean }[];
+
+  const account = rows[0];
+  if (!account || account.is_disabled) return null;
+
+  return {
+    supabaseUserId: user.id,
+    felacooUserId: String(account.id),
+    name: account.name,
+    email: account.email,
+  };
+}
+
 export async function signInFelacoo(email:string,password:string):Promise<AuthenticatedFelacooAccount> {
   const normalized=email.trim().toLowerCase();
   if(!normalized || !password) throw new Error("Email and password are required.");
