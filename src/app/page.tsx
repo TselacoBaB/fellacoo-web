@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowDownRight, ArrowUpRight, ChevronDown, Globe2, Sparkles } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Globe2, Sparkles } from "lucide-react";
 
 const pillars = [
   { number: "01", title: "Own Your Audience", text: "Social platforms can change the rules overnight. Your website is the place your business owns the experience, the data and the relationship." },
