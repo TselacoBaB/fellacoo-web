@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 export default function LoginForm(){
   const router=useRouter();
   const searchParams=useSearchParams();
+  const nextPath=(()=>{const value=searchParams.get("next");return value&&value.startsWith("/")&&!value.startsWith("//")?value:"/dashboard";})();
   const [email,setEmail]=useState("");
   const [password,setPassword]=useState("");
   const [showPassword,setShowPassword]=useState(false);
@@ -46,7 +47,7 @@ export default function LoginForm(){
       const payload=await response.json().catch(()=>({}));
       if(!response.ok)throw new Error(payload.error||"Unable to sign in.");
       if(mounted.current)setMessage("Signed in. Opening your workspace…");
-      window.location.replace("/dashboard");
+      window.location.replace(nextPath);
     }catch(err){
       if(mounted.current){setError(err instanceof Error?err.message:"Unable to sign in.");setBusy(false);}
     }
