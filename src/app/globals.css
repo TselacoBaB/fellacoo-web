@@ -2211,3 +2211,43 @@ a{text-decoration:none}
     width:100%;
   }
 }
+
+
+.website-card-actions{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:0 13px 13px;
+}
+
+.website-card-actions a{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:29px;
+  padding:0 9px;
+  border:1px solid #e1e6ef;
+  border-radius:7px;
+  background:#fff;
+  color:#475569;
+  font-size:9px;
+  font-weight:800;
+  text-decoration:none;
+}
+
+.website-card-actions a:hover{
+  border-color:#c8a7ff;
+  color:#7c3aed;
+  background:#faf7ff;
+}
+
+.website-card-actions a:first-child{
+  border-color:#8d3fff;
+  background:#8d3fff;
+  color:#fff;
+}
+
+.website-card-actions a:first-child:hover{
+  background:#7d2ff1;
+  color:#fff;
+}
