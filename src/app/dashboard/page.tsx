@@ -431,7 +431,7 @@ function ToolGroup({
   onSelect: (title: string) => void;
 }) {
   return (
-    <section className="tool-group">
+    <section className="tool-group" id={title === "Business Tools" ? "business-tools" : "design-tools"}>
       <div className="tool-group-heading">
         <div>
           <h3>{title}</h3>
