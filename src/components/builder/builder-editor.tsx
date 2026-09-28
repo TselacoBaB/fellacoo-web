@@ -151,7 +151,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
         setSaved(true);
       } catch {}
 
-      if (!remoteEnabled) return;
+      if (!isAuthenticated || authLoading) return;
 
       setSyncStatus("saving");
       try {
@@ -168,6 +168,8 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
         });
 
         if (!response.ok) {
+          const errorPayload = await response.json().catch(() => null) as { error?: string } | null;
+          console.error("[builder/draft] autosave failed", response.status, errorPayload);
           setSyncStatus(response.status === 401 || response.status === 403 ? "local" : "error");
           return;
         }
@@ -229,7 +231,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
       setSaved(false);
     }
 
-    if (!remoteEnabled) {
+    if (!isAuthenticated || authLoading) {
       setSyncStatus("local");
       return null;
     }
@@ -248,6 +250,8 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
       });
 
       if (!response.ok) {
+        const errorPayload = await response.json().catch(() => null) as { error?: string } | null;
+        console.error("[builder/draft] manual save failed", response.status, errorPayload);
         setSyncStatus(response.status === 401 || response.status === 403 ? "local" : "error");
         return null;
       }
