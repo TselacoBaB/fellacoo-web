@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowDown, ArrowLeft, ArrowUp, ChevronDown, ChevronRight, Eye, LayoutTemplate,
@@ -582,43 +582,89 @@ function BuilderBlock({
   );
 }
 
+function getElementStyle(element: BuilderElement): CSSProperties {
+  const design = (element.props.design ?? {}) as Record<string, unknown>;
+  const style: CSSProperties = {};
+  if (typeof design.backgroundColor === "string" && design.backgroundColor) style.backgroundColor = design.backgroundColor;
+  if (typeof design.textColor === "string" && design.textColor) style.color = design.textColor;
+  if (typeof design.borderRadius === "string" && design.borderRadius) style.borderRadius = design.borderRadius;
+  if (typeof design.paddingTop === "string" && design.paddingTop) style.paddingTop = design.paddingTop;
+  if (typeof design.paddingBottom === "string" && design.paddingBottom) style.paddingBottom = design.paddingBottom;
+  if (typeof design.textAlign === "string" && design.textAlign) style.textAlign = design.textAlign as CSSProperties["textAlign"];
+  if (typeof design.boxShadow === "string" && design.boxShadow) style.boxShadow = design.boxShadow;
+  if (design.hidden === true) style.display = "none";
+  return style;
+}
+
 function ComponentPreview({ element }: { element: BuilderElement }) {
   const p = element.props;
+  const style = getElementStyle(element);
   switch (element.type) {
-    case "header": return <div className="site-block header-block"><strong>{String(p.brand)}</strong><nav>Home <span>Services</span><span>About</span><span>Contact</span><button>Get Started</button></nav></div>;
-    case "hero": return <section className="site-block hero-block"><div><small>{String(p.eyebrow)}</small><h1>{String(p.title)}</h1><p>{String(p.description)}</p><div><button>{String(p.primary)}</button><button className="ghost">{String(p.secondary)}</button></div></div><div className="hero-shape"><span/></div></section>;
-    case "features": return <section className="site-block feature-block"><small>WHY CHOOSE US</small><h2>{String(p.title)}</h2><div className="feature-grid">{["Fast setup","Mobile ready","Built to convert"].map((item) => <article key={item}><span>✦</span><strong>{item}</strong><p>Reusable content designed for your business.</p></article>)}</div></section>;
-    case "services": return <section className="site-block feature-block"><small>SERVICES</small><h2>What we do.</h2><div className="feature-grid">{["Consulting","Design","Support"].map((item) => <article key={item}><span>◈</span><strong>{item}</strong><p>Present your service clearly.</p></article>)}</div></section>;
-    case "products": return <section className="site-block feature-block"><small>STORE</small><h2>Featured products.</h2><div className="feature-grid">{["Product One","Product Two","Product Three"].map((item) => <article key={item}><span>□</span><strong>{item}</strong><p>R299.00 · Add to cart</p></article>)}</div></section>;
-    case "pricing": return <section className="site-block feature-block"><small>PRICING</small><h2>Simple plans.</h2><div className="feature-grid">{["Starter","Growth","Pro"].map((item) => <article key={item}><span>◇</span><strong>{item}</strong><p>From R299 / month</p></article>)}</div></section>;
-    case "lead-form": return <section className="site-block form-block"><small>GET IN TOUCH</small><h2>Tell us what you need.</h2><input placeholder="Your name"/><input placeholder="Email address"/><textarea placeholder="How can we help?"/><button>Send enquiry</button></section>;
-    case "booking": return <section className="site-block form-block"><small>BOOKING</small><h2>Choose a time.</h2><div className="calendar-placeholder">Select date · Select time · Confirm booking</div></section>;
-    case "quote": return <section className="site-block form-block"><small>QUOTE</small><h2>Request a quote.</h2><input placeholder="What do you need?"/><button>Request quotation</button></section>;
-    case "testimonials": return <section className="site-block feature-block"><small>TRUSTED</small><h2>What customers say.</h2><div className="quote-card">“Excellent service and a beautiful experience.”<strong>— Happy customer</strong></div></section>;
-    case "faq": return <section className="site-block feature-block"><small>FAQ</small><h2>Questions, answered.</h2><div className="faq-list"><div>What do you offer? <ChevronDown size={15}/></div><div>How does it work? <ChevronDown size={15}/></div><div>How do I get started? <ChevronDown size={15}/></div></div></section>;
-    case "footer": return <footer className="site-block footer-block"><strong>{String(p.brand)}</strong><span>© 2026 · Privacy · Terms · Contact</span></footer>;
-    default: return <div className="site-block feature-block"><h2>Component</h2></div>;
+    case "header": return <div className="site-block header-block" style={style}><strong>{String(p.brand ?? "Your Business")}</strong><nav><span>{String(p.nav1 ?? "Home")}</span><span>{String(p.nav2 ?? "Services")}</span><span>{String(p.nav3 ?? "About")}</span><span>{String(p.nav4 ?? "Contact")}</span><button>{String(p.cta ?? "Get Started")}</button></nav></div>;
+    case "hero": return <section className="site-block hero-block" style={style}><div><small>{String(p.eyebrow ?? "WELCOME")}</small><h1>{String(p.title ?? "Your next customer starts here.")}</h1><p>{String(p.description ?? "")}</p><div><button>{String(p.primary ?? "Get Started")}</button><button className="ghost">{String(p.secondary ?? "Learn More")}</button></div></div><div className="hero-shape"><span/></div></section>;
+    case "features": return <section className="site-block feature-block" style={style}><small>WHY CHOOSE US</small><h2>{String(p.title ?? "Everything your customers need.")}</h2><div className="feature-grid">{[[p.item1 ?? "Fast setup",p.item1Description ?? "A clear foundation designed around your business."],[p.item2 ?? "Mobile ready",p.item2Description ?? "A responsive experience across every screen."],[p.item3 ?? "Built to convert",p.item3Description ?? "Focused content and calls to action."]].map(([title,description])=><article key={String(title)}><span>✦</span><strong>{String(title)}</strong><p>{String(description)}</p></article>)}</div></section>;
+    case "services": return <section className="site-block feature-block" style={style}><small>{String(p.eyebrow ?? "SERVICES")}</small><h2>{String(p.title ?? "What we do.")}</h2><div className="feature-grid">{[1,2,3].map((index)=><article key={index}><span>◈</span><strong>{String(p["item"+index] ?? ["Consulting","Design","Support"][index-1])}</strong><p>{String(p["item"+index+"Description"] ?? "Present your service clearly.")}</p></article>)}</div></section>;
+    case "products": return <section className="site-block feature-block" style={style}><small>STORE</small><h2>{String(p.title ?? "Featured products.")}</h2><div className="feature-grid">{[1,2,3].map((index)=><article key={index}><span>□</span><strong>{String(p["item"+index] ?? ["Product One","Product Two","Product Three"][index-1])}</strong><p>{String(p["price"+index] ?? "R299.00")} · {String(p.cta ?? "Add to cart")}</p></article>)}</div></section>;
+    case "pricing": return <section className="site-block feature-block" style={style}><small>PRICING</small><h2>{String(p.title ?? "Simple plans.")}</h2><div className="feature-grid">{[1,2,3].map((index)=><article key={index}><span>◇</span><strong>{String(p["item"+index] ?? ["Starter","Growth","Pro"][index-1])}</strong><p>{String(p["price"+index] ?? "From R299 / month")}</p></article>)}</div></section>;
+    case "lead-form": return <section className="site-block form-block" style={style}><small>{String(p.eyebrow ?? "GET IN TOUCH")}</small><h2>{String(p.title ?? "Tell us what you need.")}</h2><input placeholder={String(p.namePlaceholder ?? "Your name")}/><input placeholder={String(p.emailPlaceholder ?? "Email address")}/><textarea placeholder={String(p.messagePlaceholder ?? "How can we help?")}/><button>{String(p.cta ?? "Send enquiry")}</button></section>;
+    case "booking": return <section className="site-block form-block" style={style}><small>BOOKING</small><h2>{String(p.title ?? "Choose a time.")}</h2><div className="calendar-placeholder">{String(p.helper ?? "Select date · Select time · Confirm booking")}</div></section>;
+    case "quote": return <section className="site-block form-block" style={style}><small>QUOTE</small><h2>{String(p.title ?? "Request a quote.")}</h2><input placeholder={String(p.placeholder ?? "What do you need?")}/><button>{String(p.cta ?? "Request quotation")}</button></section>;
+    case "testimonials": return <section className="site-block feature-block" style={style}><small>TRUSTED</small><h2>{String(p.title ?? "What customers say.")}</h2><div className="quote-card">“{String(p.quote ?? "Excellent service and a beautiful experience.")}”<strong>— {String(p.author ?? "Happy customer")}</strong></div></section>;
+    case "faq": return <section className="site-block feature-block" style={style}><small>FAQ</small><h2>{String(p.title ?? "Questions, answered.")}</h2><div className="faq-list">{[1,2,3].map((index)=><div key={index}>{String(p["question"+index] ?? ["What do you offer?","How does it work?","How do I get started?"][index-1])}<ChevronDown size={15}/></div>)}</div></section>;
+    case "footer": return <footer className="site-block footer-block" style={style}><strong>{String(p.brand ?? "Your Business")}</strong><span>{String(p.copyright ?? "© 2026 · Privacy · Terms · Contact")}</span></footer>;
+    default: return <div className="site-block feature-block" style={style}><h2>Component</h2></div>;
   }
 }
 
-function PropertyPanel({ element, update, remove, move }: { element: BuilderElement; update: (patch: Record<string, unknown>) => void; remove: () => void; move: (direction: "up" | "down") => void }) {
+type PropertyPanelProps = { element: BuilderElement; update: (patch: Record<string, unknown>) => void; remove: () => void; move: (direction: "up" | "down") => void };
+
+function PropertyPanel({ element, update, remove, move }: PropertyPanelProps) {
   const p = element.props;
+  const design = (p.design ?? {}) as Record<string, unknown>;
   const textField = (label: string, key: string) => <label className="property-field"><span>{label}</span><input value={String(p[key] ?? "")} onChange={(e) => update({ [key]: e.target.value })}/></label>;
+  const updateDesign = (key: string, value: unknown) => update({ design: { ...design, [key]: value } });
+  const colorField = (label: string, key: string, fallback: string) => <label className="property-color-field"><span>{label}</span><div><input type="color" value={String(design[key] ?? fallback)} onChange={(e) => updateDesign(key,e.target.value)} aria-label={label}/><input value={String(design[key] ?? fallback)} onChange={(e) => updateDesign(key,e.target.value)} aria-label={label + " hex value"}/></div></label>;
+  const selectField = (label: string, key: string, options: Array<[string,string]>, fallback: string) => <label className="property-field"><span>{label}</span><select value={String(design[key] ?? fallback)} onChange={(e)=>updateDesign(key,e.target.value)}>{options.map(([value,text])=><option key={value} value={value}>{text}</option>)}</select></label>;
+  const contentFields: Record<string, Array<[string,string]>> = {
+    header:[["Brand name","brand"],["Navigation 1","nav1"],["Navigation 2","nav2"],["Navigation 3","nav3"],["Navigation 4","nav4"],["CTA","cta"]],
+    hero:[["Eyebrow","eyebrow"],["Headline","title"],["Description","description"],["Primary CTA","primary"],["Secondary CTA","secondary"],["Primary URL","primaryUrl"],["Secondary URL","secondaryUrl"]],
+    features:[["Section title","title"],["Card 1 title","item1"],["Card 1 description","item1Description"],["Card 2 title","item2"],["Card 2 description","item2Description"],["Card 3 title","item3"],["Card 3 description","item3Description"]],
+    services:[["Eyebrow","eyebrow"],["Section title","title"],["Service 1","item1"],["Service 1 description","item1Description"],["Service 2","item2"],["Service 2 description","item2Description"],["Service 3","item3"],["Service 3 description","item3Description"]],
+    products:[["Section title","title"],["Product 1","item1"],["Product 1 price","price1"],["Product 2","item2"],["Product 2 price","price2"],["Product 3","item3"],["Product 3 price","price3"],["Cart CTA","cta"]],
+    pricing:[["Section title","title"],["Plan 1","item1"],["Plan 1 price","price1"],["Plan 2","item2"],["Plan 2 price","price2"],["Plan 3","item3"],["Plan 3 price","price3"]],
+    "lead-form":[["Eyebrow","eyebrow"],["Title","title"],["Name placeholder","namePlaceholder"],["Email placeholder","emailPlaceholder"],["Message placeholder","messagePlaceholder"],["Submit button","cta"]],
+    booking:[["Title","title"],["Helper text","helper"]],
+    quote:[["Title","title"],["Field placeholder","placeholder"],["Submit button","cta"]],
+    testimonials:[["Section title","title"],["Quote","quote"],["Customer name","author"]],
+    faq:[["Section title","title"],["Question 1","question1"],["Question 2","question2"],["Question 3","question3"]],
+    footer:[["Brand name","brand"],["Footer text","copyright"]]
+  };
+  const fields = contentFields[element.type] ?? [];
   return <div className="properties-body">
-    <div className="selected-component"><span><MousePointer2 size={14}/></span><div><small>SELECTED COMPONENT</small><strong>{element.type}</strong></div></div>
-    {element.type === "hero" && <>{textField("Headline","title")}{textField("Eyebrow","eyebrow")}{textField("Description","description")}{textField("Primary CTA","primary")}{textField("Secondary CTA","secondary")}</>}
-    {["header","footer"].includes(element.type) && textField("Brand","brand")}
-    <div className="property-section"><small>POSITION</small><div className="property-actions"><button onClick={() => move("up")}><ArrowUp size={15}/>Move up</button><button onClick={() => move("down")}><ArrowDown size={15}/>Move down</button></div></div>
+    <div className="selected-component"><span><MousePointer2 size={14}/></span><div><small>SELECTED COMPONENT</small><strong>{element.type.replace("-", " ")}</strong></div></div>
+    <details className="property-section property-section-collapsible" open><summary>Content</summary>{fields.length ? fields.map(([label,key])=><div key={key}>{textField(label,key)}</div>) : <p className="property-hint">This component has no editable content yet.</p>}</details>
+    <details className="property-section property-section-collapsible" open><summary>Colors</summary>{colorField("Background","backgroundColor","#ffffff")}{colorField("Text","textColor","#111522")}</details>
+    <details className="property-section property-section-collapsible"><summary>Layout</summary>{selectField("Text alignment","textAlign",[["left","Left"],["center","Center"],["right","Right"]],"left")}{selectField("Corner radius","borderRadius",[["0px","Square"],["8px","Small"],["16px","Medium"],["28px","Large"],["999px","Pill"]],"0px")}{selectField("Top spacing","paddingTop",[["0px","None"],["24px","Small"],["48px","Medium"],["70px","Large"],["100px","Extra large"]],"0px")}{selectField("Bottom spacing","paddingBottom",[["0px","None"],["24px","Small"],["48px","Medium"],["70px","Large"],["100px","Extra large"]],"0px")}{selectField("Shadow","boxShadow",[["none","None"],["0 8px 24px rgba(15,23,42,.10)","Soft"],["0 20px 50px rgba(15,23,42,.16)","Strong"]],"none")}</details>
+    <details className="property-section property-section-collapsible"><summary>Visibility</summary><label className="property-toggle"><span>Hide component</span><input type="checkbox" checked={design.hidden === true} onChange={(e)=>updateDesign("hidden",e.target.checked)}/></label><p className="property-hint">Hidden components remain in your document and can be shown again later.</p></details>
+    <div className="property-section"><small>POSITION</small><div className="property-actions"><button onClick={()=>move("up")}><ArrowUp size={15}/>Move up</button><button onClick={()=>move("down")}><ArrowDown size={15}/>Move down</button></div></div>
     <div className="property-section"><small>COMPONENT</small><button className="delete-component" onClick={remove}><Trash2 size={15}/>Remove component</button></div>
   </div>;
 }
 
 function defaultProps(type: string): Record<string, unknown> {
   const defaults: Record<string, Record<string, unknown>> = {
-    header: { brand: "Your Business" },
-    hero: { eyebrow: "WELCOME", title: "Your next customer starts here.", description: "Tell visitors what you do and why they should choose you.", primary: "Get Started", secondary: "Learn More" },
-    features: { title: "Everything your customers need." },
-    footer: { brand: "Your Business" }
+    header:{brand:"Your Business",nav1:"Home",nav2:"Services",nav3:"About",nav4:"Contact",cta:"Get Started"},
+    hero:{eyebrow:"WELCOME",title:"Your next customer starts here.",description:"Tell visitors what you do and why they should choose you.",primary:"Get Started",secondary:"Learn More",primaryUrl:"#",secondaryUrl:"#"},
+    features:{title:"Everything your customers need.",item1:"Fast setup",item1Description:"A clear foundation designed around your business.",item2:"Mobile ready",item2Description:"A responsive experience across every screen.",item3:"Built to convert",item3Description:"Focused content and calls to action."},
+    services:{eyebrow:"SERVICES",title:"What we do.",item1:"Consulting",item1Description:"Practical guidance for your next stage.",item2:"Design",item2Description:"Clear, modern experiences for your customers.",item3:"Support",item3Description:"Ongoing help when your business needs it."},
+    products:{title:"Featured products.",item1:"Product One",price1:"R299.00",item2:"Product Two",price2:"R499.00",item3:"Product Three",price3:"R699.00",cta:"Add to cart"},
+    pricing:{title:"Simple plans.",item1:"Starter",price1:"R299 / month",item2:"Growth",price2:"R599 / month",item3:"Pro",price3:"R999 / month"},
+    "lead-form":{eyebrow:"GET IN TOUCH",title:"Tell us what you need.",namePlaceholder:"Your name",emailPlaceholder:"Email address",messagePlaceholder:"How can we help?",cta:"Send enquiry"},
+    booking:{title:"Choose a time.",helper:"Select date · Select time · Confirm booking"},
+    quote:{title:"Request a quote.",placeholder:"What do you need?",cta:"Request quotation"},
+    testimonials:{title:"What customers say.",quote:"Excellent service and a beautiful experience.",author:"Happy customer"},
+    faq:{title:"Questions, answered.",question1:"What do you offer?",question2:"How does it work?",question3:"How do I get started?"},
+    footer:{brand:"Your Business",copyright:"© 2026 · Privacy · Terms · Contact"}
   };
   return defaults[type] ?? {};
 }
