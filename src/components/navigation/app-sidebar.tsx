@@ -141,7 +141,7 @@ export function AppSidebar() {
             <div className="app-sidebar-divider" />
 
             <SidebarLink
-              item={{ label: "Settings", icon: NavigationSettingsIcon, href: "/dashboard" }}
+              item={{ label: "Settings", icon: NavigationSettingsIcon, href: "/settings" }}
               active={pathname === "/settings"}
               expanded={expanded}
               onClick={closeMobile}
