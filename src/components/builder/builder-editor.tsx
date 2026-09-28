@@ -520,6 +520,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
                     element={element}
                     selected={selectedId === element.id}
                     selectedId={selectedId}
+                    selectElement={setSelectedId}
                     dragging={draggingElementId === element.id}
                     onSelect={() => setSelectedId(element.id)}
                     onDragStart={beginElementDrag}
@@ -582,6 +583,7 @@ function BuilderBlock({
   element: BuilderElement;
   selected: boolean;
   selectedId?: string;
+  selectElement: (id: string) => void;
   dragging: boolean;
   onSelect: () => void;
   onDragStart: (event: React.DragEvent, id: string) => void;
@@ -610,8 +612,9 @@ function BuilderBlock({
               element={child}
               selected={selectedId === child.id}
               selectedId={selectedId}
+              selectElement={selectElement}
               dragging={false}
-              onSelect={onSelect}
+              onSelect={() => selectElement(child.id)}
               onDragStart={() => {}}
               onDragEnd={() => {}}
               onDragOver={() => {}}
