@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { getDb } from "@/lib/db";
 import type { BuilderDocument } from "@/types/builder";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 type DraftPayload = {
   buildRequestId?: string | null;
@@ -11,6 +12,19 @@ type DraftPayload = {
   businessName?: string;
   activity?: string;
   location?: string;
+};
+
+type BuildRequestRow = {
+  id: string;
+  assembly: unknown;
+  preview: unknown;
+  business_name: string;
+  activity: string;
+  location: string;
+  slug: string | null;
+  published_url: string | null;
+  live_version: number;
+  created_at: string;
 };
 
 function isBuilderDocument(value: unknown): value is BuilderDocument {
@@ -32,31 +46,24 @@ async function getIdentity() {
   const supabase = await createClient();
   const { data: { user }, error } = await supabase.auth.getUser();
 
-  if (error || !user) {
-    return { user: null, felacooUserId: null };
-  }
+  if (error || !user) return { user: null, felacooUserId: null };
 
-  const admin = createAdminClient();
-  const { data: link, error: linkError } = await admin
-    .from("felacoo_auth_links")
-    .select("user_id")
-    .eq("supabase_user_id", user.id)
-    .maybeSingle();
+  const sql = getDb();
+  const rows = await sql<{ user_id: string }[]>`
+    select user_id
+    from public.felacoo_auth_links
+    where supabase_user_id = ${user.id}
+    limit 1
+  `;
 
-  if (linkError || !link) {
-    return { user, felacooUserId: null };
-  }
-
-  return { user, felacooUserId: link.user_id as string };
+  return { user, felacooUserId: rows[0]?.user_id ?? null };
 }
 
 export async function GET(request: Request) {
   try {
     const { user, felacooUserId } = await getIdentity();
 
-    if (!user) {
-      return NextResponse.json({ authenticated: false }, { status: 401 });
-    }
+    if (!user) return NextResponse.json({ authenticated: false }, { status: 401 });
 
     if (!felacooUserId) {
       return NextResponse.json(
@@ -65,49 +72,52 @@ export async function GET(request: Request) {
       );
     }
 
-    const admin = createAdminClient();
-    const url = new URL(request.url);
-    const requestedId = url.searchParams.get("id")?.trim();
+    const sql = getDb();
+    const requestedId = new URL(request.url).searchParams.get("id")?.trim();
+    let rows: BuildRequestRow[];
 
-    let query = admin
-      .from("build_requests")
-      .select("id, assembly, preview, business_name, activity, location, slug, published_url, live_version, created_at")
-      .eq("owner_id", felacooUserId);
+    if (requestedId) {
+      rows = await sql<BuildRequestRow[]>`
+        select id, assembly, preview, business_name, activity, location, slug, published_url, live_version, created_at
+        from public.build_requests
+        where id = ${requestedId} and owner_id = ${felacooUserId}
+        limit 1
+      `;
 
-    const { data: draft, error } = requestedId
-      ? await query.eq("id", requestedId).maybeSingle()
-      : await query.order("created_at", { ascending: false }).limit(1).maybeSingle();
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      if (!rows[0]) return NextResponse.json({ error: "Builder project was not found." }, { status: 404 });
+    } else {
+      rows = await sql<BuildRequestRow[]>`
+        select id, assembly, preview, business_name, activity, location, slug, published_url, live_version, created_at
+        from public.build_requests
+        where owner_id = ${felacooUserId}
+        order by created_at desc
+        limit 1
+      `;
     }
 
-    if (requestedId && !draft) {
-      return NextResponse.json({ error: "Builder project was not found." }, { status: 404 });
-    }
+    const draft = rows[0] ?? null;
 
     return NextResponse.json({
       authenticated: true,
       linked: true,
-      draft: draft
-        ? {
-            id: draft.id,
-            document: isBuilderDocument(draft.assembly)
-              ? draft.assembly
-              : isBuilderDocument(draft.preview)
-                ? draft.preview
-                : null,
-            businessName: draft.business_name,
-            activity: draft.activity,
-            location: draft.location,
-            slug: draft.slug,
-            publishedUrl: draft.published_url,
-            liveVersion: draft.live_version,
-            createdAt: draft.created_at,
-          }
-        : null,
+      draft: draft ? {
+        id: draft.id,
+        document: isBuilderDocument(draft.assembly)
+          ? draft.assembly
+          : isBuilderDocument(draft.preview)
+            ? draft.preview
+            : null,
+        businessName: draft.business_name,
+        activity: draft.activity,
+        location: draft.location,
+        slug: draft.slug,
+        publishedUrl: draft.published_url,
+        liveVersion: draft.live_version,
+        createdAt: draft.created_at,
+      } : null,
     });
   } catch (error) {
+    console.error("[builder/draft] GET failed:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unable to load builder draft." },
       { status: 500 },
@@ -124,10 +134,7 @@ export async function POST(request: Request) {
     }
 
     const { user, felacooUserId } = await getIdentity();
-
-    if (!user) {
-      return NextResponse.json({ error: "Authentication required." }, { status: 401 });
-    }
+    if (!user) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
 
     if (!felacooUserId) {
       return NextResponse.json(
@@ -136,26 +143,20 @@ export async function POST(request: Request) {
       );
     }
 
-    const admin = createAdminClient();
+    const sql = getDb();
     const buildRequestId = body.buildRequestId?.trim() || crypto.randomUUID();
+    const documentJson = JSON.stringify(body.document);
 
     if (body.buildRequestId) {
-      const { data, error } = await admin
-        .from("build_requests")
-        .update({
-          assembly: body.document,
-          preview: body.document,
-        })
-        .eq("id", buildRequestId)
-        .eq("owner_id", felacooUserId)
-        .select("id")
-        .maybeSingle();
+      const rows = await sql<{ id: string }[]>`
+        update public.build_requests
+        set assembly = ${documentJson}::jsonb,
+            preview = ${documentJson}::jsonb
+        where id = ${buildRequestId} and owner_id = ${felacooUserId}
+        returning id
+      `;
 
-      if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      }
-
-      if (!data) {
+      if (!rows[0]) {
         return NextResponse.json({ error: "Builder draft was not found for this user." }, { status: 404 });
       }
 
@@ -167,24 +168,24 @@ export async function POST(request: Request) {
       ? header.props.brand
       : "Your Business";
 
-    const { error } = await admin.from("build_requests").insert({
-      id: buildRequestId,
-      business_name: body.businessName?.trim() || inferredBusinessName,
-      activity: body.activity?.trim() || "Website",
-      location: body.location?.trim() || "Online",
-      status: "draft",
-      owner_id: felacooUserId,
-      created_at: new Date().toISOString(),
-      assembly: body.document,
-      preview: body.document,
-    });
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    await sql`
+      insert into public.build_requests
+        (id, business_name, activity, location, status, owner_id, created_at, assembly, preview)
+      values
+        (${buildRequestId},
+         ${body.businessName?.trim() || inferredBusinessName},
+         ${body.activity?.trim() || "Website"},
+         ${body.location?.trim() || "Online"},
+         ${"draft"},
+         ${felacooUserId},
+         ${new Date().toISOString()},
+         ${documentJson}::jsonb,
+         ${documentJson}::jsonb)
+    `;
 
     return NextResponse.json({ saved: true, buildRequestId });
   } catch (error) {
+    console.error("[builder/draft] POST failed:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unable to save builder draft." },
       { status: 500 },
