@@ -55,7 +55,20 @@ export function VersionHistory({ siteId }: { siteId: string }) {
 
   const liveVersion = useMemo(() => versions.find((version) => version.status.toUpperCase() === "LIVE"), [versions]);
 
-  async function runVersionAction(versionId: string, actionName: "restore" | "pin" | "unpin") {\n    if (actionName === "restore" && !window.confirm("Restore this version and make it live?")) return;\n    setAction(versionId + ":" + actionName);\n    try {\n      const response = await fetch("/api/websites/versions", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ siteId, versionId, action: actionName }) });\n      const payload = await response.json();\n      if (!response.ok) throw new Error(payload.error || "Version action failed.");\n      window.location.reload();\n    } catch (err) {\n      setError(err instanceof Error ? err.message : "Version action failed.");\n    } finally { setAction(null); }\n  }\n\n  function bytes(value: number) {
+  async function runVersionAction(versionId: string, actionName: "restore" | "pin" | "unpin") {
+    if (actionName === "restore" && !window.confirm("Restore this version and make it live?")) return;
+    setAction(versionId + ":" + actionName);
+    try {
+      const response = await fetch("/api/websites/versions", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ siteId, versionId, action: actionName }) });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Version action failed.");
+      window.location.reload();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Version action failed.");
+    } finally { setAction(null); }
+  }
+
+  function bytes(value: number) {
     if (value < 1024) return value + " B";
     if (value < 1024 * 1024) return (value / 1024).toFixed(1) + " KB";
     return (value / (1024 * 1024)).toFixed(1) + " MB";
