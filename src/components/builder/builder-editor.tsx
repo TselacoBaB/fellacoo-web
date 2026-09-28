@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowDown, ArrowLeft, ArrowUp, ChevronDown, ChevronRight, Eye, LayoutTemplate, Layers3,
@@ -519,6 +519,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
                   <BuilderBlock
                     element={element}
                     selected={selectedId === element.id}
+                    selectedId={selectedId}
                     dragging={draggingElementId === element.id}
                     onSelect={() => setSelectedId(element.id)}
                     onDragStart={beginElementDrag}
@@ -579,6 +580,7 @@ function BuilderBlock({
 }: {
   element: BuilderElement;
   selected: boolean;
+  selectedId?: string;
   dragging: boolean;
   onSelect: () => void;
   onDragStart: (event: React.DragEvent, id: string) => void;
@@ -605,7 +607,8 @@ function BuilderBlock({
           <div className="builder-nested-element" key={child.id}>
             <BuilderBlock
               element={child}
-              selected={false}
+              selected={selectedId === child.id}
+              selectedId={selectedId}
               dragging={false}
               onSelect={() => {}}
               onDragStart={() => {}}
@@ -634,7 +637,7 @@ function getElementStyle(element: BuilderElement): CSSProperties {
   return style;
 }
 
-function ComponentPreview({ element, children }: { element: BuilderElement; children?: React.ReactNode }) {
+function ComponentPreview({ element, children }: { element: BuilderElement; children?: ReactNode }) {
   const p = element.props;
   const style = getElementStyle(element);
   const nested = children ? <div className="builder-nested-content">{children}</div> : null;
