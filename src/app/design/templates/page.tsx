@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AppSidebar } from "@/components/navigation/app-sidebar";
 import { ArrowRight, Check, Eye, LayoutTemplate, Search, Sparkles, Wand2 } from "lucide-react";
 
@@ -15,6 +15,7 @@ export default function TemplatesPage() {
   const [loading,setLoading]=useState(true);
   const [using,setUsing]=useState<string|null>(null);
   const [message,setMessage]=useState("");
+  const templateRequestInFlight = useRef(false);
 
   useEffect(()=>{
     let active=true;
@@ -34,6 +35,8 @@ export default function TemplatesPage() {
   },[query,category]);
 
   async function useTemplate(templateId:string){
+    if (templateRequestInFlight.current) return;
+    templateRequestInFlight.current = true;
     setUsing(templateId);setMessage("");
     try {
       const response=await fetch("/api/templates",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({templateId})});
