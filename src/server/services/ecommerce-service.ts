@@ -149,3 +149,18 @@ export async function listPublicProducts(slug:string){
     inventoryQuantity:product.productType==="DIGITAL"?null:product.inventoryQuantity,sku:product.sku
   }))};
 }
+
+export async function publicCart(slug:string,input:{cartId?:string;productId:string;variantId?:string|null;quantity:number}){
+  const store=await resolveStoreBySlug(slug);
+  return addToCart(store.ownerId,{...input,siteId:store.siteId});
+}
+
+export async function publicCartSummary(slug:string,cartId:string){
+  const store=await resolveStoreBySlug(slug);
+  return getCartSummary(store.ownerId,cartId);
+}
+
+export async function publicCheckout(slug:string,input:{cartId:string;idempotencyKey:string;shippingAddress?:Record<string,unknown>;billingAddress?:Record<string,unknown>}){
+  const store=await resolveStoreBySlug(slug);
+  return createOrderFromCart(store.ownerId,input);
+}
