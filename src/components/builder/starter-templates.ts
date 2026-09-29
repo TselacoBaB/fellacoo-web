@@ -108,6 +108,50 @@ const portfolioDocument = ({
   }]
 });
 
+
+const bakeryDocument = ({
+  brand, tagline, title, eyebrow, description, accent, background="#fffaf3", surface="#f4eadf",
+  text="#241914", muted="#796b63", style="Bakery", menuTitle="Fresh from the oven.",
+  aboutTitle="Baked with care.", services=["Breads","Pastries","Cakes"],
+  cta="Order Now", secondary="View Menu"
+}: {
+  brand:string; tagline:string; title:string; eyebrow:string; description:string; accent:string;
+  background?:string; surface?:string; text?:string; muted?:string; style?:string;
+  menuTitle?:string; aboutTitle?:string; services?:[string,string,string];
+  cta?:string; secondary?:string;
+}): BuilderDocument => ({
+  version:1,
+  site:{
+    brandName:brand,
+    tagline,
+    theme:{
+      colors:{primary:accent,secondary:text,accent,text,muted,background,surface},
+      typography:{
+        headingFont:"Inter, ui-sans-serif, system-ui, sans-serif",
+        bodyFont:"Inter, ui-sans-serif, system-ui, sans-serif",
+        headingWeight:"900",
+        bodyWeight:"400"
+      },
+      radius:"18px",
+      containerWidth:"1180px",
+      buttonStyle:"pill"
+    },
+    seo:{title:brand+" — "+tagline,description}
+  },
+  pages:[{
+    id:"home",path:"/",title:brand+" Bakery",
+    elements:[
+      {id:"header",type:"header",props:{brand,nav1:"Home",nav2:"Menu",nav3:"About",nav4:"Contact",cta}},
+      {id:"hero",type:"hero",props:{eyebrow,title,description,primary:cta,secondary,primaryUrl:"#menu",secondaryUrl:"#about",badge:style}},
+      {id:"menu",type:"products",props:{title:menuTitle,item1:services[0],price1:"From R25",item2:services[1],price2:"From R35",item3:services[2],price3:"From R85",cta:"Order / Enquire"}},
+      {id:"story",type:"section",props:{label:"OUR STORY",title:aboutTitle,text:"Share the story behind your bakery, your ingredients, your community and the reason customers come back.",buttonLabel:"Our Story",buttonUrl:"#about"}},
+      {id:"specialties",type:"features",props:{eyebrow:"WHAT WE BAKE",title:"Something for every craving.",item1:services[0],item1Description:"Freshly prepared favourites made throughout the day.",item2:services[1],item2Description:"Sweet and savoury treats for every occasion.",item3:services[2],item3Description:"Celebration cakes and custom orders made to order."}},
+      {id:"contact",type:"lead-form",props:{eyebrow:"ORDER & ENQUIRE",title:"Ready to order?",namePlaceholder:"Your name",emailPlaceholder:"Phone or email",messagePlaceholder:"What would you like to order?",cta:"Send enquiry"}},
+      {id:"footer",type:"footer",props:{brand,copyright:"© 2026 · Freshly baked · Orders · Contact"}}
+    ]
+  }]
+});
+
 export const starterTemplates: StarterTemplate[] = [
 
   {
@@ -555,6 +599,66 @@ export const starterTemplates: StarterTemplate[] = [
       muted:"#737373",
       style:"Fashion Artist"
     })
+  }
+  {
+    id:"bakery-warm-classic", name:"Warm Classic Bakery",
+    description:"A welcoming neighbourhood bakery template with warm tones, product-led ordering and a strong family feel.",
+    category:"Food & Bakery", style:"Warm Classic", audience:"Neighbourhood bakeries, bread shops and family bakeries", featured:true,
+    document:bakeryDocument({brand:"The Daily Bake",tagline:"Fresh bread. Happy moments.",title:"Freshly baked for every day.",eyebrow:"BAKED FRESH DAILY",description:"A friendly bakery website built to showcase your favourites, take orders and bring customers through the door.",accent:"#d97745",services:["Fresh Bread","Pastries","Celebration Cakes"],style:"Neighbourhood Bakery"})
+  },
+  {
+    id:"bakery-modern-minimal", name:"Modern Minimal Bakery",
+    description:"Clean premium bakery storefront with restrained typography, product highlights and elegant ordering pathways.",
+    category:"Food & Bakery", style:"Modern Minimal", audience:"Premium bakeries, patisseries and artisan bread brands", featured:true,
+    document:bakeryDocument({brand:"Miette",tagline:"Small batch. Beautifully baked.",title:"Bread, pastry and beautiful things.",eyebrow:"ARTISAN BAKERY",description:"A refined digital storefront for bakeries that care about ingredients, craft and presentation.",accent:"#8b6b4f",background:"#fbfaf7",surface:"#f0ede7",text:"#24211d",muted:"#77716a",services:["Sourdough","Viennoiserie","Custom Cakes"],style:"Artisan Patisserie"})
+  },
+  {
+    id:"bakery-bold-green", name:"Fresh Green Bakery",
+    description:"Bright modern bakery design with energetic green accents for businesses focused on freshness and community.",
+    category:"Food & Bakery", style:"Fresh & Organic", audience:"Healthy bakeries, organic food brands and community bakeries",
+    document:bakeryDocument({brand:"Good Grain",tagline:"Good food starts here.",title:"Fresh from our kitchen to your table.",eyebrow:"FRESH · LOCAL · GOOD",description:"Put your ingredients, products and community story at the centre of a lively bakery website.",accent:"#65a30d",background:"#f7fbea",surface:"#edf4df",text:"#18200f",muted:"#68715d",services:["Wholegrain Bread","Healthy Bakes","Family Meals"],style:"Fresh & Organic"})
+  },
+  {
+    id:"bakery-chocolate-luxury", name:"Chocolate Patisserie",
+    description:"Dark luxury bakery template designed for premium desserts, chocolate, cakes and gifting.",
+    category:"Food & Bakery", style:"Dark Luxury", audience:"Patisseries, chocolatiers and premium dessert brands",
+    document:bakeryDocument({brand:"Maison Cacao",tagline:"Indulgence, beautifully made.",title:"A little luxury in every bite.",eyebrow:"PREMIUM PATISSERIE",description:"A sophisticated bakery experience for premium cakes, chocolates, desserts and special occasions.",accent:"#d6a15c",background:"#15100d",surface:"#241a15",text:"#f8eee3",muted:"#b7a79b",services:["Signature Cakes","Artisan Chocolate","Dessert Boxes"],style:"Luxury Patisserie",cta:"Order a Box",secondary:"Explore Menu"})
+  },
+  {
+    id:"bakery-family", name:"Family Bakery",
+    description:"Friendly high-conversion bakery template built around affordable favourites, meals and family occasions.",
+    category:"Food & Bakery", style:"Family Friendly", audience:"Family bakeries, local food shops and community businesses",
+    document:bakeryDocument({brand:"Bake & Share",tagline:"Made for family.",title:"Good food made for good moments.",eyebrow:"WELCOME TO OUR BAKERY",description:"Make it easy for families and local customers to discover meals, baked goods and celebration orders.",accent:"#ef8f3d",services:["Daily Bread","Wholesome Meals","Birthday Cakes"],style:"Family Bakery",cta:"Order Today",secondary:"See Menu"})
+  },
+  {
+    id:"bakery-pink-cake", name:"Cake Studio",
+    description:"Playful cake and celebration website focused on custom cakes, birthdays, weddings and enquiries.",
+    category:"Food & Bakery", style:"Celebration Cakes", audience:"Cake designers, home bakers and celebration cake studios",
+    document:bakeryDocument({brand:"Sweet Bloom",tagline:"Cakes made for your moment.",title:"Make every celebration sweeter.",eyebrow:"CUSTOM CAKES & DESSERTS",description:"A joyful portfolio-and-order template for custom cakes, cupcakes, dessert tables and celebrations.",accent:"#ec4899",background:"#fff7fb",surface:"#fcecf4",text:"#27151e",muted:"#806b75",services:["Birthday Cakes","Wedding Cakes","Cupcakes"],style:"Cake Studio",cta:"Request a Cake",secondary:"View Cakes"})
+  },
+  {
+    id:"bakery-african", name:"Proudly Local Bakery",
+    description:"Community-first South African bakery template for affordable bread, meals and local customer enquiries.",
+    category:"Food & Bakery", style:"Local & Community", audience:"South African bakeries, township bakeries and community food businesses",
+    document:bakeryDocument({brand:"Mzansi Bakehouse",tagline:"Freshly baked. Proudly local.",title:"Food that brings the community together.",eyebrow:"PROUDLY SOUTH AFRICAN",description:"Celebrate local flavour, affordable favourites and the people behind your bakery.",accent:"#eab308",background:"#fffdf3",surface:"#f5efc9",text:"#211e10",muted:"#746f55",services:["Fresh Bread","Wholesome Meals","Local Favourites"],style:"Community Bakery",cta:"Order / Enquire",secondary:"Our Menu"})
+  },
+  {
+    id:"bakery-cafe", name:"Bakery Café",
+    description:"Café-and-bakery template combining coffee, breakfast, baked goods and visit-focused calls to action.",
+    category:"Food & Bakery", style:"Café Lifestyle", audience:"Cafés, coffee shops and bakery cafés",
+    document:bakeryDocument({brand:"Roast & Rise",tagline:"Coffee, bread and slow mornings.",title:"Your neighbourhood place for good coffee.",eyebrow:"BAKERY · CAFÉ · COFFEE",description:"Showcase breakfast, coffee, pastries and the atmosphere that makes your café worth visiting.",accent:"#a16207",background:"#faf7f0",surface:"#eee7da",text:"#211c16",muted:"#776d62",services:["Breakfast","Coffee & Tea","Fresh Pastries"],style:"Bakery Café",cta:"View Menu",secondary:"Find Us"})
+  },
+  {
+    id:"bakery-online", name:"Bakery Online Shop",
+    description:"Commerce-ready bakery template designed around product discovery, online orders and delivery.",
+    category:"Food & Bakery", style:"Online Ordering", audience:"Bakeries selling online, delivery kitchens and food entrepreneurs",
+    document:bakeryDocument({brand:"BakeBox",tagline:"Your favourites, delivered.",title:"Fresh bakery favourites at your door.",eyebrow:"ORDER ONLINE",description:"A product-first bakery website designed to move customers from discovery to online ordering quickly.",accent:"#f97316",background:"#fffaf5",surface:"#fff0e3",text:"#24170f",muted:"#7c6b60",services:["Bread Boxes","Treat Boxes","Celebration Cakes"],style:"Bakery Commerce",cta:"Shop Now",secondary:"View Products"})
+  },
+  {
+    id:"bakery-corporate", name:"Corporate Bakery & Catering",
+    description:"Professional bakery template for wholesale, office catering, events and recurring business orders.",
+    category:"Food & Bakery", style:"Catering & Corporate", audience:"Corporate bakeries, caterers and wholesale food suppliers",
+    document:bakeryDocument({brand:"Daily Crumb Co.",tagline:"Baked for teams, events and everyday.",title:"Reliable baking for your business.",eyebrow:"CORPORATE BAKING & CATERING",description:"Present catering packages, wholesale services and easy enquiry pathways for business customers.",accent:"#0f766e",background:"#f5fbfa",surface:"#e5f3f0",text:"#102522",muted:"#61736f",services:["Office Catering","Wholesale Bread","Event Platters"],style:"Corporate Catering",cta:"Request a Quote",secondary:"View Packages"})
   }
   {
     id: "starter-bakery",
