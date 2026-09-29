@@ -449,7 +449,9 @@ function WebsiteCard({
   status,
   projectAction,
   setProjectAction,
-  onProjectChanged
+  onProjectChanged,
+  menuOpen,
+  setMenuOpen
 }: {
   name: string;
   domain: string;
@@ -481,7 +483,9 @@ function WebsiteCard({
 
   async function manageProject(action: "duplicate" | "archive" | "restore" | "delete") {
     if (action === "delete") {
-      const confirmed = window.confirm("Delete this website permanently? This removes the website project and its dashboard records.");
+      const confirmed = window.confirm(
+        "Delete this website permanently? This removes the website project and its dashboard records."
+      );
       if (!confirmed) return;
     }
 
@@ -494,13 +498,16 @@ function WebsiteCard({
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Unable to update website.");
+
       if (action === "duplicate" && payload.url) {
         window.location.href = payload.url;
         return;
       }
+
       if (action === "delete") {
         setMenuOpen(null);
       }
+
       onProjectChanged();
     } catch (error) {
       window.alert(error instanceof Error ? error.message : "Unable to update website.");
@@ -508,6 +515,7 @@ function WebsiteCard({
       setProjectAction(null);
     }
   }
+
   const isPublished = status.toLowerCase() === "published";
   const liveUrl = domain.startsWith("http") ? domain : null;
 
@@ -518,63 +526,81 @@ function WebsiteCard({
       onPointerUp={cancelLongPress}
       onPointerCancel={cancelLongPress}
       onPointerLeave={cancelLongPress}
-      onContextMenu={(event) => {
-        if (event.pointerType === "touch") event.preventDefault();
-      }}
+      onContextMenu={(event) => event.preventDefault()}
     >
-      <>
-          <Link href={"/builder/" + id} className="website-card-link">
-            <div className={"site-preview " + (kind || "website")}>
-              <div className="preview-nav"><span>{name.split(" ")[0]}</span><i></i><i></i><i></i></div>
-              <div className="preview-content">
-                <b>{previewHeadline(name, kind)}</b>
-                <small>{previewLabel(name, kind)}</small>
-              </div>
-            </div>
-            <div className="site-info">
-              <div><strong>{name}</strong><small>{domain}</small></div>
-              <span className="website-card-more"><MoreVertical size={16} /></span>
-            </div>
-            <div className={"site-status " + status.toLowerCase()}><span></span>{status}</div>
-          </Link>
-          <div className="website-card-hover-actions">
-            <Link href={"/builder/" + id} className="website-card-view" onClick={() => setMenuOpen(null)}>
-              <LayoutTemplate size={14} /> View
-            </Link>
-            {isPublished && liveUrl && (
-              <a href={liveUrl} target="_blank" rel="noreferrer" className="website-card-live" onClick={() => setMenuOpen(null)}>
-                <Globe2 size={14} /> Live
-              </a>
-            )}
-            <button
-              type="button"
-              className="website-card-delete"
-              onClick={() => void manageProject("delete")}
-              disabled={projectAction === id + ":delete"}
-            >
-              <Trash2 size={14} /> {projectAction === id + ":delete" ? "Deleting…" : "Delete"}
-            </button>
+      <Link href={"/builder/" + id} className="website-card-link">
+        <div className={"site-preview " + (kind || "website")}>
+          <div className="preview-nav">
+            <span>{name.split(" ")[0]}</span>
+            <i></i><i></i><i></i>
           </div>
+          <div className="preview-content">
+            <b>{previewHeadline(name, kind)}</b>
+            <small>{previewLabel(name, kind)}</small>
+          </div>
+        </div>
+        <div className="site-info">
+          <div>
+            <strong>{name}</strong>
+            <small>{domain}</small>
+          </div>
+          <span className="website-card-more"><MoreVertical size={16} /></span>
+        </div>
+        <div className={"site-status " + status.toLowerCase()}>
+          <span></span>{status}
+        </div>
+      </Link>
 
-          <div className="website-card-secondary-actions">
-            <Link href={"/builder/" + id}>Edit</Link>
-            <Link href={"/websites/versions?site=" + encodeURIComponent(id)}>Versions</Link>
-            <Link href="/websites/domains">Domain</Link>
-            <button type="button" onClick={() => void manageProject("duplicate")} disabled={projectAction === id + ":duplicate"}>
-              {projectAction === id + ":duplicate" ? "Copying…" : "Duplicate"}
-            </button>
-            {status.toLowerCase() === "archived" ? (
-              <button type="button" onClick={() => void manageProject("restore")} disabled={projectAction === id + ":restore"}>
-                {projectAction === id + ":restore" ? "Restoring…" : "Restore"}
-              </button>
-            ) : (
-              <button type="button" className="danger" onClick={() => void manageProject("archive")} disabled={projectAction === id + ":archive"}>
-                {projectAction === id + ":archive" ? "Archiving…" : "Archive"}
-              </button>
-            )}
-          </div>
-        </>
-      )}
+      <div className="website-card-hover-actions">
+        <Link href={"/builder/" + id} className="website-card-view" onClick={() => setMenuOpen(null)}>
+          <LayoutTemplate size={14} /> View
+        </Link>
+        {isPublished && liveUrl && (
+          <a href={liveUrl} target="_blank" rel="noreferrer" className="website-card-live" onClick={() => setMenuOpen(null)}>
+            <Globe2 size={14} /> Live
+          </a>
+        )}
+        <button
+          type="button"
+          className="website-card-delete"
+          onClick={() => void manageProject("delete")}
+          disabled={projectAction === id + ":delete"}
+        >
+          <Trash2 size={14} />
+          {projectAction === id + ":delete" ? "Deleting…" : "Delete"}
+        </button>
+      </div>
+
+      <div className="website-card-secondary-actions">
+        <Link href={"/builder/" + id}>Edit</Link>
+        <Link href={"/websites/versions?site=" + encodeURIComponent(id)}>Versions</Link>
+        <Link href="/websites/domains">Domain</Link>
+        <button
+          type="button"
+          onClick={() => void manageProject("duplicate")}
+          disabled={projectAction === id + ":duplicate"}
+        >
+          {projectAction === id + ":duplicate" ? "Copying…" : "Duplicate"}
+        </button>
+        {status.toLowerCase() === "archived" ? (
+          <button
+            type="button"
+            onClick={() => void manageProject("restore")}
+            disabled={projectAction === id + ":restore"}
+          >
+            {projectAction === id + ":restore" ? "Restoring…" : "Restore"}
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="danger"
+            onClick={() => void manageProject("archive")}
+            disabled={projectAction === id + ":archive"}
+          >
+            {projectAction === id + ":archive" ? "Archiving…" : "Archive"}
+          </button>
+        )}
+      </div>
     </article>
   );
 }
