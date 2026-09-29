@@ -1,0 +1,19 @@
+{
+  "$schema": "https://developers.cloudflare.com/workers/wrangler/config.json",
+  "name": "fellacoo-site-delivery",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-29",
+  "workers_dev": false,
+  "routes": [
+    {
+      "pattern": "*.fellacoo.xyz/*",
+      "zone_name": "fellacoo.xyz"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "SITES",
+      "bucket_name": "felacoo-sites"
+    }
+  ]
+}
