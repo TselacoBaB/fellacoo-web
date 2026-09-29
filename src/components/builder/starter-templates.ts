@@ -33,6 +33,81 @@ const starterSite: BuilderDocument["site"] = {
   seo: { title:"Your Business", description:"A responsive website built with Fellacoo." }
 };
 
+
+const portfolioDocument = ({
+  brand,
+  tagline,
+  title,
+  eyebrow,
+  description,
+  primary,
+  secondary,
+  services,
+  aboutTitle,
+  aboutText,
+  stats,
+  tools,
+  accent,
+  background = "#ffffff",
+  surface = "#f4f5f4",
+  text = "#0b0d10",
+  muted = "#6b7280",
+  style = "Modern Portfolio",
+  contactTitle = "Let's work together."
+}: {
+  brand:string; tagline:string; title:string; eyebrow:string; description:string;
+  primary:string; secondary:string; services:[string,string,string];
+  aboutTitle:string; aboutText:string; stats:[string,string,string];
+  tools:[string,string,string]; accent:string; background?:string; surface?:string;
+  text?:string; muted?:string; style?:string; contactTitle?:string;
+}): BuilderDocument => ({
+  version: 1,
+  site: {
+    brandName: brand,
+    tagline,
+    theme: {
+      colors: {
+        primary: accent,
+        secondary: text,
+        accent,
+        text,
+        muted,
+        background,
+        surface
+      },
+      typography: {
+        headingFont: "Inter, ui-sans-serif, system-ui, sans-serif",
+        bodyFont: "Inter, ui-sans-serif, system-ui, sans-serif",
+        headingWeight: "900",
+        bodyWeight: "400"
+      },
+      radius: "18px",
+      containerWidth: "1180px",
+      buttonStyle: "pill"
+    },
+    seo: {
+      title: brand + " — " + tagline,
+      description
+    }
+  },
+  pages: [{
+    id: "home",
+    path: "/",
+    title: brand + " Portfolio",
+    elements: [
+      { id:"header", type:"header", props:{ brand, nav1:"Home", nav2:"Work", nav3:"Services", nav4:"About", cta:"Let's Talk" } },
+      { id:"hero", type:"hero", props:{ eyebrow, title, description, primary, secondary, primaryUrl:"#work", secondaryUrl:"#about", badge:style } },
+      { id:"ticker", type:"section", props:{ label:"EXPERTISE", title:"Design · Strategy · Digital · Experience", text:"Selected capabilities brought together into one clear creative portfolio.", buttonLabel:"View Work", buttonUrl:"#work" } },
+      { id:"work", type:"features", props:{ eyebrow:"SELECTED WORK", title:"A portfolio built around meaningful outcomes.", item1:services[0], item1Description:"Thoughtful work from concept through polished delivery.", item2:services[1], item2Description:"Clear systems, strong visual direction and practical execution.", item3:services[2], item3Description:"Experiences designed to be useful, memorable and easy to use." } },
+      { id:"about", type:"section", props:{ label:"ABOUT ME", title:aboutTitle, text:aboutText, buttonLabel:"View My CV", buttonUrl:"#contact" } },
+      { id:"stats", type:"features", props:{ title:"Experience at a glance.", item1:stats[0], item1Description:"Selected projects completed.", item2:stats[1], item2Description:"Clients, teams or brands supported.", item3:stats[2], item3Description:"Years spent creating digital work." } },
+      { id:"tools", type:"features", props:{ eyebrow:"MY TOOLKIT", title:"Tools behind the work.", item1:tools[0], item1Description:"Creative workflow and production.", item2:tools[1], item2Description:"Design, prototyping or development.", item3:tools[2], item3Description:"Planning, collaboration and delivery." } },
+      { id:"contact", type:"lead-form", props:{ eyebrow:"START A PROJECT", title:contactTitle, namePlaceholder:"Your name", emailPlaceholder:"Email address", messagePlaceholder:"Tell me about your project", cta:"Send enquiry" } },
+      { id:"footer", type:"footer", props:{ brand, copyright:"© 2026 · Portfolio · CV · Contact" } }
+    ]
+  }]
+});
+
 export const starterTemplates: StarterTemplate[] = [
 
   {
@@ -191,6 +266,296 @@ export const starterTemplates: StarterTemplate[] = [
       }]
     }
   },
+  {
+    id:"portfolio-dark-lime",
+    name:"Dark Lime IT Portfolio",
+    description:"Dark technology portfolio inspired by the supplied WR Solutions reference, with neon-lime accents, service cards and an editorial profile section.",
+    category:"Portfolio & Creative",
+    style:"Dark Lime Tech",
+    audience:"IT specialists, product designers, developers and digital consultants",
+    featured:true,
+    document:portfolioDocument({
+      brand:"WR Solutions",
+      tagline:"Innovative IT solutions that drive results.",
+      title:"Innovative IT Solutions That Drive Results",
+      eyebrow:"Hello There!",
+      description:"A bold technology portfolio for professionals who combine design, innovation and practical digital solutions.",
+      primary:"View Our Portfolio",
+      secondary:"Hire Me",
+      services:["UI/UX Design","App Design","Web Design"],
+      aboutTitle:"The Story Behind WR Solutions",
+      aboutText:"Build trust with a concise personal story, clear expertise and proof that turns skills into business outcomes.",
+      stats:["1K+","10+","8+"],
+      tools:["Figma","Framer","Webflow"],
+      accent:"#b7ff00",
+      background:"#080d0f",
+      surface:"#171d20",
+      text:"#f4f7f5",
+      muted:"#9aa5a0",
+      style:"IT Solutions"
+    })
+  },
+  {
+    id:"portfolio-minimal-mono",
+    name:"Minimal Mono Portfolio",
+    description:"Editorial black-and-white personal portfolio with oversized typography, restrained navigation and a strong case-study-first structure.",
+    category:"Portfolio & Creative",
+    style:"Minimal Editorial",
+    audience:"Designers, architects, strategists and creative professionals",
+    featured:true,
+    document:portfolioDocument({
+      brand:"Mason.",
+      tagline:"Independent designer & creative strategist.",
+      title:"I turn complex ideas into clear digital experiences.",
+      eyebrow:"Independent Creative",
+      description:"A refined portfolio designed to let selected work, thinking and personality lead the experience.",
+      primary:"Explore My Work",
+      secondary:"Download CV",
+      services:["Brand Identity","Digital Product","Creative Direction"],
+      aboutTitle:"A little about Mason.",
+      aboutText:"A concise professional story focused on how you think, collaborate and create value for ambitious teams.",
+      stats:["42+","18","9+"],
+      tools:["Figma","Notion","Adobe"],
+      accent:"#111111",
+      background:"#fbfbf8",
+      surface:"#f1f1ec",
+      text:"#101010",
+      muted:"#777777",
+      style:"Creative Director"
+    })
+  },
+  {
+    id:"portfolio-cobalt-ux",
+    name:"Cobalt UX Portfolio",
+    description:"Confident blue UX portfolio built around case studies, process, research and measurable product outcomes.",
+    category:"Portfolio & Creative",
+    style:"UX Case Study",
+    audience:"UX designers, product designers and researchers",
+    featured:false,
+    document:portfolioDocument({
+      brand:"Ava UX",
+      tagline:"Research-led product design.",
+      title:"I design products people understand and love to use.",
+      eyebrow:"Product Designer",
+      description:"A case-study-led portfolio for showing the thinking behind interfaces, systems and product decisions.",
+      primary:"View Case Studies",
+      secondary:"My Process",
+      services:["Product Design","UX Research","Design Systems"],
+      aboutTitle:"Design starts with understanding.",
+      aboutText:"Show how research, collaboration and iteration connect to practical product outcomes.",
+      stats:["24+","12","6+"],
+      tools:["Figma","FigJam","Maze"],
+      accent:"#2563eb",
+      background:"#f8fbff",
+      surface:"#eef5ff",
+      text:"#101827",
+      muted:"#64748b",
+      style:"UX Designer"
+    })
+  },
+  {
+    id:"portfolio-creative-pink",
+    name:"Creative Studio Portfolio",
+    description:"Expressive pink-and-orange creative portfolio for visual designers, art directors and independent studios.",
+    category:"Portfolio & Creative",
+    style:"Expressive Creative",
+    audience:"Art directors, graphic designers and creative studios",
+    featured:false,
+    document:portfolioDocument({
+      brand:"NOVA Studio",
+      tagline:"Ideas with attitude.",
+      title:"We make brands impossible to ignore.",
+      eyebrow:"Creative Studio",
+      description:"A playful portfolio foundation for showcasing campaigns, visual identities and bold creative direction.",
+      primary:"See Our Work",
+      secondary:"Start a Project",
+      services:["Art Direction","Brand Design","Campaigns"],
+      aboutTitle:"Small studio. Big creative energy.",
+      aboutText:"Position a creative studio through a strong point of view, selected work and a simple path to enquire.",
+      stats:["80+","32","11+"],
+      tools:["Adobe","Figma","Cinema 4D"],
+      accent:"#ff4f91",
+      background:"#fff8fb",
+      surface:"#fff0f5",
+      text:"#181018",
+      muted:"#756875",
+      style:"Creative Studio"
+    })
+  },
+  {
+    id:"portfolio-terminal-dev",
+    name:"Terminal Developer Portfolio",
+    description:"Developer portfolio with a technical visual language, project-focused content and a direct hire pathway.",
+    category:"Portfolio & Creative",
+    style:"Developer / Terminal",
+    audience:"Software developers, engineers and technical freelancers",
+    featured:false,
+    document:portfolioDocument({
+      brand:"dev//Alex",
+      tagline:"Software engineer building useful things.",
+      title:"I build fast, reliable digital products.",
+      eyebrow:"Full-Stack Developer",
+      description:"A developer-first portfolio for communicating technical depth without losing clarity for clients and hiring teams.",
+      primary:"View Projects",
+      secondary:"Download CV",
+      services:["Web Applications","APIs & Systems","Cloud Engineering"],
+      aboutTitle:"Code is the tool. Outcomes are the goal.",
+      aboutText:"Explain your technical approach, preferred stack and the kinds of problems you enjoy solving.",
+      stats:["35+","14","7+"],
+      tools:["TypeScript","Next.js","Supabase"],
+      accent:"#22c55e",
+      background:"#070b09",
+      surface:"#111814",
+      text:"#ecfdf5",
+      muted:"#86a595",
+      style:"Full-Stack Engineer"
+    })
+  },
+  {
+    id:"portfolio-photo-editorial",
+    name:"Editorial Photographer Portfolio",
+    description:"Image-led editorial portfolio for photographers with a calm luxury aesthetic and project storytelling.",
+    category:"Portfolio & Creative",
+    style:"Editorial Photography",
+    audience:"Photographers, filmmakers and visual storytellers",
+    featured:false,
+    document:portfolioDocument({
+      brand:"Lena / Photo",
+      tagline:"Stories captured in light.",
+      title:"Portraits, places and moments worth remembering.",
+      eyebrow:"Photographer & Visual Storyteller",
+      description:"A sophisticated portfolio foundation for photographers who want the work to dominate while keeping enquiries simple.",
+      primary:"View Gallery",
+      secondary:"Book a Shoot",
+      services:["Portraits","Editorial","Commercial"],
+      aboutTitle:"Behind the camera.",
+      aboutText:"Introduce your visual style, approach and experience while keeping the portfolio itself at the center of attention.",
+      stats:["120+","40","10+"],
+      tools:["Lightroom","Photoshop","Capture One"],
+      accent:"#8b5cf6",
+      background:"#faf9f7",
+      surface:"#f0eeeb",
+      text:"#171717",
+      muted:"#77716c",
+      style:"Photographer"
+    })
+  },
+  {
+    id:"portfolio-motion-3d",
+    name:"3D Motion Designer Portfolio",
+    description:"Futuristic motion portfolio with electric purple accents, digital services and a strong showreel-style introduction.",
+    category:"Portfolio & Creative",
+    style:"3D / Motion",
+    audience:"Motion designers, 3D artists and animation studios",
+    featured:false,
+    document:portfolioDocument({
+      brand:"FRAME/3D",
+      tagline:"Motion, worlds and visual experiments.",
+      title:"I create moving visuals that make ideas feel alive.",
+      eyebrow:"3D & Motion Designer",
+      description:"A cinematic portfolio foundation for showreels, product animation, motion systems and visual experiments.",
+      primary:"Watch Showreel",
+      secondary:"View Projects",
+      services:["3D Design","Motion Graphics","Product Animation"],
+      aboutTitle:"Built for motion.",
+      aboutText:"Tell the story behind your craft, the software you use and the visual problems you solve for brands.",
+      stats:["70+","28","9+"],
+      tools:["Blender","After Effects","Cinema 4D"],
+      accent:"#a855f7",
+      background:"#09070e",
+      surface:"#17111f",
+      text:"#faf7ff",
+      muted:"#a99bb6",
+      style:"Motion Designer"
+    })
+  },
+  {
+    id:"portfolio-bento-freelancer",
+    name:"Bento Freelancer Portfolio",
+    description:"Modern bento-style personal brand foundation for freelancers combining multiple creative and business disciplines.",
+    category:"Portfolio & Creative",
+    style:"Modern Bento",
+    audience:"Freelancers, creators and multidisciplinary professionals",
+    featured:false,
+    document:portfolioDocument({
+      brand:"Jordan.",
+      tagline:"Designer, maker and problem solver.",
+      title:"A multidisciplinary creative helping ambitious ideas move forward.",
+      eyebrow:"Designer · Maker · Freelancer",
+      description:"A flexible personal brand portfolio designed to combine services, selected work, experience and a strong contact CTA.",
+      primary:"See What I Do",
+      secondary:"My Story",
+      services:["Web Design","Brand Systems","Creative Strategy"],
+      aboutTitle:"A portfolio that works like a personal homepage.",
+      aboutText:"Bring together your strongest capabilities, personality and proof in one flexible experience.",
+      stats:["50+","20","8+"],
+      tools:["Figma","Framer","Notion"],
+      accent:"#f59e0b",
+      background:"#fffdf7",
+      surface:"#fff4d9",
+      text:"#18130a",
+      muted:"#766b58",
+      style:"Multidisciplinary Creative"
+    })
+  },
+  {
+    id:"portfolio-luxury-consultant",
+    name:"Luxury Personal Brand Portfolio",
+    description:"Premium personal-brand portfolio for senior consultants, executives and creative leaders with restrained gold accents.",
+    category:"Portfolio & Creative",
+    style:"Luxury Personal Brand",
+    audience:"Consultants, executives, strategists and senior creatives",
+    featured:false,
+    document:portfolioDocument({
+      brand:"Daniel Cole",
+      tagline:"Strategy, leadership and transformation.",
+      title:"I help ambitious organizations turn complexity into momentum.",
+      eyebrow:"Strategist & Advisor",
+      description:"An authoritative personal website for senior professionals who need credibility, clarity and an elegant conversion path.",
+      primary:"Explore My Work",
+      secondary:"Download CV",
+      services:["Strategy","Advisory","Leadership"],
+      aboutTitle:"Experience that creates perspective.",
+      aboutText:"Present a concise career story, leadership philosophy and the evidence behind your expertise.",
+      stats:["25+","60+","15+"],
+      tools:["Notion","Miro","PowerPoint"],
+      accent:"#b88a44",
+      background:"#f9f7f2",
+      surface:"#f0ece3",
+      text:"#1b1916",
+      muted:"#746f67",
+      style:"Executive Advisor"
+    })
+  },
+  {
+    id:"portfolio-fashion-artist",
+    name:"Fashion & Art Portfolio",
+    description:"High-fashion visual portfolio for stylists, fashion designers and artists with dramatic typography and editorial structure.",
+    category:"Portfolio & Creative",
+    style:"Fashion Editorial",
+    audience:"Fashion designers, stylists, artists and creative directors",
+    featured:false,
+    document:portfolioDocument({
+      brand:"MUSE / 01",
+      tagline:"Fashion, image and creative direction.",
+      title:"Visual stories made to be remembered.",
+      eyebrow:"Fashion Designer & Artist",
+      description:"A dramatic editorial portfolio for collections, campaigns, collaborations and visual art direction.",
+      primary:"View Collection",
+      secondary:"Collaborate",
+      services:["Collections","Creative Direction","Editorial"],
+      aboutTitle:"Where fashion meets visual storytelling.",
+      aboutText:"Introduce the creative philosophy, influences and collaborations behind the work.",
+      stats:["16","30+","7+"],
+      tools:["Adobe","Figma","Procreate"],
+      accent:"#ef4444",
+      background:"#ffffff",
+      surface:"#f3f3f3",
+      text:"#0a0a0a",
+      muted:"#737373",
+      style:"Fashion Artist"
+    })
+  }
   {
     id: "starter-bakery",
     name: "Fresh Bakery",
