@@ -164,3 +164,27 @@ export async function publicCheckout(slug:string,input:{cartId:string;idempotenc
   const store=await resolveStoreBySlug(slug);
   return createOrderFromCart(store.ownerId,input);
 }
+
+export async function grantDigitalDownload(orderItemId:string){
+  const admin=createAdminClient();
+  const {data:item,error}=await admin.from("ecommerce_order_items").select("id,product_type,digital_asset_key,order:ecommerce_orders(payment_status)").eq("id",orderItemId).maybeSingle();
+  if(error) throw error;
+  if(!item||item.product_type!=="DIGITAL"||!item.digital_asset_key) throw new Error("Digital asset is not available.");
+  const order=(item.order as unknown as {payment_status?:string}|null);
+  if(order?.payment_status!=="PAID") throw new Error("Download becomes available after payment.");
+  const token=createDownloadToken();
+  const {error:insertError}=await admin.from("ecommerce_download_grants").insert({
+    id:crypto.randomUUID(),order_item_id:orderItemId,token_hash:hashDownloadToken(token),
+    expires_at:new Date(Date.now()+24*60*60*1000).toISOString(),max_downloads:3
+  });
+  if(insertError) throw insertError;
+  return {token,expiresInSeconds:86400,maxDownloads:3,assetKey:item.digital_asset_key};
+}
+
+export async function validateDownloadToken(token:string){
+  const admin=createAdminClient();
+  const {data,error}=await admin.from("ecommerce_download_grants").select("id,order_item_id,expires_at,max_downloads,download_count,revoked_at,order_item:ecommerce_order_items(name,digital_asset_key)").eq("token_hash",hashDownloadToken(token)).maybeSingle();
+  if(error) throw error;
+  if(!data||data.revoked_at||new Date(data.expires_at).getTime()<Date.now()||Number(data.download_count)>=Number(data.max_downloads)) throw new Error("Download link has expired or reached its limit.");
+  return data;
+}
