@@ -68,7 +68,11 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (authenticated && pathname === "/login") {
-    return noStore(NextResponse.redirect(new URL("/dashboard", request.url)));
+    const nextPath = request.nextUrl.searchParams.get("next");
+    const destination = nextPath && nextPath.startsWith("/") && !nextPath.startsWith("//")
+      ? nextPath
+      : "/dashboard";
+    return noStore(NextResponse.redirect(new URL(destination, request.url)));
   }
 
   if (!authenticated && publicPath) {
