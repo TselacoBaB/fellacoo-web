@@ -131,3 +131,21 @@ export async function createOrderFromCart(ownerId:string,input:{cartId:string;id
 
 export function createDownloadToken(){return randomBytes(32).toString("base64url");}
 export function hashDownloadToken(token:string){return createHash("sha256").update(token).digest("hex");}
+
+export async function resolveStoreBySlug(slug:string){
+  const admin=createAdminClient();
+  const {data,error}=await admin.from("build_requests").select("id,owner_id,business_name").eq("slug",slug).eq("status","published").maybeSingle();
+  if(error) throw error;
+  if(!data) throw new Error("Store not found.");
+  return {siteId:String(data.id),ownerId:String(data.owner_id),businessName:String(data.business_name)};
+}
+
+export async function listPublicProducts(slug:string){
+  const store=await resolveStoreBySlug(slug);
+  const products=await listProducts(store.ownerId,store.siteId);
+  return {store,products:products.filter(product=>product.status==="ACTIVE").map(product=>({
+    id:product.id,name:product.name,slug:product.slug,description:product.description,productType:product.productType,
+    price:product.price,compareAtPrice:product.compareAtPrice,currency:product.currency,shippingRequired:product.shippingRequired,
+    inventoryQuantity:product.productType==="DIGITAL"?null:product.inventoryQuantity,sku:product.sku
+  }))};
+}
