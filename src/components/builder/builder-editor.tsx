@@ -245,9 +245,17 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
     if(document.pages.length<=1) return;
     const target=document.pages[index];
     if(!window.confirm("Delete "+target.title+"?")) return;
-    patchDocument(current=>({...current,pages:current.pages.filter((_,i)=>i!==index)}));
-    const next=Math.max(0,Math.min(index,document.pages.length-2));
-    setActivePageIndex(next);setSelectedId(document.pages[next]?.elements[0]?.id??"");
+    const remaining=document.pages.filter((_,i)=>i!==index).map(p=>({...p,seo:p.seo?{...p.seo}:p.seo}));
+    if(target.path==="/" && remaining.length) {
+      const promoted=remaining.find(p=>p.path!=="/")??remaining[0];
+      promoted.path="/";
+      const promotedIndex=remaining.findIndex(p=>p.id===promoted.id);
+      if(promotedIndex>0) remaining.unshift(...remaining.splice(promotedIndex,1));
+      else remaining[0]=promoted;
+    }
+    patchDocument(current=>({...current,pages:remaining}));
+    const next=target.path==="/" ? 0 : Math.max(0,Math.min(index,remaining.length-1));
+    setActivePageIndex(next);setSelectedId(remaining[next]?.elements[0]?.id??"");
   }
 
   function updatePage(patch:Partial<BuilderPage>) {
@@ -450,13 +458,13 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
 function BuilderBlock({element,selected,selectedId,selectElement,viewport,dragging,onDragStart,onDragEnd,onDragOver,onDrop,pages=[]}:{element:BuilderElement;selected:boolean;selectedId:string;selectElement:(id:string)=>void;viewport:BuilderViewport;dragging:boolean;onDragStart:(e:DragEvent,id:string)=>void;onDragEnd:()=>void;onDragOver:(e:DragEvent)=>void;onDrop:(e:DragEvent)=>void;pages?:BuilderPage[]}) {
   return <div className={"builder-block "+(selected?"is-selected ":"")+(dragging?"is-dragging":"")} draggable onDragStart={e=>onDragStart(e,element.id)} onDragEnd={onDragEnd} onDragOver={e=>{e.preventDefault();e.stopPropagation();onDragOver(e)}} onDrop={e=>{e.preventDefault();e.stopPropagation();onDrop(e)}} onClick={e=>{e.stopPropagation();selectElement(element.id)}}>
     <div className="builder-drag-handle" title="Drag to reorder">⋮⋮</div>{selected&&<div className="builder-selection-label">{element.type}</div>}
-    <ComponentPreview element={element} viewport={viewport}>{element.children?.map(child=><div className="builder-nested-element" key={child.id}><BuilderBlock element={child} selected={selectedId===child.id} selectedId={selectedId} selectElement={selectElement} viewport={viewport} dragging={false} onDragStart={()=>{}} onDragEnd={()=>{}} onDragOver={()=>{}} onDrop={()=>{}}/></div>)}</ComponentPreview>
+    <ComponentPreview element={element} viewport={viewport}>{element.children?.map(child=><div className="builder-nested-element" key={child.id}><BuilderBlock element={child} selected={selectedId===child.id} selectedId={selectedId} selectElement={selectElement} viewport={viewport} dragging={false} onDragStart={()=>{}} onDragEnd={()=>{}} onDragOver={()=>{}} onDrop={()=>{}} pages={pages}/></div>)}</ComponentPreview>
   </div>;
 }
 
 function ComponentPreview({element,children,viewport,pages=[]}:{element:BuilderElement;children?:ReactNode;viewport:BuilderViewport;pages?:BuilderPage[]}) {
   const p=element.props;const style=getElementStyle(element,viewport);const nested=children?<div className="builder-nested-content">{children}</div>:null;
-  const pageNav=pages.slice(0,6).map(item=><a key={item.id} href={item.path}>{item.title}</a>);
+  const pageNav=pages.slice(0,6).map(item=><a key={item.id} href={item.path} onClick={e=>e.preventDefault()}>{item.title}</a>);
   if(["text","heading","button","image","icon","link","divider","spacer","columns"].includes(element.type))return <PrimitivePreview element={element} viewport={viewport}>{nested}</PrimitivePreview>;
   switch(element.type){
     case "section":return <section className="site-block builder-section-block" style={style}><small>{String(p.label??"SECTION")}</small><h2>{String(p.title??"Your section")}</h2>{nested}</section>;
@@ -594,7 +602,8 @@ function normalizePagePath(value:string){
   const raw=value.trim();
   if(!raw||raw==="/")return "/";
   const clean=raw.replace(/\\/g,"/").replace(/\/+/g,"/").replace(/^\/+|\/+$/g,"");
-  return "/"+(slugify(clean)||"page");
+  const segments=clean.split("/").filter(Boolean).map(slugify).filter(Boolean);
+  return "/"+(segments.join("/")||"page");
 }
 function uniquePagePath(pages:BuilderPage[],path:string){
   const normalized=normalizePagePath(path);
