@@ -4,8 +4,8 @@ import { useEffect, useMemo, useState, type CSSProperties, type DragEvent, type 
 import { useRouter } from "next/navigation";
 import {
   ArrowDown, ArrowLeft, ArrowUp, ChevronDown, ChevronRight, Copy, Eye, FilePlus2,
-  Globe2, LayoutTemplate, Layers3, Menu, Monitor, MousePointer2, PanelLeft,
-  PanelRight, Palette, Plus, Redo2, Save, Settings2, Smartphone, Tablet,
+  Globe2, Home, LayoutTemplate, Layers3, Menu, Monitor, MousePointer2, PanelLeft,
+  PanelRight, Palette, Pencil, Plus, Redo2, Save, Settings2, Smartphone, Tablet,
   Trash2, Undo2, X
 } from "lucide-react";
 import type {
@@ -251,7 +251,45 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
   }
 
   function updatePage(patch:Partial<BuilderPage>) {
-    patchDocument(current=>({...current,pages:current.pages.map((p,i)=>i===activePageIndex?{...p,...patch}:p)}));
+    patchDocument(current=>({
+      ...current,
+      pages:current.pages.map((p,i)=>{
+        if(i!==activePageIndex)return p;
+        const next={...p,...patch};
+        if(typeof patch.title==="string") {
+          next.title=patch.title.trim()||"Page";
+          if(!patch.seo?.title && (!p.seo?.title || p.seo.title===p.title)) {
+            next.seo={...(p.seo??{}),title:next.title};
+          }
+        }
+        if(typeof patch.path==="string") next.path=normalizePagePath(patch.path);
+        return next;
+      })
+    }));
+  }
+
+  function setHomepage(index:number) {
+    const target=document.pages[index];
+    if(!target)return;
+    const nextPages=document.pages.map(p=>({...p,seo:p.seo?{...p.seo}:p.seo}));
+    const oldHomeIndex=nextPages.findIndex((p,i)=>i!==index&&p.path==="/");
+    if(oldHomeIndex>=0) {
+      const base="/"+slugify(nextPages[oldHomeIndex].title);
+      nextPages[oldHomeIndex].path=uniquePagePath(nextPages.filter((_,i)=>i!==oldHomeIndex),base);
+    }
+    nextPages[index].path="/";
+    const [home]=nextPages.splice(index,1);
+    nextPages.unshift(home);
+    patchDocument(current=>({...current,pages:nextPages}));
+    setActivePageIndex(0);
+    setSelectedId(home.elements[0]?.id??"");
+  }
+
+  function editPage(index:number) {
+    setActivePageIndex(index);
+    setSelectedId(document.pages[index]?.elements[0]?.id??"");
+    setInspectorTab("site");
+    setRightOpen(true);
   }
 
   function addChild(type:string) {
@@ -367,7 +405,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
       {leftOpen&&<aside className="builder-left is-open">
         <div className="builder-panel-head"><div><small>WEBSITE BUILDER</small><strong>{leftTab==="pages"?"Pages":"Components"}</strong></div><button onClick={()=>setLeftOpen(false)}><X size={16}/></button></div>
         <div className="builder-stage-tabs"><button className={leftTab==="components"?"active":""} onClick={()=>setLeftTab("components")}><Layers3 size={13}/>Components</button><button className={leftTab==="pages"?"active":""} onClick={()=>setLeftTab("pages")}><LayoutTemplate size={13}/>Pages</button></div>
-        {leftTab==="pages"?<PageManager pages={document.pages} active={activePageIndex} onSelect={(index)=>{setActivePageIndex(index);setSelectedId(document.pages[index]?.elements[0]?.id??"")}} onAdd={addPage} onDuplicate={duplicatePage} onRemove={removePage}/>:<>
+        {leftTab==="pages"?<PageManager pages={document.pages} active={activePageIndex} onSelect={(index)=>{setActivePageIndex(index);setSelectedId(document.pages[index]?.elements[0]?.id??"")}} onEdit={editPage} onSetHome={setHomepage} onAdd={addPage} onDuplicate={duplicatePage} onRemove={removePage}/>:<>
           <div className="builder-layers-head"><span><Layers3 size={13}/>Layers</span><small>{countElements(page.elements)} elements</small></div>
           <div className="builder-layer-tree">{page.elements.map(element=><LayerTreeItem key={element.id} element={element} selectedId={selectedId} onSelect={setSelectedId} depth={0}/>)}</div>
           <div className="component-tabs">{(["All","Layout","Content","Commerce","Business"] as const).map(category=><button key={category} className={libraryFilter===category?"active":""} onClick={()=>setLibraryFilter(category)}>{category}</button>)}</div>
@@ -384,7 +422,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
         <div className={"canvas-stage "+(dragOverIndex!==null?"is-dragging":"")} onClick={()=>setSelectedId("")} onDragOver={e=>handleCanvasDragOver(e,page.elements.length)} onDrop={e=>handleCanvasDrop(e,page.elements.length)}>
           <div className={"website-canvas viewport-"+viewport} style={themeVars} data-builder-viewport={viewport}>
             <div className={"canvas-drop-zone "+(dragOverIndex===0?"is-active":"")} onDragOver={e=>handleCanvasDragOver(e,0)} onDrop={e=>handleCanvasDrop(e,0)}/>
-            {page.elements.map((element,index)=><div key={element.id} className="builder-drop-wrapper">{dragOverIndex===index&&<div className="builder-drop-indicator"><span>Drop component here</span></div>}<BuilderBlock element={element} selected={selectedId===element.id} selectedId={selectedId} selectElement={setSelectedId} viewport={viewport} dragging={draggingElementId===element.id} onDragStart={beginElementDrag} onDragEnd={()=>{setDraggingElementId(null);setDragOverIndex(null)}} onDragOver={e=>handleCanvasDragOver(e,index+1)} onDrop={e=>handleCanvasDrop(e,index+1)}/></div>)}
+            {page.elements.map((element,index)=><div key={element.id} className="builder-drop-wrapper">{dragOverIndex===index&&<div className="builder-drop-indicator"><span>Drop component here</span></div>}<BuilderBlock element={element} selected={selectedId===element.id} selectedId={selectedId} selectElement={setSelectedId} viewport={viewport} dragging={draggingElementId===element.id} onDragStart={beginElementDrag} onDragEnd={()=>{setDraggingElementId(null);setDragOverIndex(null)}} onDragOver={e=>handleCanvasDragOver(e,index+1)} onDrop={e=>handleCanvasDrop(e,index+1)} pages={document.pages}/></div>)}
             {dragOverIndex===page.elements.length&&<div className="builder-drop-indicator is-end"><span>Drop component here</span></div>}
           </div>
         </div>
@@ -403,26 +441,27 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
     {previewOpen&&<div className="builder-preview-overlay" role="dialog" aria-modal="true">
       <div className="builder-preview-shell">
         <div className="builder-preview-toolbar"><div><strong>{page.title} Preview</strong><span>{document.pages.length} page{document.pages.length===1?"":"s"} · {viewport}</span></div><button onClick={()=>setPreviewOpen(false)}><X size={18}/></button></div>
-        <div className="builder-preview-stage"><div className={"website-canvas viewport-"+viewport} style={themeVars}>{page.elements.map(element=><div className="builder-preview-block" key={element.id}><StaticPreviewTree element={element} viewport={viewport}/></div>)}</div></div>
+        <div className="builder-preview-stage"><div className={"website-canvas viewport-"+viewport} style={themeVars}>{page.elements.map(element=><div className="builder-preview-block" key={element.id}><StaticPreviewTree element={element} viewport={viewport} pages={document.pages}/></div>)}</div></div>
       </div>
     </div>}
   </main>;
 }
 
-function BuilderBlock({element,selected,selectedId,selectElement,viewport,dragging,onDragStart,onDragEnd,onDragOver,onDrop}:{element:BuilderElement;selected:boolean;selectedId:string;selectElement:(id:string)=>void;viewport:BuilderViewport;dragging:boolean;onDragStart:(e:DragEvent,id:string)=>void;onDragEnd:()=>void;onDragOver:(e:DragEvent)=>void;onDrop:(e:DragEvent)=>void}) {
+function BuilderBlock({element,selected,selectedId,selectElement,viewport,dragging,onDragStart,onDragEnd,onDragOver,onDrop,pages=[]}:{element:BuilderElement;selected:boolean;selectedId:string;selectElement:(id:string)=>void;viewport:BuilderViewport;dragging:boolean;onDragStart:(e:DragEvent,id:string)=>void;onDragEnd:()=>void;onDragOver:(e:DragEvent)=>void;onDrop:(e:DragEvent)=>void;pages?:BuilderPage[]}) {
   return <div className={"builder-block "+(selected?"is-selected ":"")+(dragging?"is-dragging":"")} draggable onDragStart={e=>onDragStart(e,element.id)} onDragEnd={onDragEnd} onDragOver={e=>{e.preventDefault();e.stopPropagation();onDragOver(e)}} onDrop={e=>{e.preventDefault();e.stopPropagation();onDrop(e)}} onClick={e=>{e.stopPropagation();selectElement(element.id)}}>
     <div className="builder-drag-handle" title="Drag to reorder">⋮⋮</div>{selected&&<div className="builder-selection-label">{element.type}</div>}
     <ComponentPreview element={element} viewport={viewport}>{element.children?.map(child=><div className="builder-nested-element" key={child.id}><BuilderBlock element={child} selected={selectedId===child.id} selectedId={selectedId} selectElement={selectElement} viewport={viewport} dragging={false} onDragStart={()=>{}} onDragEnd={()=>{}} onDragOver={()=>{}} onDrop={()=>{}}/></div>)}</ComponentPreview>
   </div>;
 }
 
-function ComponentPreview({element,children,viewport}:{element:BuilderElement;children?:ReactNode;viewport:BuilderViewport}) {
+function ComponentPreview({element,children,viewport,pages=[]}:{element:BuilderElement;children?:ReactNode;viewport:BuilderViewport;pages?:BuilderPage[]}) {
   const p=element.props;const style=getElementStyle(element,viewport);const nested=children?<div className="builder-nested-content">{children}</div>:null;
+  const pageNav=pages.slice(0,6).map(item=><a key={item.id} href={item.path}>{item.title}</a>);
   if(["text","heading","button","image","icon","link","divider","spacer","columns"].includes(element.type))return <PrimitivePreview element={element} viewport={viewport}>{nested}</PrimitivePreview>;
   switch(element.type){
     case "section":return <section className="site-block builder-section-block" style={style}><small>{String(p.label??"SECTION")}</small><h2>{String(p.title??"Your section")}</h2>{nested}</section>;
     case "container":return <div className="builder-container-block" style={style}>{nested}</div>;
-    case "header":return <div className="site-block header-block" style={style}><strong>{String(p.brand??"Your Business")}</strong><nav><span>{String(p.nav1??"Home")}</span><span>{String(p.nav2??"Services")}</span><span>{String(p.nav3??"About")}</span><span>{String(p.nav4??"Contact")}</span><button>{String(p.cta??"Get Started")}</button></nav>{nested}</div>;
+    case "header":return <div className="site-block header-block" style={style}><strong>{String(p.brand??"Your Business")}</strong><nav>{pageNav.length?pageNav:<span>Home</span>}<button onClick={e=>e.preventDefault()}>{String(p.cta??"Get Started")}</button></nav>{nested}</div>;
     case "hero":return <section className="site-block hero-block" style={style}><div><small>{String(p.eyebrow??"WELCOME")}</small><h1>{String(p.title??"Your next customer starts here.")}</h1><p>{String(p.description??"")}</p><div><button>{String(p.primary??"Get Started")}</button><button className="ghost">{String(p.secondary??"Learn More")}</button></div></div><div className="hero-shape"><span/></div>{nested}</section>;
     case "features":return <section className="site-block feature-block" style={style}><small>WHY CHOOSE US</small><h2>{String(p.title??"Everything your customers need.")}</h2><div className="feature-grid">{[1,2,3].map(i=><article key={i}><span>✦</span><strong>{String(p["item"+i]??["Fast setup","Mobile ready","Built to convert"][i-1])}</strong><p>{String(p["item"+i+"Description"]??"Present this benefit clearly.")}</p></article>)}</div>{nested}</section>;
     case "services":return <section className="site-block feature-block" style={style}><small>{String(p.eyebrow??"SERVICES")}</small><h2>{String(p.title??"What we do.")}</h2><div className="feature-grid">{[1,2,3].map(i=><article key={i}><span>◈</span><strong>{String(p["item"+i]??["Consulting","Design","Support"][i-1])}</strong><p>{String(p["item"+i+"Description"]??"Present your service clearly.")}</p></article>)}</div>{nested}</section>;
@@ -517,15 +556,29 @@ function SitePanel({document,page,updateSite,updateTheme,updateThemeColors,updat
     </details>
   </div>;
 }
-function PageManager({pages,active,onSelect,onAdd,onDuplicate,onRemove}:{pages:BuilderPage[];active:number;onSelect:(i:number)=>void;onAdd:()=>void;onDuplicate:(i:number)=>void;onRemove:(i:number)=>void}){
+function PageManager({pages,active,onSelect,onEdit,onSetHome,onAdd,onDuplicate,onRemove}:{pages:BuilderPage[];active:number;onSelect:(i:number)=>void;onEdit:(i:number)=>void;onSetHome:(i:number)=>void;onAdd:()=>void;onDuplicate:(i:number)=>void;onRemove:(i:number)=>void}){
   return <div className="builder-pages-panel">
-    <button className="builder-add-page" onClick={onAdd}><FilePlus2 size={15}/>New page</button>
-    <div className="builder-page-list">{pages.map((page,index)=><div className={"builder-page-card "+(active===index?"active":"")} key={page.id}><button onClick={()=>onSelect(index)}><LayoutTemplate size={15}/><span><strong>{page.title}</strong><small>{page.path}</small></span></button><div><button title="Duplicate" onClick={()=>onDuplicate(index)}><Copy size={13}/></button>{pages.length>1&&<button title="Delete" onClick={()=>onRemove(index)}><Trash2 size={13}/></button>}</div></div>)}</div>
-    <p className="property-hint">Each page has its own URL, SEO settings and component tree. The site theme is shared across all pages.</p>
+    <div className="builder-pages-heading"><div><small>YOUR WEBSITE</small><strong>{pages.length} page{pages.length===1?"":"s"}</strong></div><button className="builder-add-page compact" onClick={onAdd}><FilePlus2 size={15}/>New page</button></div>
+    <div className="builder-page-list">
+      {pages.map((page,index)=><div className={"builder-page-card "+(active===index?"active":"")} key={page.id}>
+        <button className="builder-page-main" onClick={()=>onSelect(index)}>
+          {index===0&&page.path==="/" ? <Home size={16}/> : <LayoutTemplate size={15}/>}
+          <span><strong>{page.title}</strong><small>{page.path}</small></span>
+        </button>
+        <div className="builder-page-actions">
+          {index===0&&page.path==="/"&&<span className="builder-home-badge">HOME</span>}
+          {!(index===0&&page.path==="/")&&<button title="Set as homepage" onClick={()=>onSetHome(index)}><Home size={13}/></button>}
+          <button title="Edit page name, URL & SEO" onClick={()=>onEdit(index)}><Pencil size={13}/></button>
+          <button title="Duplicate page" onClick={()=>onDuplicate(index)}><Copy size={13}/></button>
+          {pages.length>1&&<button title="Delete page" onClick={()=>onRemove(index)}><Trash2 size={13}/></button>}
+        </div>
+      </div>)}
+    </div>
+    <p className="property-hint">Pages are real published routes. Edit a page to change its name, URL and SEO. Set one page as the homepage.</p>
   </div>;
 }
 
-function StaticPreviewTree({element,viewport}:{element:BuilderElement;viewport:BuilderViewport}){return <ComponentPreview element={element} viewport={viewport}>{element.children?.map(child=><StaticPreviewTree key={child.id} element={child} viewport={viewport}/>)}</ComponentPreview>;}
+function StaticPreviewTree({element,viewport,pages}:{element:BuilderElement;viewport:BuilderViewport;pages:BuilderPage[]}){return <ComponentPreview element={element} viewport={viewport} pages={pages}>{element.children?.map(child=><StaticPreviewTree key={child.id} element={child} viewport={viewport} pages={pages}/>)}</ComponentPreview>;}
 
 function getAdjacent(elements:BuilderElement[],id:string){return findAdjacentElement(elements,id);}
 function findElementById(elements:BuilderElement[],id:string):BuilderElement|null{for(const e of elements){if(e.id===id)return e;if(e.children?.length){const found=findElementById(e.children,id);if(found)return found;}}return null;}
@@ -537,7 +590,19 @@ function findAdjacentElement(elements:BuilderElement[],id:string):BuilderElement
 function countElements(elements:BuilderElement[]):number{return elements.reduce((n,e)=>n+1+(e.children?countElements(e.children):0),0);}
 function cloneElements(elements:BuilderElement[]):BuilderElement[]{return elements.map(e=>({...e,id:e.id+"-"+Date.now()+"-"+Math.random().toString(36).slice(2,5),children:e.children?cloneElements(e.children):undefined}));}
 function slugify(value:string){return value.toLowerCase().trim().replace(/[^a-z0-9\s-]/g,"").replace(/[\s_]+/g,"-").replace(/-+/g,"-").replace(/^-|-$/g,"")||"page";}
-function uniquePagePath(pages:BuilderPage[],path:string){const base=path==="/"?"/new-page":path;let candidate=base;let i=2;while(pages.some(p=>p.path===candidate)){candidate=base+"-"+i++;}return candidate;}
+function normalizePagePath(value:string){
+  const raw=value.trim();
+  if(!raw||raw==="/")return "/";
+  const clean=raw.replace(/\\/g,"/").replace(/\/+/g,"/").replace(/^\/+|\/+$/g,"");
+  return "/"+(slugify(clean)||"page");
+}
+function uniquePagePath(pages:BuilderPage[],path:string){
+  const normalized=normalizePagePath(path);
+  if(normalized==="/")return pages.some(p=>p.path==="/")?"/new-page":"/";
+  const base=normalized;let candidate=base;let i=2;
+  while(pages.some(p=>normalizePagePath(p.path)===candidate)){candidate=base+"-"+i++;}
+  return candidate;
+}
 
 function defaultProps(type:string):Record<string,unknown>{
   const d:Record<string,Record<string,unknown>>={
