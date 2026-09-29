@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     if (!identity) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
 
     const body = await request.json() as {
-      action?: "duplicate" | "archive" | "restore";
+      action?: "duplicate" | "archive" | "restore" | "delete";
       siteId?: string;
     };
 
@@ -30,6 +30,31 @@ export async function POST(request: Request) {
 
     if (siteError) throw siteError;
     if (!site) return NextResponse.json({ error: "Website project was not found." }, { status: 404 });
+
+    if (action === "delete") {
+      const childTables = ["analytics_events", "leads", "site_domains", "website_versions", "site_versions"];
+
+      for (const table of childTables) {
+        const { error } = await admin
+          .from(table)
+          .delete()
+          .eq("build_request_id", site.id);
+
+        if (error && !/column .*build_request_id.*does not exist/i.test(error.message)) {
+          throw error;
+        }
+      }
+
+      const { error: deleteError } = await admin
+        .from("build_requests")
+        .delete()
+        .eq("id", site.id)
+        .eq("owner_id", identity.felacooUserId);
+
+      if (deleteError) throw deleteError;
+
+      return NextResponse.json({ ok: true, action, siteId: site.id });
+    }
 
     if (action === "archive" || action === "restore") {
       const status = action === "archive" ? "archived" : "draft";
