@@ -32,17 +32,21 @@ export async function POST(request: Request) {
     if (!site) return NextResponse.json({ error: "Website project was not found." }, { status: 404 });
 
     if (action === "delete") {
-      const childTables = ["analytics_events", "leads", "site_domains", "website_versions", "site_versions"];
+      const childTables = [
+        ["analytics_events", "build_request_id"],
+        ["leads", "build_request_id"],
+        ["website_versions", "build_request_id"],
+        ["site_versions", "build_request_id"],
+        ["site_domains", "site_id"]
+      ] as const;
 
-      for (const table of childTables) {
+      for (const [table, ownerColumn] of childTables) {
         const { error } = await admin
           .from(table)
           .delete()
-          .eq("build_request_id", site.id);
+          .eq(ownerColumn, site.id);
 
-        if (error && !/column .*build_request_id.*does not exist/i.test(error.message)) {
-          throw error;
-        }
+        if (error) throw error;
       }
 
       const { error: deleteError } = await admin
