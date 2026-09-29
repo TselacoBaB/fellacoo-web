@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type CSSProperties, type DragEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type DragEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowDown, ArrowLeft, ArrowUp, ChevronDown, ChevronRight, Copy, Eye, FilePlus2,
@@ -95,6 +95,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [dragOverIndex, setDragOverIndex] = useState<number|null>(null);
   const [draggingElementId, setDraggingElementId] = useState<string|null>(null);
+  const draftCreationInFlight = useRef(false);
   const router = useRouter();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
 
@@ -141,16 +142,32 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
     const timer = window.setTimeout(async () => {
       try { window.localStorage.setItem(storageKey,JSON.stringify(document)); setSaved(true); } catch {}
       if (!isAuthenticated || authLoading || !remoteReady) return;
+
+      // A brand-new builder has no project id yet. Never allow overlapping
+      // autosave requests to create multiple build_requests for one session.
+      if (!buildRequestId && draftCreationInFlight.current) return;
+      if (!buildRequestId) draftCreationInFlight.current = true;
+
       setSyncStatus("saving");
       try {
         const response = await fetch("/api/builder/draft",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
           buildRequestId,document,businessName:projectName.trim()||document.site.brandName||"Untitled Website",activity:"Website",location:"Online"
         })});
-        if (!response.ok) { setSyncStatus(response.status===401||response.status===403?"local":"error"); return; }
+        if (!response.ok) {
+          if (!buildRequestId) draftCreationInFlight.current = false;
+          setSyncStatus(response.status===401||response.status===403?"local":"error");
+          return;
+        }
         const payload = await response.json() as { buildRequestId?:string };
-        if (payload.buildRequestId) { setBuildRequestId(payload.buildRequestId); window.localStorage.setItem(storageKey+":build-request-id",payload.buildRequestId); }
+        if (payload.buildRequestId) {
+          setBuildRequestId(payload.buildRequestId);
+          window.localStorage.setItem(storageKey+":build-request-id",payload.buildRequestId);
+        }
         setSyncStatus("synced");
-      } catch { setSyncStatus("local"); }
+      } catch {
+        if (!buildRequestId) draftCreationInFlight.current = false;
+        setSyncStatus("local");
+      }
     },650);
     return () => window.clearTimeout(timer);
   }, [document,projectName,isAuthenticated,authLoading,buildRequestId,remoteReady]);
@@ -176,6 +193,8 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
     setSyncStatus("saving");
     try { window.localStorage.setItem(storageKey,JSON.stringify(document)); setSaved(true); } catch { setSaved(false); }
     if (!isAuthenticated || authLoading) { setSyncStatus("local"); return null; }
+    if (!buildRequestId && draftCreationInFlight.current) return null;
+    if (!buildRequestId) draftCreationInFlight.current = true;
     try {
       const response=await fetch("/api/builder/draft",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
         buildRequestId,document,businessName:projectName.trim()||document.site.brandName||"Untitled Website",activity:"Website",location:"Online"
@@ -189,7 +208,7 @@ export function BuilderEditor({ projectId }: { projectId?: string }) {
         if(created&&!projectId) router.replace("/builder/"+payload.buildRequestId);
       }
       setSaved(true);setSyncStatus("synced");return payload.buildRequestId??buildRequestId;
-    } catch { setSyncStatus("local"); return null; }
+    } catch { if (!buildRequestId) draftCreationInFlight.current = false; setSyncStatus("local"); return null; }
   }
 
   async function publishCurrentWebsite() {
