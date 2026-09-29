@@ -299,7 +299,7 @@ export default function DashboardPage() {
             <DashboardCard className="activity-card">
               <div className="activity-heading"><h2><Activity size={17} /> Recent Activity</h2><button>View All →</button></div>
               {recentActivity.map(({ id, title, name, time, tone }) => (
-                <div className="activity-row" key={title + name}>
+                <div className="activity-row" key={id}>
                   <span className={"activity-icon " + tone}><Globe2 size={15} /></span>
                   <div><strong>{title}</strong><small>{name}</small></div>
                   <time>{formatRelativeTime(time)}</time>
