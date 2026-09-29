@@ -289,7 +289,6 @@ const ECOMMERCE_VISUAL_POOL = [
   "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=1600&q=82&auto=format&fit=crop",
   "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=1200&q=82&auto=format&fit=crop",
   "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=1200&q=82&auto=format&fit=crop"
-  ...ecommerceTemplates,
 ];
 
 const ecommerceDocument = ({
