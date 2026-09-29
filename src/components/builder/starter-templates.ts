@@ -1010,4 +1010,5 @@ export const starterTemplates: StarterTemplate[] = [
       ] }]
     }
   }
+  ...ecommerceTemplates,
 ];
