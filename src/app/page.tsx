@@ -102,7 +102,7 @@ export default function HomePage() {
               <a href="#ai" className="nav-pill">AI</a>
             </nav>
 
-            <Link href="/dashboard" className="magnetic-button group rounded-full border border-white/25 bg-white px-5 py-3 text-xs font-bold text-black">
+            <Link href="/login?next=%2Fbuilder%2Fnew%2Fsite" prefetch={false} className="magnetic-button group rounded-full border border-white/25 bg-white px-5 py-3 text-xs font-bold text-black">
               Build your website
               <ArrowUpRight className="ml-1 inline-block transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" size={14} />
             </Link>
@@ -137,7 +137,7 @@ export default function HomePage() {
               </div>
 
               <div className="reveal-up delay-3 mt-8 flex flex-wrap items-center gap-3">
-                <Link href="/dashboard" className="magnetic-button rounded-full bg-white px-7 py-4 text-sm font-semibold text-black shadow-[0_0_50px_rgba(255,255,255,.12)]">
+                <Link href="/login?next=%2Fbuilder%2Fnew%2Fsite" prefetch={false} className="magnetic-button rounded-full bg-white px-7 py-4 text-sm font-semibold text-black shadow-[0_0_50px_rgba(255,255,255,.12)]">
                   Build with Fellacoo <ArrowUpRight className="ml-2 inline-block" size={16} />
                 </Link>
                 <a href="#why" className="rounded-full border border-white/15 bg-white/[.04] px-7 py-4 text-sm text-white/70 backdrop-blur-xl transition hover:bg-white/10 hover:text-white">
@@ -316,7 +316,7 @@ export default function HomePage() {
                 The website becomes the canvas. Select it, edit it, resize it, rearrange it,
                 ask AI to change it and publish when it is ready.
               </p>
-              <Link href="/dashboard" className="magnetic-button mt-7 inline-flex rounded-full bg-black px-6 py-3 text-sm font-semibold text-white">
+              <Link href="/login?next=%2Fbuilder%2Fnew%2Fsite" prefetch={false} className="magnetic-button mt-7 inline-flex rounded-full bg-black px-6 py-3 text-sm font-semibold text-white">
                 Enter Fellacoo Web <ArrowUpRight className="ml-2" size={16} />
               </Link>
             </div>
@@ -356,7 +356,7 @@ export default function HomePage() {
           <p className="mx-auto mt-10 max-w-xl text-base leading-7 text-white/45 md:text-lg">
             Build a website that does more than exist. Give your business a digital home that works every hour of every day.
           </p>
-          <Link href="/dashboard" className="magnetic-button mt-9 inline-flex rounded-full bg-white px-8 py-4 text-sm font-semibold text-black">
+          <Link href="/login?next=%2Fbuilder%2Fnew%2Fsite" prefetch={false} className="magnetic-button mt-9 inline-flex rounded-full bg-white px-8 py-4 text-sm font-semibold text-black">
             Start building with Fellacoo <ChevronRight className="ml-2" size={16} />
           </Link>
         </div>
@@ -366,7 +366,7 @@ export default function HomePage() {
         <div className="mx-auto flex max-w-[1600px] flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="w-32"><img src="/fellacoo-logo-transparent.png" alt="Fellacoo" /></div>
           <span className="text-[10px] uppercase tracking-[.2em] text-white/25">Your website. Your audience. Your growth engine.</span>
-          <Link href="/dashboard" className="text-xs font-semibold text-white/60 hover:text-white">Start building ↗</Link>
+          <Link href="/login?next=%2Fbuilder%2Fnew%2Fsite" prefetch={false} className="text-xs font-semibold text-white/60 hover:text-white">Start building ↗</Link>
         </div>
       </footer>
     </main>
