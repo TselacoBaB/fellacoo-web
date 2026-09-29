@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import type { ReactNode } from "react";
+import type { PointerEvent as ReactPointerEvent, ReactNode } from "react";
 import {
   Activity, BarChart3, Bell, BookOpen, Box, BriefcaseBusiness, Calculator,
   CalendarDays, ChevronDown, ChevronRight, CircleHelp, CreditCard, FileImage,
@@ -466,7 +466,7 @@ function WebsiteCard({
 }) {
   const longPressTimer = useRef<number | null>(null);
 
-  function startLongPress(event: React.PointerEvent<HTMLElement>) {
+  function startLongPress(event: ReactPointerEvent<HTMLElement>) {
     if (event.pointerType !== "touch") return;
     longPressTimer.current = window.setTimeout(() => {
       setMenuOpen(id);
