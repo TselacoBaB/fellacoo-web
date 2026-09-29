@@ -169,7 +169,7 @@ export default function DashboardPage() {
                   <span><i /> Business Tools Connected</span>
                 </div>
                 <div className="welcome-actions">
-                  <Link href="/builder/new/site" className="primary-action">
+                  <Link href="/design/templates" className="primary-action">
                     <Plus size={19} />Create New Website
                   </Link>
                   <Link href="#components" className="secondary-action">
