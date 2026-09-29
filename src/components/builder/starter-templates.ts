@@ -140,6 +140,72 @@ const portfolioDocument = ({
 });
 
 
+
+const RESTAURANT_VISUALS: Record<string, string[]> = {
+  "Noir Table":["https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?w=1600&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1544148103-0773bf10d330?w=1200&q=82&auto=format&fit=crop"],
+  "Casa Forma":["https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=1600&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1579684947550-22e945225d9a?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1552566626-52f8b828add9?w=1200&q=82&auto=format&fit=crop"],
+  "Ember House":["https://images.unsplash.com/photo-1544025162-d76694265947?w=1600&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&q=82&auto=format&fit=crop"],
+  "Sakana":["https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=1600&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?w=1200&q=82&auto=format&fit=crop"],
+  "Sunday Social":["https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=1600&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=1200&q=82&auto=format&fit=crop"],
+  "Mzansi Table":["https://images.unsplash.com/photo-1601050690597-df0568f70950?w=1600&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1547592180-85f173990554?w=1200&q=82&auto=format&fit=crop"],
+  "Slice Club":["https://images.unsplash.com/photo-1579751626657-72bc17010498?w=1600&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1571997478779-2adcbbe9ab2f?w=1200&q=82&auto=format&fit=crop"],
+  "Green Table":["https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=1600&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1540420773420-3366772f4999?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=1200&q=82&auto=format&fit=crop"],
+  "The Grill Room":["https://images.unsplash.com/photo-1544025162-d76694265947?w=1600&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1544148103-0773bf10d330?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=82&auto=format&fit=crop"],
+  "The Terrace":["https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=1200&q=82&auto=format&fit=crop"]
+};
+
+const restaurantDocument = ({
+  brand, tagline, title, eyebrow, description, accent, background="#faf8f4", surface="#f0ece5",
+  text="#191714", muted="#756f67", style="Restaurant", menuTitle="Signature dishes.",
+  dishes=["Signature Dish","Chef's Special","Dessert"], prices=["R145","R185","R65"],
+  primary="Book a Table", secondary="View Menu", reservationTitle="Reserve your table."
+}: {
+  brand:string; tagline:string; title:string; eyebrow:string; description:string; accent:string;
+  background?:string; surface?:string; text?:string; muted?:string; style?:string;
+  menuTitle?:string; dishes?:[string,string,string]; prices?:[string,string,string];
+  primary?:string; secondary?:string; reservationTitle?:string;
+}): BuilderDocument => {
+  const photos=RESTAURANT_VISUALS[brand]||RESTAURANT_VISUALS["Noir Table"];
+  return {
+    version:1,
+    site:{
+      brandName:brand,
+      tagline,
+      theme:{
+        colors:{primary:accent,secondary:text,accent,text,muted,background,surface},
+        typography:{
+          headingFont:"Inter, ui-sans-serif, system-ui, sans-serif",
+          bodyFont:"Inter, ui-sans-serif, system-ui, sans-serif",
+          headingWeight:"900",
+          bodyWeight:"400"
+        },
+        radius:"18px",
+        containerWidth:"1180px",
+        buttonStyle:"pill"
+      },
+      seo:{title:brand+" — "+tagline,description}
+    },
+    pages:[{
+      id:"home",path:"/",title:brand+" — Restaurant",
+      elements:[
+        {id:"header",type:"header",props:{brand,nav1:"Menu",nav2:"Experience",nav3:"Reservations",nav4:"Contact",cta:primary}},
+        {id:"hero",type:"hero",props:{eyebrow,title,description,primary,secondary,primaryUrl:"#reservation",secondaryUrl:"#menu",badge:style}},
+        {id:"hero-image",type:"image",props:{src:photos[0],alt:brand+" restaurant interior and signature food",caption:"A visual taste of the experience."}},
+        {id:"menu",type:"products",props:{anchor:"menu",title:menuTitle,item1:dishes[0],price1:prices[0],item2:dishes[1],price2:prices[1],item3:dishes[2],price3:prices[2],cta:"View / Enquire"}},
+        {id:"story",type:"section",props:{label:"THE EXPERIENCE",title:"More than a meal.",text:"Tell the story behind the kitchen, the ingredients, the people and the atmosphere that make your restaurant distinct.",buttonLabel:"Our Story",buttonUrl:"#about"}},
+        {id:"feature-image",type:"image",props:{src:photos[1],alt:brand+" dining experience",caption:"The atmosphere behind the table."}},
+        {id:"specialties",type:"features",props:{anchor:"experience",eyebrow:"WHY GUESTS RETURN",title:"Designed around the experience.",item1:"Fresh ingredients",item1Description:"Seasonal ingredients prepared with care.",item2:"Thoughtful hospitality",item2Description:"A warm experience from arrival to dessert.",item3:"Memorable plates",item3Description:"Signature dishes worth coming back for."}},
+        {id:"gallery-image",type:"image",props:{src:photos[2],alt:brand+" food and dining",caption:"Selected dishes and moments."}},
+        {id:"proof",type:"testimonials",props:{title:"Guests leave with something to remember.",quote:"Beautiful food, warm service and an atmosphere we wanted to return to.",author:"Guest review"}},
+        {id:"reservation",type:"booking",props:{title:reservationTitle,helper:"Choose date · Choose time · Confirm reservation"}},
+        {id:"contact",type:"lead-form",props:{eyebrow:"PRIVATE EVENTS & ENQUIRIES",title:"Planning something special?",namePlaceholder:"Your name",emailPlaceholder:"Phone or email",messagePlaceholder:"Tell us about your booking or event",cta:"Send enquiry"}},
+        {id:"faq",type:"faq",props:{title:"Dining questions",question1:"Do I need a reservation?",question2:"Do you cater for dietary needs?",question3:"Can I book a private event?"}},
+        {id:"footer",type:"footer",props:{brand,copyright:"© 2026 · Menu · Reservations · Contact · Privacy · Terms"}}
+      ]
+    }]
+  };
+};
+
 const bakeryDocument = ({
   brand, tagline, title, eyebrow, description, accent, background="#fffaf3", surface="#f4eadf",
   text="#241914", muted="#796b63", style="Bakery", menuTitle="Fresh from the oven.",
@@ -695,6 +761,66 @@ export const starterTemplates: StarterTemplate[] = [
     description:"Professional bakery template for wholesale, office catering, events and recurring business orders.",
     category:"Food & Bakery", style:"Catering & Corporate", audience:"Corporate bakeries, caterers and wholesale food suppliers",
     document:bakeryDocument({brand:"Daily Crumb Co.",tagline:"Baked for teams, events and everyday.",title:"Reliable baking for your business.",eyebrow:"CORPORATE BAKING & CATERING",description:"Present catering packages, wholesale services and easy enquiry pathways for business customers.",accent:"#0f766e",background:"#f5fbfa",surface:"#e5f3f0",text:"#102522",muted:"#61736f",services:["Office Catering","Wholesale Bread","Event Platters"],style:"Corporate Catering",cta:"Request a Quote",secondary:"View Packages"})
+  },
+  {
+    id:"restaurant-editorial-fine-dining", name:"Editorial Fine Dining",
+    description:"High-end editorial restaurant template with immersive photography, refined typography and reservation-first conversion.",
+    category:"Restaurant", style:"Editorial Luxury", audience:"Fine dining restaurants and premium hospitality", featured:true,
+    document:restaurantDocument({brand:"Noir Table",tagline:"Modern dining after dark.",title:"An evening worth dressing up for.",eyebrow:"FINE DINING · JOHANNESBURG",description:"A cinematic restaurant experience for seasonal menus, intimate dining and memorable evenings.",accent:"#c59b63",background:"#0c0c0b",surface:"#191816",text:"#f5f0e8",muted:"#aaa094",style:"Fine Dining",dishes:["Tasting Menu","Chef's Selection","Dessert Course"],prices:["R895","R1 250","R165"],primary:"Reserve a Table",secondary:"Explore Menu"})
+  },
+  {
+    id:"restaurant-italian", name:"Italian Trattoria",
+    description:"Warm contemporary Italian restaurant template focused on pasta, pizza, wine and relaxed dining.",
+    category:"Restaurant", style:"Warm Mediterranean", audience:"Italian restaurants, trattorias and pizzerias",
+    document:restaurantDocument({brand:"Casa Forma",tagline:"Pasta, pizza and good company.",title:"Come hungry. Leave happy.",eyebrow:"ITALIAN KITCHEN",description:"A warm digital home for handmade pasta, wood-fired pizza and long lunches with friends.",accent:"#b45309",background:"#fffaf2",surface:"#f3e8d5",text:"#211b15",muted:"#75695e",style:"Italian Trattoria",dishes:["Handmade Pasta","Wood-Fired Pizza","Tiramisu"],prices:["R165","R145","R65"],primary:"Book a Table",secondary:"See the Menu"})
+  },
+  {
+    id:"restaurant-steakhouse", name:"Modern Steakhouse",
+    description:"Dark, premium steakhouse template with bold photography, menu highlights and reservation CTA.",
+    category:"Restaurant", style:"Dark Premium", audience:"Steakhouses, grill houses and premium dining",
+    document:restaurantDocument({brand:"Ember House",tagline:"Fire, flavour and good company.",title:"Steak worth making plans for.",eyebrow:"FIRE-GRILLED DINING",description:"Showcase prime cuts, open-fire cooking and a bold hospitality experience.",accent:"#ef4444",background:"#11100f",surface:"#1e1b19",text:"#f8f3ee",muted:"#b3a69d",style:"Modern Steakhouse",dishes:["Prime Ribeye","Ember Burger","Chocolate Tart"],prices:["R395","R165","R85"],primary:"Reserve a Table",secondary:"View Cuts"})
+  },
+  {
+    id:"restaurant-japanese", name:"Japanese Sushi Bar",
+    description:"Calm Japanese-inspired restaurant template with disciplined spacing, food photography and precise navigation.",
+    category:"Restaurant", style:"Japanese Minimal", audience:"Sushi bars, Japanese restaurants and omakase venues",
+    document:restaurantDocument({brand:"Sakana",tagline:"Precision, freshness, simplicity.",title:"Japanese dining with quiet confidence.",eyebrow:"SUSHI · SASHIMI · OMAKASE",description:"A refined digital experience for sushi, sashimi, ramen and chef-led dining.",accent:"#dc2626",background:"#f7f7f5",surface:"#ececea",text:"#151515",muted:"#6b6b67",style:"Japanese Sushi",dishes:["Omakase","Sushi Selection","Miso Ramen"],prices:["R850","R320","R125"],primary:"Reserve Omakase",secondary:"View Menu"})
+  },
+  {
+    id:"restaurant-cafe-brunch", name:"Café & Brunch",
+    description:"Bright lifestyle café template for breakfast, brunch, coffee and social dining.",
+    category:"Restaurant", style:"Lifestyle Café", audience:"Cafés, brunch spots and coffee-led restaurants",
+    document:restaurantDocument({brand:"Sunday Social",tagline:"Slow mornings. Good food.",title:"Your new favourite weekend table.",eyebrow:"CAFÉ · BRUNCH · COFFEE",description:"A bright, social website built around brunch favourites, specialty coffee and an easy visit journey.",accent:"#e07a5f",background:"#fffaf7",surface:"#f6e9e3",text:"#211816",muted:"#786b66",style:"Café & Brunch",dishes:["Breakfast Board","Avocado Toast","Flat White"],prices:["R145","R95","R38"],primary:"Book a Table",secondary:"Brunch Menu"})
+  },
+  {
+    id:"restaurant-south-african", name:"South African Dining",
+    description:"Modern proudly-local restaurant template for South African cuisine, hospitality and community storytelling.",
+    category:"Restaurant", style:"Modern African", audience:"South African restaurants and local dining brands",
+    document:restaurantDocument({brand:"Mzansi Table",tagline:"South African food, beautifully served.",title:"A taste of home, made memorable.",eyebrow:"PROUDLY SOUTH AFRICAN",description:"Celebrate local ingredients, familiar flavours and contemporary South African hospitality.",accent:"#d97706",background:"#fffaf0",surface:"#f2e5ce",text:"#241b12",muted:"#756757",style:"Modern African Dining",dishes:["Braai Platter","Bunny Chow","Malva Pudding"],prices:["R295","R125","R75"],primary:"Book a Table",secondary:"Explore Menu"})
+  },
+  {
+    id:"restaurant-pizzeria", name:"Modern Pizzeria",
+    description:"Energetic pizza restaurant template with bold product cards, takeaway pathways and delivery-ready CTAs.",
+    category:"Restaurant", style:"Bold Pizzeria", audience:"Pizzerias, takeaway restaurants and delivery kitchens",
+    document:restaurantDocument({brand:"Slice Club",tagline:"Hot pizza. Zero fuss.",title:"Your next pizza night starts here.",eyebrow:"PIZZA · TAKEAWAY · DELIVERY",description:"Put your signature pizzas first and make ordering, takeaway and delivery impossible to miss.",accent:"#f97316",background:"#fffaf5",surface:"#ffead8",text:"#24150c",muted:"#7b6254",style:"Modern Pizzeria",dishes:["Margherita","Spicy Salami","Garlic Knots"],prices:["R110","R145","R55"],primary:"Order Now",secondary:"View Menu"})
+  },
+  {
+    id:"restaurant-vegan", name:"Plant-Based Restaurant",
+    description:"Fresh organic restaurant template for vegan, vegetarian and health-conscious dining.",
+    category:"Restaurant", style:"Organic Modern", audience:"Vegan restaurants, vegetarian cafés and wellness food brands",
+    document:restaurantDocument({brand:"Green Table",tagline:"Plants first. Flavour always.",title:"Fresh food with nothing to hide.",eyebrow:"PLANT-BASED KITCHEN",description:"A clean, vibrant restaurant experience built around seasonal produce and thoughtful plant-based food.",accent:"#16a34a",background:"#f7fbf6",surface:"#e8f2e7",text:"#132018",muted:"#647267",style:"Plant-Based",dishes:["Seasonal Bowl","Green Burger","Coconut Tart"],prices:["R135","R125","R70"],primary:"Book a Table",secondary:"Explore Dishes"})
+  },
+  {
+    id:"restaurant-grill", name:"Contemporary Grill Room",
+    description:"Structured premium grill template for business lunches, dinners, private dining and special occasions.",
+    category:"Restaurant", style:"Contemporary Grill", audience:"Grill rooms, business restaurants and premium casual dining",
+    document:restaurantDocument({brand:"The Grill Room",tagline:"Good food. Serious flavour.",title:"Made for long lunches and late dinners.",eyebrow:"CONTEMPORARY GRILL",description:"A confident restaurant website built for reservations, business dining and signature grill dishes.",accent:"#b91c1c",background:"#151313",surface:"#242020",text:"#f7f3f0",muted:"#b4aaa4",style:"Contemporary Grill",dishes:["Dry-Aged Sirloin","Chicken Supreme","Crème Brûlée"],prices:["R365","R195","R85"],primary:"Book a Table",secondary:"View Menu"})
+  },
+  {
+    id:"restaurant-rooftop", name:"Rooftop & Cocktail Dining",
+    description:"Atmospheric rooftop restaurant template built around sunset views, cocktails, events and reservations.",
+    category:"Restaurant", style:"Rooftop Lifestyle", audience:"Rooftop restaurants, cocktail bars and destination dining",
+    document:restaurantDocument({brand:"The Terrace",tagline:"Dinner above the city.",title:"Eat, drink and stay for sunset.",eyebrow:"ROOFTOP · DINING · COCKTAILS",description:"Sell the atmosphere as much as the menu with an experience-led rooftop restaurant website.",accent:"#7c3aed",background:"#0f1020",surface:"#1c1d35",text:"#f8f7ff",muted:"#aaa9c0",style:"Rooftop Dining",dishes:["Terrace Burger","Seared Tuna","Signature Cocktail"],prices:["R185","R225","R110"],primary:"Reserve Your Table",secondary:"Explore the Experience"})
   }
   {
     id: "starter-professional",
