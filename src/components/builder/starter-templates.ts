@@ -34,6 +34,33 @@ const starterSite: BuilderDocument["site"] = {
 };
 
 
+
+const PORTFOLIO_VISUALS: Record<string, string[]> = {
+  "WR Solutions":["https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1400&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1559028012-481c04fa702d?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=1200&q=82&auto=format&fit=crop"],
+  "Mason.":["https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1400&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1497215842964-222b430dc094?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1516321165247-4aa89a48be28?w=1200&q=82&auto=format&fit=crop"],
+  "Ava UX":["https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=1400&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1559028012-481c04fa702d?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1545235617-9465d2a55698?w=1200&q=82&auto=format&fit=crop"],
+  "NOVA Studio":["https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1400&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1531058020387-3be344556be6?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1549490349-8643362247b5?w=1200&q=82&auto=format&fit=crop"],
+  "dev//Alex":["https://images.unsplash.com/photo-1518770660439-4636190af475?w=1400&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&q=82&auto=format&fit=crop"],
+  "Lena / Photo":["https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=1400&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1517841905240-472988babdf9?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1500534623283-312aade485b7?w=1200&q=82&auto=format&fit=crop"],
+  "FRAME/3D":["https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1400&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=1200&q=82&auto=format&fit=crop"],
+  "Jordan.":["https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=1400&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=82&auto=format&fit=crop"],
+  "Daniel Cole":["https://images.unsplash.com/photo-1556761175-b413da4baf72?w=1400&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=1200&q=82&auto=format&fit=crop"],
+  "MUSE / 01":["https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=1400&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1200&q=82&auto=format&fit=crop"]
+};
+
+const BAKERY_VISUALS: Record<string, string[]> = {
+  "The Daily Bake":["https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1400&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1200&q=82&auto=format&fit=crop"],
+  "Miette":["https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=1400&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1519869325930-281384150729?w=1200&q=82&auto=format&fit=crop"],
+  "Good Grain":["https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1400&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200&q=82&auto=format&fit=crop"],
+  "Maison Cacao":["https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1400&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1551024506-0bccd828d307?w=1200&q=82&auto=format&fit=crop"],
+  "Bake & Share":["https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1400&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1607958996333-41aef7caefaa?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200&q=82&auto=format&fit=crop"],
+  "Sweet Bloom":["https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1400&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1558301211-0d8c8c6f6d9b?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=1200&q=82&auto=format&fit=crop"],
+  "Mzansi Bakehouse":["https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1400&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1519869325930-281384150729?w=1200&q=82&auto=format&fit=crop"],
+  "Roast & Rise":["https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1400&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=1200&q=82&auto=format&fit=crop"],
+  "BakeBox":["https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=1400&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=1200&q=82&auto=format&fit=crop"],
+  "Daily Crumb Co.":["https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1400&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1556911220-bff31c812dba5?w=1200&q=82&auto=format&fit=crop","https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=1200&q=82&auto=format&fit=crop"]
+};
+
 const portfolioDocument = ({
   brand,
   tagline,
@@ -97,11 +124,15 @@ const portfolioDocument = ({
     elements: [
       { id:"header", type:"header", props:{ brand, nav1:"Home", nav2:"Work", nav3:"Services", nav4:"About", cta:"Let's Talk" } },
       { id:"hero", type:"hero", props:{ eyebrow, title, description, primary, secondary, primaryUrl:"#work", secondaryUrl:"#about", badge:style } },
+      { id:"hero-image", type:"image", props:{ src:(PORTFOLIO_VISUALS[brand]||PORTFOLIO_VISUALS["Mason."])[0], alt:brand+" portfolio feature photography", caption:"Featured work — replace this image with your own work." } },
       { id:"ticker", type:"section", props:{ label:"EXPERTISE", title:"Design · Strategy · Digital · Experience", text:"Selected capabilities brought together into one clear creative portfolio.", buttonLabel:"View Work", buttonUrl:"#work" } },
-      { id:"work", type:"features", props:{ eyebrow:"SELECTED WORK", title:"A portfolio built around meaningful outcomes.", item1:services[0], item1Description:"Thoughtful work from concept through polished delivery.", item2:services[1], item2Description:"Clear systems, strong visual direction and practical execution.", item3:services[2], item3Description:"Experiences designed to be useful, memorable and easy to use." } },
+      { id:"work", type:"features", props:{ anchor:"work", eyebrow:"SELECTED WORK", title:"A portfolio built around meaningful outcomes.", item1:services[0], item1Description:"Thoughtful work from concept through polished delivery.", item2:services[1], item2Description:"Clear systems, strong visual direction and practical execution.", item3:services[2], item3Description:"Experiences designed to be useful, memorable and easy to use." } },
+      { id:"gallery", type:"image", props:{ src:(PORTFOLIO_VISUALS[brand]||PORTFOLIO_VISUALS["Mason."])[1], alt:brand+" selected project photography", caption:"Selected project / case study." } },
       { id:"about", type:"section", props:{ label:"ABOUT ME", title:aboutTitle, text:aboutText, buttonLabel:"View My CV", buttonUrl:"#contact" } },
       { id:"stats", type:"features", props:{ title:"Experience at a glance.", item1:stats[0], item1Description:"Selected projects completed.", item2:stats[1], item2Description:"Clients, teams or brands supported.", item3:stats[2], item3Description:"Years spent creating digital work." } },
-      { id:"tools", type:"features", props:{ eyebrow:"MY TOOLKIT", title:"Tools behind the work.", item1:tools[0], item1Description:"Creative workflow and production.", item2:tools[1], item2Description:"Design, prototyping or development.", item3:tools[2], item3Description:"Planning, collaboration and delivery." } },
+      { id:"tools", type:"features", props:{ anchor:"services", eyebrow:"MY TOOLKIT", title:"Tools behind the work.", item1:tools[0], item1Description:"Creative workflow and production.", item2:tools[1], item2Description:"Design, prototyping or development.", item3:tools[2], item3Description:"Planning, collaboration and delivery." } },
+      { id:"proof", type:"testimonials", props:{ title:"A portfolio built to earn trust.", quote:"Clear thinking, polished execution and a process clients can understand.", author:"Client / collaborator" } },
+      { id:"faq", type:"faq", props:{ title:"Working together", question1:"What can I help with?", question2:"How does a project start?", question3:"Can I work remotely?" } },
       { id:"contact", type:"lead-form", props:{ eyebrow:"START A PROJECT", title:contactTitle, namePlaceholder:"Your name", emailPlaceholder:"Email address", messagePlaceholder:"Tell me about your project", cta:"Send enquiry" } },
       { id:"footer", type:"footer", props:{ brand, copyright:"© 2026 · Portfolio · CV · Contact" } }
     ]
@@ -143,9 +174,14 @@ const bakeryDocument = ({
     elements:[
       {id:"header",type:"header",props:{brand,nav1:"Home",nav2:"Menu",nav3:"About",nav4:"Contact",cta}},
       {id:"hero",type:"hero",props:{eyebrow,title,description,primary:cta,secondary,primaryUrl:"#menu",secondaryUrl:"#about",badge:style}},
-      {id:"menu",type:"products",props:{title:menuTitle,item1:services[0],price1:"From R25",item2:services[1],price2:"From R35",item3:services[2],price3:"From R85",cta:"Order / Enquire"}},
+      {id:"hero-image",type:"image",props:{src:(BAKERY_VISUALS[brand]||BAKERY_VISUALS["The Daily Bake"])[0],alt:brand+" bakery photography",caption:"Real product photography — replace with your own products."}},
+      {id:"menu",type:"products",props:{anchor:"menu",title:menuTitle,item1:services[0],price1:"From R25",item2:services[1],price2:"From R35",item3:services[2],price3:"From R85",cta:"Order / Enquire"}},
+      {id:"product-image",type:"image",props:{src:(BAKERY_VISUALS[brand]||BAKERY_VISUALS["The Daily Bake"])[1],alt:services.join(", ")+" bakery products",caption:"Featured products."}},
       {id:"story",type:"section",props:{label:"OUR STORY",title:aboutTitle,text:"Share the story behind your bakery, your ingredients, your community and the reason customers come back.",buttonLabel:"Our Story",buttonUrl:"#about"}},
-      {id:"specialties",type:"features",props:{eyebrow:"WHAT WE BAKE",title:"Something for every craving.",item1:services[0],item1Description:"Freshly prepared favourites made throughout the day.",item2:services[1],item2Description:"Sweet and savoury treats for every occasion.",item3:services[2],item3Description:"Celebration cakes and custom orders made to order."}},
+      {id:"specialties",type:"features",props:{anchor:"services",eyebrow:"WHAT WE BAKE",title:"Something for every craving.",item1:services[0],item1Description:"Freshly prepared favourites made throughout the day.",item2:services[1],item2Description:"Sweet and savoury treats for every occasion.",item3:services[2],item3Description:"Celebration cakes and custom orders made to order."}},
+      {id:"gallery",type:"image",props:{src:(BAKERY_VISUALS[brand]||BAKERY_VISUALS["The Daily Bake"])[2],alt:brand+" bakery interior and products",caption:"The atmosphere behind the brand."}},
+      {id:"proof",type:"testimonials",props:{title:"Loved by local customers.",quote:"Fresh, reliable and made with care — exactly what a neighbourhood bakery should feel like.",author:"Happy customer"}},
+      {id:"faq",type:"faq",props:{title:"Ordering questions",question1:"How do I place an order?",question2:"Do you offer custom orders?",question3:"Do you deliver?"}},
       {id:"contact",type:"lead-form",props:{eyebrow:"ORDER & ENQUIRE",title:"Ready to order?",namePlaceholder:"Your name",emailPlaceholder:"Phone or email",messagePlaceholder:"What would you like to order?",cta:"Send enquiry"}},
       {id:"footer",type:"footer",props:{brand,copyright:"© 2026 · Freshly baked · Orders · Contact"}}
     ]
