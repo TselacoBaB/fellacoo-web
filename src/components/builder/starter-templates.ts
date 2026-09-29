@@ -821,7 +821,7 @@ export const starterTemplates: StarterTemplate[] = [
     description:"Atmospheric rooftop restaurant template built around sunset views, cocktails, events and reservations.",
     category:"Restaurant", style:"Rooftop Lifestyle", audience:"Rooftop restaurants, cocktail bars and destination dining",
     document:restaurantDocument({brand:"The Terrace",tagline:"Dinner above the city.",title:"Eat, drink and stay for sunset.",eyebrow:"ROOFTOP · DINING · COCKTAILS",description:"Sell the atmosphere as much as the menu with an experience-led rooftop restaurant website.",accent:"#7c3aed",background:"#0f1020",surface:"#1c1d35",text:"#f8f7ff",muted:"#aaa9c0",style:"Rooftop Dining",dishes:["Terrace Burger","Seared Tuna","Signature Cocktail"],prices:["R185","R225","R110"],primary:"Reserve Your Table",secondary:"Explore the Experience"})
-  }
+  },
   {
     id: "starter-professional",
     name: "Professional Services",
