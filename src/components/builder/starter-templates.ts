@@ -34,6 +34,163 @@ const starterSite: BuilderDocument["site"] = {
 };
 
 export const starterTemplates: StarterTemplate[] = [
+
+  {
+    id: "starter-neon-designer",
+    name: "Neon Product Designer",
+    description: "A high-contrast personal portfolio inspired by the supplied Oliver Scott design: oversized typography, electric green accents, service cards, profile story and tools showcase.",
+    category: "Portfolio & Creative",
+    style: "Neon Minimal",
+    audience: "Product designers, UI/UX designers, developers and creative professionals",
+    featured: true,
+    document: {
+      version: 1,
+      site: {
+        brandName: "Oliver",
+        tagline: "Product Designer based in USA.",
+        theme: {
+          colors: {
+            primary: "#35ff3f",
+            secondary: "#0b0d0f",
+            accent: "#35ff3f",
+            text: "#090b0d",
+            muted: "#707574",
+            background: "#ffffff",
+            surface: "#f4f5f4"
+          },
+          typography: {
+            headingFont: "Inter, ui-sans-serif, system-ui, sans-serif",
+            bodyFont: "Inter, ui-sans-serif, system-ui, sans-serif",
+            headingWeight: "900",
+            bodyWeight: "400"
+          },
+          radius: "18px",
+          containerWidth: "1180px",
+          buttonStyle: "pill"
+        },
+        seo: {
+          title: "Oliver — Product Designer",
+          description: "Product design, UI/UX and web design portfolio."
+        }
+      },
+      pages: [{
+        id: "home",
+        path: "/",
+        title: "Oliver — Product Designer",
+        elements: [
+          {
+            id: "header",
+            type: "header",
+            props: {
+              brand: "Oliver.",
+              nav1: "Home",
+              nav2: "Works",
+              nav3: "Projects",
+              nav4: "About Me",
+              cta: "Let's Talk"
+            }
+          },
+          {
+            id: "hero",
+            type: "hero",
+            props: {
+              eyebrow: "Hello There!",
+              title: "I'm Oliver Scott, Product Designer based in USA.",
+              description: "I create purposeful digital products and memorable web experiences, combining clear strategy with bold visual design.",
+              primary: "View My Work",
+              secondary: "Download CV",
+              primaryUrl: "#work",
+              secondaryUrl: "#about",
+              badge: "PRODUCT DESIGNER"
+            }
+          },
+          {
+            id: "specialties",
+            type: "features",
+            props: {
+              title: "Services | Provide",
+              eyebrow: "My Specialization",
+              item1: "UI/UX Design",
+              item1Description: "Clear interfaces, thoughtful user journeys and polished product experiences.",
+              item2: "Application Design",
+              item2Description: "Scalable product experiences designed around real users and business goals.",
+              item3: "Website Design",
+              item3Description: "High-impact websites that turn a brand into a memorable digital experience."
+            }
+          },
+          {
+            id: "ticker",
+            type: "section",
+            props: {
+              label: "WHAT I DO",
+              title: "Web Design · App Design · Dashboard · Wireframe",
+              text: "Digital experiences with strategy, clarity and personality.",
+              buttonLabel: "View Services",
+              buttonUrl: "#services"
+            }
+          },
+          {
+            id: "about",
+            type: "section",
+            props: {
+              label: "About Me",
+              title: "Who is Oliver Scott?",
+              text: "I'm a product designer focused on creating digital experiences that are simple to understand, enjoyable to use and built to move businesses forward.",
+              buttonLabel: "Download CV",
+              buttonUrl: "#contact"
+            }
+          },
+          {
+            id: "stats",
+            type: "features",
+            props: {
+              title: "A few numbers behind the work.",
+              item1: "600+",
+              item1Description: "Projects & ideas shaped through design.",
+              item2: "50+",
+              item2Description: "Happy clients and collaborators.",
+              item3: "18+",
+              item3Description: "Years of combined creative experience."
+            }
+          },
+          {
+            id: "tools",
+            type: "features",
+            props: {
+              title: "Exploring the Tools Behind My Designs",
+              eyebrow: "My Favorite Tools",
+              item1: "Figma",
+              item1Description: "Interface design, prototypes and collaborative product work.",
+              item2: "Framer",
+              item2Description: "Interactive web experiences and rapid visual experimentation.",
+              item3: "Notion",
+              item3Description: "Research, planning and keeping creative systems organized."
+            }
+          },
+          {
+            id: "contact",
+            type: "lead-form",
+            props: {
+              eyebrow: "LET'S CREATE",
+              title: "Have a project in mind?",
+              namePlaceholder: "Your name",
+              emailPlaceholder: "Email address",
+              messagePlaceholder: "Tell me about your project",
+              cta: "Let's Talk"
+            }
+          },
+          {
+            id: "footer",
+            type: "footer",
+            props: {
+              brand: "Oliver.",
+              copyright: "© 2026 · Product Design · UI/UX · Web Design · Contact"
+            }
+          }
+        ]
+      }]
+    }
+  },
   {
     id: "starter-bakery",
     name: "Fresh Bakery",
