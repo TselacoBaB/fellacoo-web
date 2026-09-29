@@ -85,7 +85,7 @@ export async function getCartSummary(ownerId:string,cartId:string){
   const admin=createAdminClient();
   const {data:cart,error:cartError}=await admin.from("ecommerce_carts").select("id,site_id,currency,status").eq("id",cartId).eq("owner_id",ownerId).maybeSingle();
   if(cartError) throw cartError;
-  if(!cart||cart.status!=="OPEN") throw new Error("Cart not found.");
+  if(!cart || cart.status!=="OPEN") throw new Error("Cart not found.");
   const {data:items,error}=await admin.from("ecommerce_cart_items").select("id,quantity,variant_id,unit_price,product:ecommerce_products(*)").eq("cart_id",cartId);
   if(error) throw error;
   const mapped=(items??[]).map(row=>{
@@ -107,6 +107,7 @@ export async function createOrderFromCart(ownerId:string,input:{cartId:string;id
   const summary=await getCartSummary(ownerId,input.cartId);
   if(!summary.items.length) throw new Error("Cart is empty.");
   const {data:cart}=await admin.from("ecommerce_carts").select("site_id").eq("id",input.cartId).eq("owner_id",ownerId).single();
+  if(!cart) throw new Error("Cart not found.");
   const orderId=crypto.randomUUID(),orderNumber="FC-"+new Date().getFullYear()+"-"+randomBytes(4).toString("hex").toUpperCase();
   const {error}=await admin.from("ecommerce_orders").insert({
     id:orderId,owner_id:ownerId,site_id:cart.site_id,cart_id:input.cartId,order_number:orderNumber,currency:summary.currency,
