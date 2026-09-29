@@ -232,7 +232,13 @@ export default function DashboardPage() {
                 title="Design Tools"
                 description="Build and manage the website itself."
                 tools={designTools}
-                onSelect={setActiveTool}
+                onSelect={(title) => {
+                if (title === "Templates") {
+                  window.location.href = "/design/templates";
+                  return;
+                }
+                setActiveTool(title);
+              }}
               />
 
               <ToolGroup
@@ -291,7 +297,7 @@ export default function DashboardPage() {
             <DashboardCard className="quick-card">
               <CardHeader title="Quick Actions" icon={<Zap size={18} />} />
               <button className="quick-action" onClick={() => setActiveTool("Website Components")}><span><PanelTop size={16} /></span>Browse Components<ChevronRight size={16} /></button>
-              <button className="quick-action" onClick={() => setActiveTool("Admin Templates")}><span><Box size={16} /></span>Choose a Template<ChevronRight size={16} /></button>
+              <button className="quick-action" onClick={() => { window.location.href = "/design/templates"; }}><span><Box size={16} /></span>Choose a Template<ChevronRight size={16} /></button>
               <button className="quick-action" onClick={() => setActiveTool("Online Store")}><span><Store size={16} /></span>Add Store<ChevronRight size={16} /></button>
               <button className="quick-action" onClick={() => setActiveTool("CRM")}><span><BriefcaseBusiness size={16} /></span>Open CRM<ChevronRight size={16} /></button>
             </DashboardCard>
