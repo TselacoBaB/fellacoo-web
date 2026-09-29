@@ -885,26 +885,6 @@ export const starterTemplates: StarterTemplate[] = [
     }
   },
   {
-    id: "starter-restaurant",
-    name: "Restaurant & Takeaway",
-    description: "Menu-first restaurant layout with booking and enquiry pathways.",
-    category: "Food & Hospitality",
-    style: "Editorial Dining",
-    audience: "Restaurants, takeaways and hospitality",
-    featured: false,
-    document: {
-      version: 1,
-      site: starterSite,
-      pages: [{ id: "home", path: "/", title: "Restaurant", elements: [
-        { id: "header", type: "header", props: { brand: "Your Restaurant", nav1: "Menu", nav2: "About", nav3: "Bookings", nav4: "Contact", cta: "Book a Table" } },
-        { id: "hero", type: "hero", props: { eyebrow: "GOOD FOOD, GOOD MOMENTS", title: "A table worth talking about.", description: "Present your menu, atmosphere and booking options in one focused experience.", primary: "Book a Table", secondary: "View Menu", primaryUrl: "#booking", secondaryUrl: "#menu" } },
-        { id: "menu", type: "products", props: { title: "Menu favourites.", item1: "Signature Dish", price1: "R145.00", item2: "Family Meal", price2: "R260.00", item3: "Dessert", price3: "R65.00", cta: "Order / Enquire" } },
-        { id: "booking", type: "booking", props: { title: "Reserve your table.", helper: "Select date · Select time · Confirm booking" } },
-        { id: "footer", type: "footer", props: { brand: "Your Restaurant", copyright: "© 2026 · Privacy · Terms · Contact" } }
-      ] }]
-    }
-  },
-  {
     id: "starter-landing",
     name: "High-Converting Landing Page",
     description: "Focused lead-generation page for campaigns, launches and paid traffic.",
