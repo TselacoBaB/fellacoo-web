@@ -599,7 +599,7 @@ export const starterTemplates: StarterTemplate[] = [
       muted:"#737373",
       style:"Fashion Artist"
     })
-  }
+  },
   {
     id:"bakery-warm-classic", name:"Warm Classic Bakery",
     description:"A welcoming neighbourhood bakery template with warm tones, product-led ordering and a strong family feel.",
