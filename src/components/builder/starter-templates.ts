@@ -661,27 +661,6 @@ export const starterTemplates: StarterTemplate[] = [
     document:bakeryDocument({brand:"Daily Crumb Co.",tagline:"Baked for teams, events and everyday.",title:"Reliable baking for your business.",eyebrow:"CORPORATE BAKING & CATERING",description:"Present catering packages, wholesale services and easy enquiry pathways for business customers.",accent:"#0f766e",background:"#f5fbfa",surface:"#e5f3f0",text:"#102522",muted:"#61736f",services:["Office Catering","Wholesale Bread","Event Platters"],style:"Corporate Catering",cta:"Request a Quote",secondary:"View Packages"})
   }
   {
-    id: "starter-bakery",
-    name: "Fresh Bakery",
-    description: "Warm conversion-focused bakery website with products, story and enquiry CTA.",
-    category: "Food & Bakery",
-    style: "Warm Editorial",
-    audience: "Bakeries, cafes and food businesses",
-    featured: true,
-    document: {
-      version: 1,
-      site: starterSite,
-      pages: [{ id: "home", path: "/", title: "Fresh Bakery", elements: [
-        { id: "header", type: "header", props: { brand: "Your Bakery", nav1: "Home", nav2: "Menu", nav3: "About", nav4: "Contact", cta: "Order Now" } },
-        { id: "hero", type: "hero", props: { eyebrow: "FRESH EVERY DAY", title: "Made fresh. Made with care.", description: "Show customers your signature breads, baked goods and meals with a beautiful mobile-first storefront.", primary: "View Menu", secondary: "Contact Us", primaryUrl: "#menu", secondaryUrl: "#contact" } },
-        { id: "menu", type: "features", props: { title: "Customer favourites.", item1: "Fresh Bread", item1Description: "Daily baked loaves and rolls.", item2: "Sweet Treats", item2Description: "Cakes, pastries and desserts.", item3: "Wholesome Meals", item3Description: "Affordable meals made for the community." } },
-        section("story", "A bakery people remember.", "Tell your story, highlight quality and make it easy for customers to order or enquire."),
-        { id: "contact", type: "lead-form", props: { eyebrow: "ORDER & ENQUIRE", title: "Ready for something delicious?", namePlaceholder: "Your name", emailPlaceholder: "Phone or email", messagePlaceholder: "What would you like to order?", cta: "Send enquiry" } },
-        { id: "footer", type: "footer", props: { brand: "Your Bakery", copyright: "© 2026 · Privacy · Terms · Contact" } }
-      ] }]
-    }
-  },
-  {
     id: "starter-professional",
     name: "Professional Services",
     description: "Clean authority-led site for consultants, agencies and professional service firms.",
