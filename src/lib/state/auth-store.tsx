@@ -104,18 +104,22 @@ export function AuthStateProvider({ children }: { children: React.ReactNode }) {
   }, [loadAccount, refresh, router, supabase]);
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut({ scope: "local" });
-    await fetch("/api/auth/logout", {
+    const response = await fetch("/api/auth/logout", {
       method: "POST",
       cache: "no-store",
       credentials: "include",
-    }).catch(() => undefined);
+    });
+
+    if (!response.ok) {
+      throw new Error("Unable to sign out securely.");
+    }
+
+    await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
 
     setUser(null);
     setFelacooUser(null);
-    router.replace("/login?loggedOut=1");
-    router.refresh();
-  }, [router, supabase]);
+    window.location.replace("/");
+  }, [supabase]);
 
   const value = useMemo(
     () => ({
