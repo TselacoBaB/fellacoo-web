@@ -56,6 +56,15 @@ export default function TemplatesPage() {
           <div><div className="dashboard-eyebrow"><Sparkles size={13}/> FELLACOO TEMPLATE LIBRARY</div><h1>Start with a website<br/><span>that already looks right.</span></h1><p>Choose a conversion-ready foundation, make it yours in the builder, connect your business tools and publish when you're ready.</p></div>
           <div className="template-hero-art"><Wand2 size={42}/><strong>AI-ready foundations</strong><small>Reusable components · responsive layouts · business flows</small></div>
         </section>
+        <div className="template-create-row">
+          <div>
+            <small>START A NEW WEBSITE</small>
+            <strong>Choose a ready-made foundation or build from scratch.</strong>
+          </div>
+          <Link href="/builder/new/site?mode=blank" className="template-scratch-button">
+            Start from scratch <ArrowRight size={15}/>
+          </Link>
+        </div>
         <div className="template-toolbar">
           <div className="template-search"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search templates, industries or styles..."/></div>
           <div className="template-categories"><button className={!category?"active":""} onClick={()=>setCategory("")}>All</button>{categories.map(c=><button key={c} className={category===c.toLowerCase()?"active":""} onClick={()=>setCategory(c.toLowerCase())}>{c}</button>)}</div>
