@@ -126,7 +126,7 @@ export const navigationGroups: NavigationGroup[] = [
 
 export const primaryNavigation = [
   { label: "Dashboard", icon: Home, href: "/dashboard" },
-  { label: "Create Website", icon: Sparkles, href: "/builder/new/site" }
+  { label: "Create Website", icon: Sparkles, href: "/design/templates" }
 ] satisfies NavigationItem[];
 
 export const navigationSearchItems = [
