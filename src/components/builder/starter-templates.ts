@@ -254,6 +254,82 @@ const bakeryDocument = ({
   }]
 });
 
+
+const ECOMMERCE_VISUAL_POOL = [
+  "https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?w=1600&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1200&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1449247709967-d4461a6a6103?w=1600&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1200&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=1200&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1523779917675-b6ed3a42a561?w=1600&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=1200&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=1200&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1600&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=1200&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?w=1200&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=1600&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1200&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=1200&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=1600&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=1200&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=1200&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1523398002811-999ca8dec234?w=1600&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=1200&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=1200&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1600&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=1200&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1560419015-7c427e8ae5ba?w=1200&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=1600&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=1200&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=1200&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=1600&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1200&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1200&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=1600&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=1200&q=82&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=1200&q=82&auto=format&fit=crop"
+];
+
+const ecommerceDocument = ({
+  brand, tagline, title, eyebrow, description, accent, background="#ffffff", surface="#f5f5f3",
+  text="#151515", muted="#6b6b67", style="Modern Commerce", productType="physical",
+  products=["Product One","Product Two","Product Three"], prices=["R299","R499","R799"],
+  primary="Shop Collection", secondary="Explore Products", badge="NEW", shipping="Free delivery over R750",
+  visualStart=0
+}: {
+  brand:string; tagline:string; title:string; eyebrow:string; description:string; accent:string;
+  background?:string; surface?:string; text?:string; muted?:string; style?:string; productType?:string;
+  products?:[string,string,string]; prices?:[string,string,string]; primary?:string; secondary?:string;
+  badge?:string; shipping?:string; visualStart?:number;
+}): BuilderDocument => {
+  const photos=[0,1,2].map(offset=>ECOMMERCE_VISUAL_POOL[(visualStart+offset)%ECOMMERCE_VISUAL_POOL.length]);
+  return {
+    version:1,
+    site:{
+      brandName:brand,tagline,
+      theme:{colors:{primary:accent,secondary:text,accent,text,muted,background,surface},
+        typography:{headingFont:"Inter, ui-sans-serif, system-ui, sans-serif",bodyFont:"Inter, ui-sans-serif, system-ui, sans-serif",headingWeight:"900",bodyWeight:"400"},
+        radius:"18px",containerWidth:"1200px",buttonStyle:"pill"},
+      seo:{title:brand+" — "+tagline,description}
+    },
+    pages:[{id:"home",path:"/",title:brand+" — Store",elements:[
+      {id:"header",type:"header",props:{brand,nav1:"Shop",nav2:"Collections",nav3:"About",nav4:"Support",cta:"Cart"}},
+      {id:"hero",type:"hero",props:{eyebrow,title,description,primary,secondary,primaryUrl:"#products",secondaryUrl:"#story",badge}},
+      {id:"hero-image",type:"image",props:{src:photos[0],alt:brand+" ecommerce product photography",caption:"Replace demo photography with your own product imagery."}},
+      {id:"trust",type:"features",props:{eyebrow:"SHOP WITH CONFIDENCE",title:"Everything customers need before checkout.",item1:"Secure checkout",item1Description:"Clear pricing, payment and order confirmation.",item2:"Flexible fulfilment",item2Description:shipping,item3:"Customer support",item3Description:"Easy contact, returns and order questions."}},
+      {id:"products",type:"products",props:{anchor:"products",title:"Featured products.",item1:products[0],price1:prices[0],item2:products[1],price2:prices[1],item3:products[2],price3:prices[2],image1:photos[1],image2:photos[2],image3:photos[0],badge1:badge,badge2:"BEST SELLER",badge3:"FEATURED",type1:productType,type2:productType,type3:productType,shipping1:shipping,shipping2:shipping,shipping3:shipping,cta:"Add to cart"}},
+      {id:"story",type:"section",props:{anchor:"story",label:"THE BRAND",title:"A store built around trust, not clutter.",text:"Use this space for materials, sourcing, guarantees, product education and the story behind the brand.",buttonLabel:"Our Story",buttonUrl:"#contact"}},
+      {id:"lifestyle-image",type:"image",props:{src:photos[2],alt:brand+" lifestyle product photography",caption:"Lifestyle imagery helps customers understand the product in context."}},
+      {id:"fulfilment",type:"features",props:{eyebrow:"FULFILMENT",title:"Clear fulfilment for every order.",item1:"Physical goods",item1Description:"Calculate shipping and route packing and dispatch information.",item2:"Digital goods",item2Description:"Skip shipping and issue a secure download after payment.",item3:"Dropship items",item3Description:"Forward supplier fulfilment data and synchronize availability."}},
+      {id:"proof",type:"testimonials",props:{title:"Loved after the first order.",quote:"The product looked exactly like the site, checkout was clear and delivery updates were easy to follow.",author:"Verified customer"}},
+      {id:"faq",type:"faq",props:{title:"Shopping questions",question1:"How does shipping work?",question2:"What is your returns policy?",question3:"When will my order be delivered?"}},
+      {id:"contact",type:"lead-form",props:{eyebrow:"CUSTOMER SUPPORT",title:"Need help before you buy?",namePlaceholder:"Your name",emailPlaceholder:"Email or order number",messagePlaceholder:"How can we help?",cta:"Contact Support"}},
+      {id:"footer",type:"footer",props:{brand,copyright:"© 2026 · Shop · Shipping · Returns · Privacy · Terms · Contact"}}
+    ]}]
+  };
+};
+
 export const starterTemplates: StarterTemplate[] = [
 
   {
