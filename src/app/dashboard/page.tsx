@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import {
   Activity, BarChart3, Bell, BookOpen, Box, BriefcaseBusiness, Calculator,
   CalendarDays, ChevronDown, ChevronRight, CircleHelp, CreditCard, FileImage,
   FileText, Globe2, LayoutTemplate, MoreVertical, Package, PanelTop,
-  Plus, Receipt, Search, ShoppingCart, Sparkles, Store, Users, Zap
+  Plus, Receipt, Search, ShoppingCart, Sparkles, Store, Trash2, Users, Zap
 } from "lucide-react";
 import { useAppState, type WebsiteFilter } from "@/lib/state/app-store";
 import { AppSidebar } from "@/components/navigation/app-sidebar";
@@ -73,14 +73,13 @@ export default function DashboardPage() {
     setActiveTool
   } = useAppState();
 
-  const [dashboardWebsites, setDashboardWebsites] = useState<DashboardWebsite[]>(
-    websites.map((site, index) => ({ ...site, id: "fallback-" + index }))
-  );
-  const [metrics, setMetrics] = useState({ websites: websites.length, visitors: 0, leads: 0, revenue: 0 });
+  const [dashboardWebsites, setDashboardWebsites] = useState<DashboardWebsite[]>([]);
+  const [metrics, setMetrics] = useState({ websites: 0, visitors: 0, leads: 0, revenue: 0 });
   const [recentActivity, setRecentActivity] = useState<DashboardActivity[]>([]);
   const [search, setSearch] = useState("");
   const [loadingDashboard, setLoadingDashboard] = useState(true);
   const [projectAction, setProjectAction] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const [dashboardMessage, setDashboardMessage] = useState("");
 
   useEffect(() => {
@@ -103,7 +102,10 @@ export default function DashboardPage() {
         setMetrics(payload.metrics ?? { websites: 0, visitors: 0, leads: 0, revenue: 0 });
         setRecentActivity(payload.recentActivity ?? []);
       } catch {
-        // Keep the local dashboard fallback when the account is not linked or the API is unavailable.
+        if (active) {
+          setDashboardWebsites([]);
+          setMetrics({ websites: 0, visitors: 0, leads: 0, revenue: 0 });
+        }
       } finally {
         if (active) setLoadingDashboard(false);
       }
@@ -267,21 +269,47 @@ export default function DashboardPage() {
               </div>
 
               {dashboardMessage && <div className="dashboard-inline-message">{dashboardMessage}</div>}
-              <div className="website-grid">
-                {visibleWebsites.map((site) => (
-                  <WebsiteCard
-                    key={site.id}
-                    {...site}
-                    projectAction={projectAction}
-                    setProjectAction={setProjectAction}
-                    onProjectChanged={() => {
-                      setDashboardMessage("Website library updated.");
-                      window.setTimeout(() => setDashboardMessage(""), 1800);
-                      window.location.reload();
-                    }}
-                  />
-                ))}
-              </div>
+              {loadingDashboard ? (
+                <div className="website-grid website-grid-loading" aria-label="Loading websites">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <div className="website-card website-card-skeleton" key={"website-skeleton-" + index}>
+                      <div className="skeleton-preview" />
+                      <div className="skeleton-copy">
+                        <span />
+                        <span />
+                        <span />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : visibleWebsites.length ? (
+                <div className="website-grid">
+                  {visibleWebsites.map((site) => (
+                    <WebsiteCard
+                      key={site.id}
+                      {...site}
+                      projectAction={projectAction}
+                      setProjectAction={setProjectAction}
+                      menuOpen={menuOpen}
+                      setMenuOpen={setMenuOpen}
+                      onProjectChanged={() => {
+                        setDashboardMessage("Website library updated.");
+                        window.setTimeout(() => setDashboardMessage(""), 1800);
+                        window.location.reload();
+                      }}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="website-empty-state">
+                  <div className="website-empty-icon"><LayoutTemplate size={22} /></div>
+                  <strong>{websiteFilter === "all" ? "No websites yet" : "No websites in this view"}</strong>
+                  <p>{websiteFilter === "all" ? "Create your first website from a template or start from scratch." : "Try another filter to see your websites."}</p>
+                  {websiteFilter === "all" && (
+                    <Link href="/design/templates" className="website-empty-action"><Plus size={15} /> Create Website</Link>
+                  )}
+                </div>
+              )}
             </DashboardCard>
           </div>
 
@@ -328,6 +356,25 @@ function formatRelativeTime(value: string) {
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return hours + "h ago";
   return Math.floor(hours / 24) + "d ago";
+}
+
+function previewHeadline(name: string, kind: string) {
+  const value = name.toLowerCase();
+  if (value.includes("bakery") || kind === "bakery") return "Fresh Bakes\\nHappier Days";
+  if (value.includes("fitness") || kind === "fitness") return "STRONGER\\nEVERY DAY";
+  if (value.includes("consult") || kind === "consulting") return "Grow Your\\nBusiness Faster";
+  if (value.includes("restaurant") || value.includes("savor") || kind === "restaurant") return "Exceptional\\nDining Experience";
+  return "Build Your\\nBusiness Online";
+}
+
+function previewLabel(name: string, kind: string) {
+  const value = name.trim();
+  if (value && value.toLowerCase() !== "untitled website") return value.toUpperCase().slice(0, 22);
+  if (kind === "bakery") return "BAKERY";
+  if (kind === "fitness") return "FITNESS";
+  if (kind === "consulting") return "CONSULTING";
+  if (kind === "restaurant") return "RESTAURANT";
+  return "FELLACOO WEBSITE";
 }
 
 function ToolGroup({
@@ -412,8 +459,32 @@ function WebsiteCard({
   projectAction: string | null;
   setProjectAction: (value: string | null) => void;
   onProjectChanged: () => void;
+  menuOpen: string | null;
+  setMenuOpen: (value: string | null) => void;
 }) {
-  async function manageProject(action: "duplicate" | "archive" | "restore") {
+  const longPressTimer = useRef<number | null>(null);
+
+  function startLongPress(event: React.PointerEvent<HTMLElement>) {
+    if (event.pointerType !== "touch") return;
+    longPressTimer.current = window.setTimeout(() => {
+      setMenuOpen(id);
+      longPressTimer.current = null;
+    }, 520);
+  }
+
+  function cancelLongPress() {
+    if (longPressTimer.current !== null) {
+      window.clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }
+
+  async function manageProject(action: "duplicate" | "archive" | "restore" | "delete") {
+    if (action === "delete") {
+      const confirmed = window.confirm("Delete this website permanently? This removes the website project and its dashboard records.");
+      if (!confirmed) return;
+    }
+
     setProjectAction(id + ":" + action);
     try {
       const response = await fetch("/api/websites/projects", {
@@ -427,6 +498,9 @@ function WebsiteCard({
         window.location.href = payload.url;
         return;
       }
+      if (action === "delete") {
+        setMenuOpen(null);
+      }
       onProjectChanged();
     } catch (error) {
       window.alert(error instanceof Error ? error.message : "Unable to update website.");
@@ -434,41 +508,27 @@ function WebsiteCard({
       setProjectAction(null);
     }
   }
-  const fallback = id.startsWith("fallback-");
   const isPublished = status.toLowerCase() === "published";
   const liveUrl = domain.startsWith("http") ? domain : null;
 
   return (
-    <article className="website-card">
-      {fallback ? (
-        <div className="website-card-link">
-          <div className={"site-preview " + kind}>
-            <div className="preview-nav">
-                <span>{name.split(" ")[0]}</span>
-                <i></i><i></i><i></i>
-              </div>
-            <div className="preview-content">
-              <b>{kind === "bakery" ? "Fresh Bakes\nHappier Days" : kind === "fitness" ? "STRONGER\nEVERY DAY" : kind === "consulting" ? "Grow Your\nBusiness Faster" : "Exceptional\nDining Experience"}</b>
-              <small>{kind === "bakery" ? "BAKE 'N MO" : kind === "fitness" ? "ELITE FITNESS" : kind === "consulting" ? "KOMANE" : "SAVOR"}</small>
-            </div>
-          </div>
-          <div className="site-info">
-            <div><strong>{name}</strong><small>{domain}</small></div>
-            <span className="website-card-more"><MoreVertical size={16} /></span>
-          </div>
-          <div className={"site-status " + status.toLowerCase()}>
-              <span></span>
-              {status}
-            </div>
-        </div>
-      ) : (
-        <>
+    <article
+      className={"website-card" + (menuOpen === id ? " touch-menu-open" : "")}
+      onPointerDown={startLongPress}
+      onPointerUp={cancelLongPress}
+      onPointerCancel={cancelLongPress}
+      onPointerLeave={cancelLongPress}
+      onContextMenu={(event) => {
+        if (event.pointerType === "touch") event.preventDefault();
+      }}
+    >
+      <>
           <Link href={"/builder/" + id} className="website-card-link">
-            <div className={"site-preview " + kind}>
+            <div className={"site-preview " + (kind || "website")}>
               <div className="preview-nav"><span>{name.split(" ")[0]}</span><i></i><i></i><i></i></div>
               <div className="preview-content">
-                <b>{kind === "bakery" ? "Fresh Bakes\nHappier Days" : kind === "fitness" ? "STRONGER\nEVERY DAY" : kind === "consulting" ? "Grow Your\nBusiness Faster" : "Exceptional\nDining Experience"}</b>
-                <small>{kind === "bakery" ? "BAKE 'N MO" : kind === "fitness" ? "ELITE FITNESS" : kind === "consulting" ? "KOMANE" : "SAVOR"}</small>
+                <b>{previewHeadline(name, kind)}</b>
+                <small>{previewLabel(name, kind)}</small>
               </div>
             </div>
             <div className="site-info">
@@ -477,11 +537,29 @@ function WebsiteCard({
             </div>
             <div className={"site-status " + status.toLowerCase()}><span></span>{status}</div>
           </Link>
-          <div className="website-card-actions">
+          <div className="website-card-hover-actions">
+            <Link href={"/builder/" + id} className="website-card-view" onClick={() => setMenuOpen(null)}>
+              <LayoutTemplate size={14} /> View
+            </Link>
+            {isPublished && liveUrl && (
+              <a href={liveUrl} target="_blank" rel="noreferrer" className="website-card-live" onClick={() => setMenuOpen(null)}>
+                <Globe2 size={14} /> Live
+              </a>
+            )}
+            <button
+              type="button"
+              className="website-card-delete"
+              onClick={() => void manageProject("delete")}
+              disabled={projectAction === id + ":delete"}
+            >
+              <Trash2 size={14} /> {projectAction === id + ":delete" ? "Deleting…" : "Delete"}
+            </button>
+          </div>
+
+          <div className="website-card-secondary-actions">
             <Link href={"/builder/" + id}>Edit</Link>
-            {isPublished && liveUrl && <a href={liveUrl} target="_blank" rel="noreferrer">Live ↗</a>}
-            <Link href="/websites/domains">Domain</Link>
             <Link href={"/websites/versions?site=" + encodeURIComponent(id)}>Versions</Link>
+            <Link href="/websites/domains">Domain</Link>
             <button type="button" onClick={() => void manageProject("duplicate")} disabled={projectAction === id + ":duplicate"}>
               {projectAction === id + ":duplicate" ? "Copying…" : "Duplicate"}
             </button>
