@@ -1008,6 +1008,6 @@ export const starterTemplates: StarterTemplate[] = [
         { id: "contact", type: "lead-form", props: { eyebrow: "TAKE THE NEXT STEP", title: "Let's get started.", namePlaceholder: "Your name", emailPlaceholder: "Email address", messagePlaceholder: "What are you interested in?", cta: "Get Started" } }
       ] }]
     }
-  }
+  },
   ...ecommerceTemplates,
 ];
